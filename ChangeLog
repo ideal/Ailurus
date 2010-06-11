@@ -1,3 +1,7 @@
+2010-06-11 Ray Chen <chenrano2002@gmail.com>
+
+    * Do not raise Exception if proxy string is empty
+
 2010-06-10 Ray Chen <chenrano2002@gmail.com>
 
     * Always download latest Firefox extensions

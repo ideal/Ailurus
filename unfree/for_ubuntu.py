@@ -20,13 +20,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 from __future__ import with_statement
-import sys, os
-import ailurus
-path = os.path.dirname(ailurus.__file__)
-sys.path.insert(0, path)
+# don't change sys.path
 from lib import *
-assert UBUNTU or UBUNTU_DERIV
 from libapp import *
+assert UBUNTU or UBUNTU_DERIV
 from ubuntu.third_party_repos import _repo
 
 class Alice(_path_lists):
@@ -75,7 +72,7 @@ class AliPayFirefoxPlugin(I):
         self.path = os.path.expanduser('~/.mozilla/plugins')
     def install(self):
         file = '/tmp/aliedit.tar.gz'
-        run('wget --timeout=60 http://blog.alipay.com/wp-content/2008/10/aliedit.tar.gz -O /tmp/aliedit.tar.gz')
+        run('wget --timeout=60 %s -O /tmp/aliedit.tar.gz' % urls.alipay)
         path = self.path
         import os
         if not os.path.exists(path):
@@ -109,9 +106,7 @@ class AstroMenace(_path_lists):
     def __init__(self):
         self.paths = ['/opt/astromenace', '/usr/share/applications/astromenace.desktop']
     def install(self):
-        f = R(
-['http://www.viewizard.com/download/amenace12.tar.bz2'],
-35948638, '752d6faec7a4432f991055ab788b1e7dba004995').download()
+        f = R(urls.amenace).download()
 
         import os
         if not os.path.exists('/opt'): run_as_root('mkdir /opt')
@@ -166,9 +161,7 @@ class HITTeXTemplate(_download_one_file) :
     category = 'latex'
     Chinese = True
     def __init__(self):
-        self.R = R(
-['http://plutothesis.googlecode.com/files/PlutoThesis_UTF8_1.9.2.20090424.zip'],
-2710034, 'aee937bf0a09936d78f57cd45616997af7a1ef3c')
+        self.R = R(urls.hittex)
         import os
         self.file = os.path.expanduser('~/HITthesis.rar')
 
@@ -209,7 +202,7 @@ class GoogleEarth(I):
     detail = _('Please install it in /opt/google-earth. Otherwise it cannot be detected.')
     category = 'others'
     def install(self):
-        f = R('http://dl.google.com/earth/client/current/GoogleEarthLinux.bin').download()
+        f = R(urls.google_earch).download()
         os.system('chmod a+x ' + f)
         run_as_root_in_terminal(f)
     def installed(self):
@@ -220,15 +213,10 @@ class GoogleEarth(I):
 class NVIDEA_Driver(I):
     __doc__ = 'NVIDEA ' + _('video card driver')
     category = 'others'
-    if is32():
-        filename = '195.36.24/NVIDIA-Linux-x86-195.36.24-pkg1.run' # please update me by ftp://download.nvidia.com/XFree86/Linux-x86/latest.txt
-        url = 'ftp://download.nvidia.com/XFree86/Linux-x86/' + filename
-    else:
-        filename = '195.36.24/NVIDIA-Linux-x86_64-195.36.24-pkg2.run' # please update me by ftp://download.nvidia.com/XFree86/Linux-x86_64/latest.txt
-        url = 'ftp://download.nvidia.com/XFree86/Linux-x86_64/' + filename
-    detail = _('Please click this link:') + ' ' + url
+    if is32(): download_url = urls.nvidia_32
+    else:      download_url = urls.nvidia_64
     def install(self):
-        f = R(self.url).download()
+        f = R(self.download_url).download()
         os.system('chmod a+x ' + f)
         run_as_root_in_terminal(f)
     def installed(self):
@@ -239,9 +227,9 @@ class NVIDEA_Driver(I):
 class ATI_Driver(I):
     __doc__ = 'ATI ' + _('video card driver')
     category = 'others'
-    detail = _('Please click this link:') + ' http://ati.amd.com/support/driver.HTML'
+    download_url = 'http://ati.amd.com/support/driver.HTML'
     def install(self):
-        raise NotImplementedError
+        open_web_page('http://ati.amd.com/support/driver.HTML')
     def installed(self):
         return False
     def remove(self):
@@ -252,11 +240,8 @@ class Google_Chrome(I):
     download_url = 'http://www.google.com/chrome'
     category = 'browser'
     def install(self):
-        if is32():
-            url = 'http://dl.google.com/linux/direct/google-chrome-stable_current_i386.deb'
-        else:
-            url = 'http://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb'
-        f = R(url).download()
+        if is32(): f = R(urls.google_chrome_32).download()
+        else:      f = R(urls.google_chrome_64).download()
         run_as_root_in_terminal('dpkg --install %s' % f)
         APT.cache_changed()
     def installed(self):
@@ -274,7 +259,7 @@ class EIOffice(I):
     Chinese = True
     def install(self):
         with Chdir('/tmp') as o:
-            f = R('http://evermoresw.com.cn/EverMore/EIOPersonal/EIOffice_Personal_Lin.tar.gz').download()
+            f = R(urls.eioffice).download()
             run('tar xf %s' % f)
             run('chmod a+x EIOffice_Personal_Lin/setup')
             run_as_root("EIOffice_Personal_Lin/setup")
@@ -286,10 +271,11 @@ class EIOffice(I):
                      _('Install templates')
                         )
             for file, msg in zip(
-               ['http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Clipart.tar.gz',
-                'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_HelpFiles.tar.gz',
-                'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_ScienceEditorImages.tar.gz',
-                'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Templates.tar.gz',], msgs):
+               [urls.eioffice_clipart,
+                urls.eioffice_help,
+                urls.eioffice_scienceeditor,
+                urls.eioffice_templates,
+                ], msgs):
                     download(file, '/tmp/eio.tar.gz') 
                     run("tar zxf /tmp/eio.tar.gz")
                     notify( _('Installing EIOffice'), msg )
@@ -309,9 +295,9 @@ class ESETNOD32(I):
     category = 'antivirus'
     def install(self):
         if is32():
-            f = R('http://download.eset.com/special/eav_linux/ueav.i386.linux').download()
+            f = R(urls.eset_antivirus_32).download()
         else:
-            f = R('http://download.eset.com/special/eav_linux/ueav.x86_64.linux').download()
+            f = R(urls.eset_antivirus_64).download()
         run('chmod +x ' + f)
         run_as_root(f)
         if not is32():

@@ -4,7 +4,7 @@ dist/
 installed_files
 tags
 
-po/
+po/*
 .project
 .pydevproject
 .settings/

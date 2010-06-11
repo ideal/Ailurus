@@ -114,12 +114,13 @@ def check_required_packages():
         dialog.destroy()
 
 def check_dbus_daemon_status():
-    correct_conf_files = True
     if not with_same_content('/etc/dbus-1/system.d/cn.ailurus.conf', '/usr/share/ailurus/support/cn.ailurus.conf'):
         correct_conf_files = False
-    if not with_same_content('/usr/share/dbus-1/system-services/cn.ailurus.service', '/usr/share/ailurus/support/cn.ailurus.service'):
+    elif not with_same_content('/usr/share/dbus-1/system-services/cn.ailurus.service', '/usr/share/ailurus/support/cn.ailurus.service'):
         correct_conf_files = False
-    same_version = True
+    else:
+        correct_conf_files = True
+
     try:
         running_version = get_dbus_daemon_version()
     except:
@@ -127,7 +128,17 @@ def check_dbus_daemon_status():
         running_version = 0
     from daemon import version as current_version
     same_version = (current_version == running_version)
-    if correct_conf_files and same_version: return
+    
+    try:
+        import ailurus
+    except:
+        same_daemon = False
+    else:
+        daemon_current = os.path.dirname(os.path.abspath(__file__))+'/daemon.py'
+        daemon_installed = os.path.dirname(os.path.abspath(ailurus.__file__))+'/daemon.py'
+        same_daemon = with_same_content(daemon_current, daemon_installed)
+    
+    if correct_conf_files and same_version and same_daemon: return
     def show_text_dialog(msg, icon=gtk.MESSAGE_ERROR):
         dialog = gtk.MessageDialog(type=icon, buttons=gtk.BUTTONS_OK)
         dialog.set_title('Ailurus')
@@ -145,6 +156,9 @@ def check_dbus_daemon_status():
         print >>message, '<span color="blue">', 'cp /usr/share/ailurus/support/cn.ailurus.conf /etc/dbus-1/system.d/cn.ailurus.conf', '</span>'
         print >>message, '<span color="blue">', 'cp /usr/share/ailurus/support/cn.ailurus.service /usr/share/dbus-1/system-services/cn.ailurus.service', '</span>'
         print >>message, ''
+        show_text_dialog(message.getvalue())
+    elif not same_daemon:
+        print >>message, _('Please re-install Ailurus.')
         show_text_dialog(message.getvalue())
     elif not same_version:
         print >>message, _('We need to restart Ailurus daemon.')

@@ -75,10 +75,11 @@ def set_proxy_server():
     def toggled(w):
         Config.set_use_proxy(w.get_active())
         proxy_table.set_sensitive(w.get_active())
-        if w.get_active():
-            enable_urllib2_proxy()
-        else:
-            disable_urllib2_proxy()
+        try:
+            if w.get_active(): enable_urllib2_proxy()
+            else:              disable_urllib2_proxy()
+        except:
+            print_traceback()
     use_proxy.connect('toggled', toggled)
     use_proxy.set_active(Config.get_use_proxy())
     use_proxy.toggled() # raise "toggled" signal

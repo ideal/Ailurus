@@ -37,7 +37,8 @@ Features:
       license = 'GPLv2+',
       platforms = ['linux'],
       packages = ['ailurus', 'ailurus.common', 'ailurus.gnome', 'ailurus.archlinux', 'ailurus.fedora', 'ailurus.ubuntu', 'ailurus.support', ],
-      package_data={'ailurus': ['native_apps', 'version']},
+      package_data={'ailurus': ['native_apps', 'version'], 
+                    'ailurus.support': ['MTJ_urls', 'fedora_server_list', 'ubuntu_server_list']},
       data_files = [
         ('share/man/man1/', ['ailurus.1']),
         ('share/applications/', ['ailurus.desktop']),

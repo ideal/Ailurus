@@ -320,7 +320,7 @@ def set_proxy_string(proxy_string):
                                       )
     Config.set_proxy_string_id_in_keyring(id)
 
-class UserDeniedError:
+class UserDeniedError(Exception):
     'User has denied keyring authentication'
 
 def get_proxy_string():

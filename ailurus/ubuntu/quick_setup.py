@@ -22,9 +22,9 @@
 
 from __future__ import with_statement
 import sys, os
-import ailurus
-sys.path.insert(0, os.path.dirname(os.path.abspath(ailurus.__file__)))
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+path = os.path.dirname(os.path.abspath(__file__))+'/../'
+sys.path.insert(0, path)
+os.chdir(path)
 from lib import *
 from libu import *
 from libserver import *

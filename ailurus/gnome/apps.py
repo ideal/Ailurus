@@ -51,7 +51,7 @@ class NScripts(I):
     DE = 'gnome'
     def install(self):
         # We add the first url in case of failure of the second one 
-        f = R(['http://ailurus.googlecode.com/files/NScripts-3.6.tar.bz2', 'http://www.nanolx.org/free/NScripts-3.6.tar.bz2']).download()
+        f = R(['http://ailurus.googlecode.com/files/NScripts-3.6.tar.bz2', urls.nscript]).download()
         import os
         dir = os.path.expanduser('~/.gnome2/nautilus-scripts/')
         if not os.path.exists(dir): os.mkdir(dir)

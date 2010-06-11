@@ -22,11 +22,12 @@
 
 from __future__ import with_statement
 from lib import *
+import urls
 
 __all__ = ['_set_gconf', '_apt_install', '_path_lists', 
            '_ff_extension', '_download_one_file', '_rpm_install', 'N',
            'create_eclipse_icon', 'install_eclipse_extension_message',
-           'remove_eclipse_extesion_message', 'latest']
+           'remove_eclipse_extesion_message', 'latest', 'urls']
 
 class _set_gconf(I):
     'Must subclass me and set "self.set" and "self.add"'

@@ -20,13 +20,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 from __future__ import with_statement
-import sys, os
-import ailurus
-path = os.path.dirname(ailurus.__file__)
-sys.path.insert(0, path)
+# don't change sys.path
 from lib import *
 from libapp import *
-
 assert FEDORA
 
 class _repo(I):
@@ -76,7 +72,7 @@ class Repo_Adobe(I):
             _repo.enable(self.path)
         else:
             file = '/tmp/adobe-release-i386-1.0-1.noarch.rpm'
-            wget('http://linuxdownload.adobe.com/linux/i386/adobe-release-i386-1.0-1.noarch.rpm', file)
+            wget(urls.adobe_repos_rpm, file)
             RPM.install_local(file)
     def remove(self):
         if _repo.exist(self.path):
@@ -111,8 +107,7 @@ class Repo_Skype(I):
 class Repo_RPMFusion_Free(I):
     __doc__ = _('RPM Fusion (Free)')
     category = 'repository'
-    detail = _('RPM Fusion provides software that not in the standard repositories.\n'
-               'It is possible that "ATrpms" repository conflicts with "RPM Fusion" repository.')
+    detail = _('RPM Fusion provides software that not in the standard repositories.')
     def __init__(self):
         self.paths = ['/etc/yum.repos.d/rpmfusion-free.repo', '/etc/yum.repos.d/rpmfusion-free-updates.repo']
     def installed(self):
@@ -131,7 +126,7 @@ class Repo_RPMFusion_Free(I):
                 _repo.enable(path, only_enable_first_appearance = True)
         else:
             file = '/tmp/rpmfusion-free-release-stable.noarch.rpm'
-            wget('http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm', file)
+            wget(urls.rpmfusion_repos_free, file)
             RPM.install_local(file)
     def remove(self):
         for path in self.paths:
@@ -140,8 +135,7 @@ class Repo_RPMFusion_Free(I):
 class Repo_RPMFusion_NonFree(I):
     __doc__ = _('RPM Fusion (Non-Free)')
     category = 'repository'
-    detail = _('RPM Fusion provides software that not in the standard repositories.\n'
-               'It is possible that "ATrpms" repository conflicts with "RPM Fusion" repository.')
+    detail = _('RPM Fusion provides software that not in the standard repositories.')
     def __init__(self):
         self.paths = ['/etc/yum.repos.d/rpmfusion-nonfree.repo', '/etc/yum.repos.d/rpmfusion-nonfree-updates.repo']
     def installed(self):
@@ -160,7 +154,7 @@ class Repo_RPMFusion_NonFree(I):
                 _repo.enable(path, only_enable_first_appearance = True)
         else:
             file = '/tmp/rpmfusion-nonfree-release-stable.noarch.rpm'
-            wget('http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm', file)
+            wget(urls.rpmfusion_repos_nonfree, file)
             RPM.install_local(file)
     def remove(self):
         for path in self.paths:
@@ -226,8 +220,8 @@ class Repo_Google_Chrome(I):
 class Repo_VirtualBox(I):
     'VirtualBox'
     category = 'repository'
-    detail = _('This repository provides VirtualBox.\n'
-               'Webpage: http://www.virtualbox.org/wiki/Linux_Downloads')
+    detail = _('This repository provides VirtualBox.')
+    download_url = 'http://www.virtualbox.org/wiki/Linux_Downloads'
     def __init__(self):
         self.path = '/etc/yum.repos.d/virtualbox.repo'
     def installed(self):
@@ -264,7 +258,7 @@ class Adobe_Flash_Player(_rpm_install):
 
 class AdobeReader(_rpm_install):
     __doc__ = _(u'Adobe® PDF Reader')
-    detail = _('Official site: http://get.adobe.com/cn/reader/')
+    download_url = 'http://get.adobe.com/reader/'
     category = 'business'
     depends = Repo_Adobe
     def __init__(self):
@@ -290,14 +284,12 @@ class AdobeReader(_rpm_install):
 
 class Realplayer32(I):
     'RealPlayer® 11'
-    detail = _('If you cannot play RMVB video, try this application!\n'
-       'Official site: <span color="blue"><u>http://www.real.com/linux</u></span>\n'
+    detail = _('If you cannot play RMVB video, try this application! '
        'You can launch RealPlayer by "/opt/real/RealPlayer/realplay".')
+    download_url = 'http://www.real.com/linux'
     category = 'player'
     def install(self):
-        f = R(
-['http://software-dl.real.com/079f1e1c74ca25924402/unix/RealPlayer11GOLD.rpm'],
-8655672, 'b67f5b0b8c1103c4ed584442e44ccc724a6fbfa7').download()
+        f = R(urls.realplayer).download()
         RPM.install_local(f)
     def installed(self):
         return RPM.installed('RealPlayer')
@@ -312,24 +304,26 @@ class GoogleChrome(I):
     category = 'browser'
     def install(self):
         if is32():
-            f = R('http://dl.google.com/linux/direct/google-chrome-beta_current_i386.rpm').download()
+            f = R(urls.google_chrome_32).download()
         else:
-            f = R('http://dl.google.com/linux/direct/google-chrome-beta_current_x86_64.rpm').download()
+            f = R(urls.google_chrome_64).download()
         RPM.install_local(f)
     def installed(self):
-        return RPM.installed('google-chrome-beta')
+        return RPM.installed('google-chrome-stable')
     def remove(self):
-        return RPM.remove('google-chrome-beta')
+        return RPM.remove('google-chrome-stable')
     def get_reason(self, f):
         if RPM.installed('google-chrome-unstable'):
-            print >>f, _('"google-chrome-beta" is not installed. '
-                         'However, you have installed "google-chrome-unstable".'),
+            print >>f, _('You have installed "google-chrome-unstable".'),
+        if RPM.installed('google-chrome-beta'):
+            print >>f, _('You have installed "google-chrome-beta".'),
+
 class GoogleEarth(I):
     __doc__ = _('Google Earth')
     detail = _('Please install it in /opt/google-earth. Otherwise it cannot be detected.')
     category = 'others'
     def install(self):
-        f = R('http://dl.google.com/earth/client/current/GoogleEarthLinux.bin').download()
+        f = R(urls.googleearch).download()
         os.system('chmod a+x ' + f)
         run_as_root_in_terminal(f)
     def installed(self):
@@ -354,13 +348,6 @@ class Skype(_rpm_install):
     pkgs = 'skype'
     def visible(self):
         return is32()
-
-class VirtualBox_OSE(_rpm_install):
-    __doc__ = _('VirtualBox open source edition')
-    category = 'simulator'
-    license = GPL
-    depends = Repo_RPMFusion_Free
-    pkgs = 'VirtualBox-OSE'
 
 class Repo_Chromium(I):
     'Chromium'
@@ -391,9 +378,9 @@ class ESETNOD32(I):
     category = 'antivirus'
     def install(self):
         if is32():
-            f = R('http://download.eset.com/special/eav_linux/ueav.i386.linux').download()
+            f = R(urls.eset_antivirus_32).download()
         else:
-            f = R('http://download.eset.com/special/eav_linux/ueav.x86_64.linux').download()
+            f = R(urls.eset_antivirus_64).download()
         run('chmod +x ' + f)
         run_as_root(f)
         if not is32():
