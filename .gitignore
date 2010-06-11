@@ -2,6 +2,7 @@ MANIFEST
 build/
 dist/
 installed_files
+tags
 
 po/
 .project
