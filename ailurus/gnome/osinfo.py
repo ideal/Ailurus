@@ -43,7 +43,7 @@ def __gnome():
     except:
         print_traceback()
         
-    try: ret.append( row(_('GNOME locale:'), os.environ['LANG'], D+'other_icons/i_locale.png' ) )
+    try: ret.append( row(_('GNOME locale:'), os.environ['LANG'], D+'sora_icons/i_locale.png' ) )
     except: print_traceback()
 
     return ret

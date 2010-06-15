@@ -43,11 +43,11 @@ def check_class_members(app_class):
 
 def load_app_icon(name):
     import os
-    for dir in [Config.get_config_dir(), 'other_icons/', 'appicons/', ]:
+    for dir in ['other_icons/', 'appicons/']:
         path = D + dir + name + '.png'
         if os.path.exists(path): break
     else:
-        path = D + 'velly_icons/software_default_icon.png'
+        path = D + 'sora_icons/default_application_icon.png'
     import gtk
     return gtk.gdk.pixbuf_new_from_file_at_size(path, 32, 32)
 

@@ -43,6 +43,8 @@ class Fix_error_in_49_sansserif_conf(C):
     detail = _('Change "sans-serif" to "sans serif".')
     type = C.MUST_FIX
     def exists(self):
+        if VERSION >= 'lucid': # Some people say this method is incorrect ...
+            return False
         try:
             with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
                 return '>sans-serif<' in f.read()

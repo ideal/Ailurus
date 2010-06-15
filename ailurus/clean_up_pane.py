@@ -28,7 +28,7 @@ from lib import *
 from libu import *
 
 class CleanUpPane(gtk.VBox):
-    icon = D+'other_icons/m_clean_up.png'
+    icon = D+'sora_icons/m_clean_up.png'
     text = _('Clean up')
     
     def __init__(self, main_view):
@@ -76,8 +76,7 @@ class CleanUpPane(gtk.VBox):
         button.set_sensitive(bool(self.get_folder_size('/var/cache/apt/archives',please_return_integer=True)))
         def __clean_up(button, label):
             notify(_('Run command:'), 'apt-get clean')
-            try: run_as_root_in_terminal('apt-get clean')
-            except AccessDeniedError: pass
+            run_as_root_in_terminal('apt-get clean')
             label.set_text(self.get_button_text(_('APT cache'), '/var/cache/apt/archives'))
             button.set_sensitive(bool(self.get_folder_size('/var/cache/apt/archives',please_return_integer=True)))
         button.connect('clicked', __clean_up, label)
@@ -91,8 +90,7 @@ class CleanUpPane(gtk.VBox):
         button.set_sensitive(bool(self.get_folder_size('/var/cache/yum/',please_return_integer=True)))
         def __clean_up(button, label):
             notify(_('Run command:'), "yum clean all")
-            try: run_as_root("yum clean all")
-            except AccessDeniedError: pass
+            run_as_root("yum clean all")
             label.set_text(self.get_button_text(_('RPM cache'), '/var/cache/yum/'))
             # Now all enabled repo's cache is clean. However, disabled repo's cache cannot be clean.
             # The remaining disk space is not zero. There are some blank directories in /var/cache/yum/
@@ -109,8 +107,7 @@ class CleanUpPane(gtk.VBox):
         button.set_sensitive(bool(self.get_folder_size('/var/cache/ailurus',please_return_integer=True)))
         def __clean_up(button, label):
             notify(_('Run command:'), 'rm /var/cache/ailurus/* -rf')
-            try: run_as_root('rm /var/cache/ailurus/* -rf')
-            except AccessDeniedError: pass
+            run_as_root('rm /var/cache/ailurus/* -rf')
             label.set_text(self.get_button_text(_('Ailurus cache'), '/var/cache/ailurus'))
             button.set_sensitive(bool(self.get_folder_size('/var/cache/ailurus',please_return_integer=True)))
         button.connect('clicked', __clean_up, label)
@@ -124,8 +121,7 @@ class CleanUpPane(gtk.VBox):
         button.set_sensitive(bool(self.get_folder_size('/var/cache/pacman/pkg',please_return_integer=True)))
         def __clean_up(button, label):
             notify(_('Run command:'), 'rm -rf /var/cache/pacman/pkg/*')
-            try: run_as_root('rm -rf /var/cache/pacman/pkg/*') #"pacman -Sc" does not work
-            except AccessDeniedError: pass
+            run_as_root('rm -rf /var/cache/pacman/pkg/*') #"pacman -Sc" does not work
             label.set_text(self.get_button_text(_('Pacman cache'), '/var/cache/pacman/pkg'))
             button.set_sensitive(bool(self.get_folder_size('/var/cache/pacman/pkg',please_return_integer=True)))
         button.connect('clicked', __clean_up, label)
@@ -220,8 +216,7 @@ class ReclaimMemoryBox(gtk.VBox):
             src = tempfile.NamedTemporaryFile('w')
             src.write('3\n')
             src.flush()
-            try: run_as_root('cp %s %s'%(src.name, dest) )
-            except AccessDeniedError: pass
+            run_as_root('cp %s %s'%(src.name, dest) )
             after = self.get_free_memory()
             amount = max(0, after - before)
             notify(' ', _('%s KB memory was reclaimed.') % amount)

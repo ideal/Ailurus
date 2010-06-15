@@ -37,7 +37,7 @@ class SplashWindow(gtk.Window):
         logo.set_from_file(D+'suyun_icons/logo_with_reflection.png')
         
         title = gtk.Image()
-        title.set_from_file(D+'other_icons/ailurus_for_splash.png')
+        title.set_from_file(D+'velly_icons/ailurus_for_splash.png')
         
         comment = gtk.Label()
         comment.set_markup(

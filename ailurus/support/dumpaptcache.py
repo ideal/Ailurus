@@ -22,7 +22,6 @@
 
 import warnings
 warnings.filterwarnings("ignore", "apt API not stable yet", FutureWarning)
-
 import apt
 cache = apt.cache.Cache()
 for p in cache:

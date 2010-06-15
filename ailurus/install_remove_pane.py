@@ -24,6 +24,99 @@ from __future__ import with_statement
 import gtk
 from lib import *
 from libu import *
+from libapp import *
+
+class Category:
+    def __init__(self, text, icon_path, category, class_name):
+        '''category equals "category" attribute value of application class
+        class_name is used in left_treeview only'''
+        assert isinstance(text, (str, unicode)) and text
+        assert isinstance(icon_path, str) and icon_path
+        assert isinstance(category, str) and category
+        assert isinstance(class_name, str) and class_name
+        self.text, self.icon_path, self.category, self.class_name = text, icon_path, category, class_name
+        self.icon = get_pixbuf(icon_path, 24, 24)
+        self.visible = False
+    def to_list(self):
+        'Return a list. Add the list into gtk.Liststore'
+        return [self.text, self.icon, self.category, self.class_name]
+    @classmethod
+    def all_left_class(cls):
+        'return a list which consists of "text, class_name, icon_path"'
+        return [
+            (_('Science'), 'science', D+'umut_icons/p_science.png'),
+            (_('Develop'), 'develop', D+'sora_icons/p_develop.png'),
+            (_('Home'), 'home', D+'sora_icons/p_home.png'),
+            (_('Other'), 'other', D+'sora_icons/p_others.png'),
+            (_('All'), 'all', D+'sora_icons/p_all.png'),
+                ]
+    m_all = None
+    @classmethod
+    def all(cls):
+        if cls.m_all: return cls.m_all
+        cls.m_all = [
+            Category(_('All'), D+'sora_icons/p_all.png', 'all', 'all'),
+            # internet
+            Category(_('Browser'), D+'sora_icons/p_browser.png', 'browser', 'home'),
+            Category(_('Email'), D+'sora_icons/p_email.png', 'email', 'home'),
+            Category(_('File sharing'), D+'sora_icons/p_file_sharing.png', 'file_sharing', 'home'),
+            Category(_('Chat'), D+'umut_icons/p_chat.png', 'chat', 'home'),
+            Category(_('Firefox extension'), D+'umut_icons/p_firefox_extension.png', 'firefox_extension', 'home'),
+            Category(_('Flash'), D+'sora_icons/p_flash.png', 'flash', 'home'),
+            Category(_('Blog'), D+'sora_icons/p_blog.png', 'blog', 'home'),
+            Category(_('RSS'), D+'sora_icons/p_rss.png', 'rss', 'home'),
+            Category(_('Internet'), D+'sora_icons/p_internet.png', 'internet', 'home'),
+            # multimedia
+            Category(_('Player'), D+'sora_icons/p_player.png', 'player', 'home'),
+            Category(_('CD burner'), D+'sora_icons/p_cd_burner.png', 'cd_burner', 'home'),
+            Category(_('Media editor'), D+'sora_icons/p_media_editor.png', 'media_editor', 'home'),
+            # appearance
+            Category(_('Panel'), D+'sora_icons/p_panel.png', 'panel', 'home'),
+            Category(_('Theme'), D+'sora_icons/p_theme.png', 'theme', 'home'),
+            Category(_('Screen widget'), D+'umut_icons/p_candy.png', 'candy', 'home'),
+            Category(_('Compiz setting'), D+'sora_icons/p_compiz_setting.png', 'compiz_setting', 'home'),
+            # science
+            Category(_('Math'), D+'umut_icons/p_math.png', 'math', 'science'),
+            Category(_('Statistics'), D+'umut_icons/p_statistics.png', 'statistics', 'science'),
+            Category(_('Electronics'), D+'umut_icons/p_electronics.png', 'electronics', 'science'),
+            Category(_('Mechanics'), D+'umut_icons/p_mechanics.png', 'mechanics', 'science'),
+            Category(_('Geography'), D+'sora_icons/p_geography.png', 'geography', 'science'),
+            Category(_('Biology'), D+'sora_icons/p_biology.png', 'biology', 'science'),
+            Category(_('LaTeX'), D+'umut_icons/p_latex.png', 'latex', 'science'),
+            # programming
+            Category(_('IDE'), D+'sora_icons/p_ide.png', 'ide', 'develop'),
+            Category(_('Version control'), D+'sora_icons/p_version_control.png', 'version_control', 'develop'),
+            Category(_('Library'), D+'sora_icons/p_library.png', 'library', 'develop'),
+            Category(_('Embedded system'), D+'umut_icons/p_embedded_system.png', 'embedded_system', 'develop'),
+            Category(_('Text editor'), D+'umut_icons/p_text_editor.png', 'text_editor', 'develop'),
+            Category(_('Eclipse extension'), D+'sora_icons/p_eclipse_extension.png', 'eclipse_extension', 'develop'),
+            Category(_('Programming tool'), D+'sora_icons/p_saber.png', 'saber', 'develop'),
+            # business
+            Category(_('Business'), D+'sora_icons/p_business.png', 'business', 'home'),
+            # design
+            Category(_('Design'), D+'sora_icons/p_design.png', 'design', 'develop'),
+            Category(_('Drawing'), D+'umut_icons/p_drawing.png', 'drawing', 'develop'),
+            Category(_('Typesetting'), D+'umut_icons/p_typesetting.png', 'typesetting', 'develop'),
+            # gnome_dedicated
+            Category(_('GNOME dedicated'), D+'sora_icons/p_gnome_dedicated.png', 'gnome_dedicated', 'other'),
+            # nautilus
+            Category(_('Nautilus extension'), D+'sora_icons/p_nautilus_extension.png', 'nautilus_extension', 'other'),
+            # simulator
+            Category(_('Simulator'), D+'sora_icons/p_simulator.png', 'simulator', 'other'),
+            # education
+            Category(_('Education'), D+'umut_icons/p_education.png', 'education', 'home'),
+            # game
+            Category(_('Game'), D+'sora_icons/p_game.png', 'game', 'home'),
+            # antivirus
+            Category(_('Anti-virus'), D+'sora_icons/p_antivirus.png', 'antivirus', 'home'),
+            # others
+            Category(_('Others'), D+'sora_icons/p_others.png', 'others', 'other'),
+            # tasksel
+            Category(_('Establish a server'), D+'umut_icons/p_establish_a_server.png', 'establish_a_server', 'other'),
+            # repository
+            Category(_('Repository'), D+'sora_icons/p_repository.png', 'repository', 'other'),
+                 ]
+        return cls.m_all
 
 class InstallRemovePane(gtk.VBox):
     icon = D+'sora_icons/m_install_remove.png'
@@ -32,24 +125,14 @@ class InstallRemovePane(gtk.VBox):
     def __left_tree_view_default_select(self):
         self.left_treeview.get_selection().unselect_all()
         self.left_treeview.expand_all()
-        self.left_treeview.get_selection().select_path('1:0')
+        self.left_treeview.get_selection().select_path('1')
 
     def __left_pane_changed ( self, treeselection, treeview ):
         model, parent = treeselection.get_selected()
         if parent == None: return
         category = model.get_value(parent, 2)
-        if category.startswith('*'): # A big class is selected
-            # We add all children of this class to 'self.selected_categories'
-            self.selected_categories = [category[1:]] # strip '*' and use it as category. Because some software items also use the name of top-level class
-            child = model.iter_children(parent)
-            while child:
-                category = model.get_value(child, 2)
-                self.selected_categories.append(category)
-                child = model.iter_next(child)
-                if child == None: break
-        else: # An item is selected.
-            self.selected_categories = [ category ]
-        self.treestorefilter.refilter()
+        self.right_pane_visible_category = category
+        self.right_store_filter.refilter()
 
     def __left_pane_pixbuf(self, column, cell, model, iter):
         category = model.get_value(iter, 2)
@@ -78,12 +161,14 @@ class InstallRemovePane(gtk.VBox):
         column.set_cell_data_func(pixbuf_render, self.__left_pane_pixbuf)
         column.pack_start ( text_render, False )
         column.set_cell_data_func(text_render, self.__left_pane_text)
-        # each row of liststore contains ( title, icon, category )
-        self.left_treestore = treestore = gtk.TreeStore ( str, gtk.gdk.Pixbuf, str )
+        # each row of liststore contains (title, icon, category, class_name)
+        self.left_store = treestore = gtk.ListStore(str, gtk.gdk.Pixbuf, str, str)
+        self.left_store_filter = treefilter = treestore.filter_new()
+        self.left_store_filter.set_visible_func(self.__left_visible_func)
         self.left_treeview = treeview = gtk.TreeView()
         treeview.append_column(column_expander)
-        treeview.append_column ( column )
-        treeview.set_model(treestore)
+        treeview.append_column(column)
+        treeview.set_model(treefilter)
         treeview.get_selection().set_mode(gtk.SELECTION_SINGLE)
         treeview.get_selection().connect('changed', self.__left_pane_changed, treeview )
         treeview.set_headers_visible(False)
@@ -161,7 +246,7 @@ class InstallRemovePane(gtk.VBox):
     def app_class_installed_state_changed_by_external(self):
         for obj in self.app_objs:
             obj.showed_in_toggle = obj.cache_installed = obj.installed()
-        self.treeview.queue_draw()
+        self.right_treeview.queue_draw()
 
     def show_error(self, content):
         title_box = gtk.HBox(False, 5)
@@ -225,7 +310,8 @@ class InstallRemovePane(gtk.VBox):
             r,w = os.pipe()
             os.dup2(w, sys.stdout.fileno())
             thread.start_new_thread(self.terminal.read, (r,) )
-            run_as_root('true') # require authentication first. do not require authentication any more.
+            try:    run_as_root('true') # require authentication first. do not require authentication any more.
+            except: print_traceback() # do not hang if run_as_root failed.
             s_i = []; s_r = []; f_i = []; f_r = []
             
             to_install = [ o for o in self.app_objs
@@ -270,17 +356,6 @@ class InstallRemovePane(gtk.VBox):
             for o in self.app_objs:
                 o.showed_in_toggle = o.cache_installed = o.installed()
             
-            gtk.gdk.threads_enter()
-            level1 = self.treestore.get_iter_first()
-            while level1!=None:
-                level2 = self.treestore.iter_children(level1)
-                while level2!=None:
-                    path = self.treestore.get_path(level2)
-                    self.treestore.row_changed(path, level2)
-                    level2 = self.treestore.iter_next(level2)
-                level1 = self.treestore.iter_next(level1)
-            gtk.gdk.threads_leave()
-            
             print '\n', _('Summary:'), '\n'
             if len(s_i):
                 for o in s_i: print '\x1b[1;32m', _('Successfully installed:'), o.__doc__, '\x1b[m'
@@ -300,20 +375,16 @@ class InstallRemovePane(gtk.VBox):
                     traceback.print_exception( exc[0], exc[1], exc[2], file=error_traceback)
             print 
 
+            delay_notify_firefox_restart(True)
+
             gtk.gdk.threads_enter()
             parentbox = self.terminal.get_widget().parent
             parentbox.pack_start(self.final_box, False)
             parentbox.show_all()
             if len(f_i) or len(f_r): #If any operation failed, we display "Report problems" dialog
                 self.show_error(error_traceback.getvalue())
-            gtk.gdk.threads_leave()
-            
-            delay_notify_firefox_restart(True)
-            
-            gtk.gdk.threads_enter()
-            self.__show_detail('')
-            self.treeview.get_selection().unselect_all()
-            # self.__left_tree_view_default_select()
+            self.right_treeview.queue_draw()
+            self.right_treeview.get_selection().unselect_all()
             gtk.gdk.threads_leave()
         except:
             print_traceback()
@@ -348,7 +419,7 @@ class InstallRemovePane(gtk.VBox):
         import thread
         thread.start_new_thread(self.__apply_change_thread, () )
     
-    def __sort_treestore ( self, model, iter1, iter2 ):
+    def __right_sort ( self, model, iter1, iter2 ):
         obj1 = model.get_value ( iter1, 0 )
         obj2 = model.get_value ( iter2, 0 )
         import types
@@ -357,7 +428,7 @@ class InstallRemovePane(gtk.VBox):
         str1, str2 = obj1.__doc__, obj2.__doc__
         return cmp(str1, str2)
 
-    def __toggle(self, render_toggle,path,treestore,treemodelsort,treestorefilter):
+    def __right_toggled(self, render_toggle,path,treestore,treemodelsort,treestorefilter):
         path1 = treemodelsort.convert_path_to_child_path(path)
         path = treestorefilter.convert_path_to_child_path(path1)
         obj = treestore[path][0]
@@ -365,26 +436,21 @@ class InstallRemovePane(gtk.VBox):
         assert isinstance(obj, types.InstanceType)
         assert hasattr(obj, 'showed_in_toggle')
         obj.showed_in_toggle = not obj.showed_in_toggle
-        treestore.row_changed(path,  treestore.get_iter(path) )
-        self.__show_detail(obj)
 
-    def __toggle_cell_data_func ( self, column, cell, model, iter ):
-        obj = model.get_value ( iter, 0 )
-        import types
-        assert isinstance ( obj, types.InstanceType )
-        assert hasattr ( obj, 'showed_in_toggle' )
-        cell.set_property ( 'active', obj.showed_in_toggle )
+    def __right_toggle_data_func ( self, column, cell, model, iter ):
+        obj = model.get_value(iter, 0)
+        cell.set_property('active', obj.showed_in_toggle)
 
-    def __text_cell_data_func ( self, column, cell, model, iter ):
-        obj = model.get_value ( iter, 0 )
-        import types
-        assert isinstance ( obj, types.InstanceType )
-        assert hasattr(obj, 'cache_installed') and hasattr(obj, 'showed_in_toggle')
+    def __right_text_data_func(self, column, cell, model, iter):
+        obj = model.get_value(iter, 0)
         import StringIO
         markup = StringIO.StringIO()
         print >>markup, '<b>%s</b>' % obj.__doc__,
+        if obj.cache_installed==False and obj.showed_in_toggle:
+            print >>markup, '<span color="blue">(%s)</span>' % _('will install'),
+        if obj.cache_installed and obj.showed_in_toggle==False:
+            print >>markup, '<span color="red">(%s)</span>' % _('will remove'),
         if obj.detail:
-#            detail = obj.detail.split('\n', 1)[0]
             print >>markup, ''
             print >>markup, obj.detail,
         if obj.download_url:
@@ -394,82 +460,13 @@ class InstallRemovePane(gtk.VBox):
             print >>markup, ''
             print >>markup, '<small><span color="#8A00C2">%s</span></small>' % obj.how_to_install,
         cell.set_property('markup', markup.getvalue())
-        cell.set_property('strikethrough', 
-                          obj.cache_installed==True and obj.showed_in_toggle==False )
-        if obj.cache_installed==False and obj.showed_in_toggle==True :
-            cell.set_property('scale', 1.2)
-        else :
-            cell.set_property('scale', 1)
 
-    def __right_pane_changed(self, treeselection, treeview):
-        ( store, pathlist ) = treeselection.get_selected_rows ()
-        if pathlist == None or len(pathlist)==0: # select nothing 
-            self.__show_detail('')
-            return
-        if len(pathlist)!=1: # select multi items 
-            self.__show_detail('')
-            return
-        iter = store.get_iter( pathlist[0] )
-        obj=store.get_value ( iter, 0 )
-        import types
-        assert isinstance(obj, types.InstanceType)
-        assert hasattr(obj, 'cache_installed') and hasattr(obj, 'showed_in_toggle')
-        self.__show_detail(obj)
-
-    def __show_detail(self, obj):
-        def begin_color():
-            return '<span color="#870090">'
-        
-        def end_color():
-            return '</span>'
-        
-        def color(string):
-            return '%s%s%s'%( begin_color(), string, end_color() )
-
-        if isinstance(obj, str) or isinstance(obj, unicode):
-            self.detail.get_buffer().set_text(obj)
-        else:
-            import types
-            assert isinstance(obj, types.InstanceType)
-            assert hasattr(obj, 'cache_installed') and hasattr(obj, 'showed_in_toggle')
-            
-            import StringIO
-            text = StringIO.StringIO()
-
-            detail = getattr(obj, 'detail' ,'')
-            if detail:
-                text.write(detail)
-#                if detail[-1]!='\n': text.write('\n')
-            
-#            license = getattr(obj, 'license' ,'')
-#            if license:
-#                print >>text, _('License:'), license   
-            
-#            if obj.cache_installed==False: # can install
-#                # will be installed?
-#                if not obj.showed_in_toggle: 
-#                    print >>text, begin_color() + _('Not installed.'),
-#                    if hasattr(obj, 'get_reason'):
-#                        obj.get_reason(text)
-#                    text.write( end_color() )
-#                else:  
-#                    print >>text, color( _('Will be installed.') ),
-
-#            else: # already installed
-#                if obj.showed_in_toggle: print >>text, color(_('Installed.')), 
-#                else:                    print >>text, color(_('Will be removed.')), 
-                        
-            self.detail.get_buffer().set_text( text.getvalue() )
-            text.close()
-
-    def __visible_func(self, treestore, iter):
-        import types
-        assert isinstance(self.selected_categories, list)
+    def __right_visible_func(self, treestore, iter):
+        assert isinstance(self.right_pane_visible_category, str)
         obj = treestore.get_value(iter, 0)
         if obj == None: return False
-        assert isinstance(obj, types.InstanceType)
         
-        is_right_category = obj.category in self.selected_categories or 'all' in self.selected_categories
+        is_right_category = 'all'==self.right_pane_visible_category or obj.category==self.right_pane_visible_category
         if self.filter_text=='':
             return is_right_category
         else:
@@ -480,12 +477,18 @@ class InstallRemovePane(gtk.VBox):
             else: # both
                 return is_right_category and ( inside(self.filter_RE, obj.__doc__) or inside(self.filter_RE, obj.detail) )
 
-    def __pixbuf_cell_data_func(self, column, cell, model, iter):
+    def __left_visible_func(self, treestore, iter):
+        assert isinstance(self.left_pane_visible_class, str)
+        class_name = treestore.get_value(iter, 3)
+        if class_name == None: return False
+        return self.left_pane_visible_class == 'all' or class_name == self.left_pane_visible_class
+
+    def __right_pixbuf_data_func(self, column, cell, model, iter):
         class0 = model.get_value ( iter, 0 )
         cell.set_property('pixbuf', class0.logo_pixbuf)
         cell.set_property('visible', Config.get_show_software_icon())
         
-    def __DE_pixbuf_cell_data_func(self, column, cell, model, iter):
+    def __right_DE_pixbuf_data_func(self, column, cell, model, iter):
         class0 = model.get_value ( iter, 0 )
         if hasattr(class0, 'DE'):
             if class0.DE == 'gnome':
@@ -516,121 +519,47 @@ class InstallRemovePane(gtk.VBox):
 
     def __right_pane(self):
         import gobject, pango
-        self.treestore = treestore = gtk.TreeStore ( gobject.TYPE_PYOBJECT )
+        self.right_store = treestore = gtk.ListStore(gobject.TYPE_PYOBJECT)
         
-        self.treestorefilter = treestorefilter = treestore.filter_new()
-        treestorefilter.set_visible_func( self.__visible_func )
+        self.right_store_filter = treestorefilter = treestore.filter_new()
+        treestorefilter.set_visible_func(self.__right_visible_func)
         
         treemodelsort = gtk.TreeModelSort(treestorefilter)
-        treemodelsort.set_sort_func ( 1000, self.__sort_treestore )
-        treemodelsort.set_sort_column_id( 1000, gtk.SORT_ASCENDING )
+        treemodelsort.set_sort_func(1000, self.__right_sort)
+        treemodelsort.set_sort_column_id(1000, gtk.SORT_ASCENDING)
 
-        render_toggle = gtk.CellRendererToggle ()
-        render_toggle.connect('toggled',self.__toggle,treestore, treemodelsort, treestorefilter)
+        render_toggle = gtk.CellRendererToggle()
+        render_toggle.connect('toggled',self.__right_toggled, treestore, treemodelsort, treestorefilter)
         render_pixbuf = gtk.CellRendererPixbuf()
         render_DE_pixbuf = gtk.CellRendererPixbuf()
-        render_text = gtk.CellRendererText ()
+        render_DE_pixbuf.set_property('yalign', 0)
+        render_text = gtk.CellRendererText()
         render_text.set_property('ellipsize', pango.ELLIPSIZE_END)
 
-        col_toggle = gtk.TreeViewColumn ()
-        col_toggle.pack_start (render_toggle,False)
-        col_toggle.set_cell_data_func ( render_toggle, self.__toggle_cell_data_func )
+        col_toggle = gtk.TreeViewColumn()
+        col_toggle.pack_start(render_toggle,False)
+        col_toggle.set_cell_data_func(render_toggle, self.__right_toggle_data_func)
 
-        col_text = gtk.TreeViewColumn ()
-        col_text.pack_start (render_pixbuf, False)
-        col_text.set_cell_data_func ( render_pixbuf, self.__pixbuf_cell_data_func )
+        col_text = gtk.TreeViewColumn()
+        col_text.pack_start(render_pixbuf, False)
+        col_text.set_cell_data_func(render_pixbuf, self.__right_pixbuf_data_func)
         col_text.pack_start (render_text, True)
-        col_text.set_cell_data_func ( render_text, self.__text_cell_data_func )
+        col_text.set_cell_data_func(render_text, self.__right_text_data_func)
         col_text.pack_end(render_DE_pixbuf, False)
-        col_text.set_cell_data_func ( render_DE_pixbuf, self.__DE_pixbuf_cell_data_func )
+        col_text.set_cell_data_func(render_DE_pixbuf, self.__right_DE_pixbuf_data_func)
         col_text.set_sort_column_id(1000)
 
-        self.treeview = treeview = gtk.TreeView ( treemodelsort )
-        treeview.append_column ( col_toggle )
-        treeview.append_column ( col_text )
-        treeview.set_rules_hint ( True )
-        treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-        treeview.get_selection().connect('changed', self.__right_pane_changed, treeview )
+        self.right_treeview = treeview = gtk.TreeView(treemodelsort)
+        treeview.append_column(col_toggle)
+        treeview.append_column(col_text)
+        treeview.set_rules_hint(True)
+        treeview.get_selection().set_mode(gtk.SELECTION_SINGLE)
+        treeview.set_headers_visible(False)
 
-        def _all_shown_items():
-            selection = treeview.get_selection()
-            selection.select_all()
-            model, pathlist = treeview.get_selection().get_selected_rows()
-            selection.unselect_all()
-            if pathlist == None:
-                raise StopIteration
-            for path in pathlist:
-                obj = model[path][0]
-                iter = model.get_iter(path)
-                yield model, path, obj, iter, selection
-        def select_all_items(widget):
-            for model, path, obj, iter, selection in _all_shown_items():
-                if not obj.showed_in_toggle:
-                    obj.showed_in_toggle = True
-                    model.row_changed(path, iter)
-                    if obj.showed_in_toggle!= obj.cache_installed: 
-                        selection.select_path(path)
-        def select_no_item(widget):
-            for model, path, obj, iter, selection in _all_shown_items():
-                if obj.showed_in_toggle:
-                    obj.showed_in_toggle = False
-                    model.row_changed(path, iter)
-                    if obj.showed_in_toggle!= obj.cache_installed: 
-                        selection.select_path(path)
-        def revert_all_items(widget):
-            for model, path, obj, iter, selection in _all_shown_items():
-                if obj.showed_in_toggle != obj.cache_installed:
-                    obj.showed_in_toggle = obj.cache_installed
-                    model.row_changed(path, iter)
-                    if obj.showed_in_toggle!= obj.cache_installed: 
-                        selection.select_path(path)
-        select_all = image_stock_menuitem(gtk.STOCK_UNDERLINE, _('Select _All') )
-        select_all.connect("activate", select_all_items )
-        deselect_all = image_stock_menuitem(gtk.STOCK_STRIKETHROUGH, _('_Deselect All') )
-        deselect_all.connect("activate", select_no_item )
-        reset_all = image_stock_menuitem(gtk.STOCK_UNDO, _('_Reset All') )
-        reset_all.connect("activate", revert_all_items )
-        popupmenu = gtk.Menu()
-        popupmenu.append(select_all)
-        popupmenu.append(deselect_all)
-        popupmenu.append(reset_all)
-        popupmenu.show_all()
-        def right_treeview_button_press_event(treeview, event):
-            if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
-                popupmenu.popup(None, None, None, event.button, event.time)
-                return True
-            return False
-        treeview.connect('button_press_event', right_treeview_button_press_event)
-        
         scroll = gtk.ScrolledWindow()
         scroll.add(treeview)
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_IN)
-        
-        from support.pangobuffer import PangoBuffer
-        from support.releasenotesviewer import ReleaseNotesViewer
-        detail = ReleaseNotesViewer( PangoBuffer() )
-        detail.set_wrap_mode(gtk.WRAP_WORD)
-        detail.set_editable(False)
-        detail.set_cursor_visible(False)
-        gray_bg(detail)
-        self.detail = detail
-
-        scroll_d = gtk.ScrolledWindow()
-        scroll_d.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        scroll_d.set_shadow_type(gtk.SHADOW_IN)
-        scroll_d.add(detail)
-
-        box2 = gtk.VBox(False, 0)
-        align = gtk.Alignment(0)
-        align.add(gtk.Label( _('Details:') ))
-        box2.pack_start(align , False, False)
-        box2.pack_start(scroll_d, True, True, 5)
-
-#        self.vpaned = vpaned = gtk.VPaned()
-#        vpaned.pack1(scroll, True, False)
-#        vpaned.pack2(box2, False, False)
-
         return scroll
 
     def __search_content_changed(self, widget, text, option):
@@ -645,7 +574,7 @@ class InstallRemovePane(gtk.VBox):
             otext.write(char)
         self.filter_RE = re.compile(otext.getvalue().encode(locale.getpreferredencoding()),
                                     re.IGNORECASE)
-        self.treestorefilter.refilter()
+        self.right_store_filter.refilter()
 
     @classmethod
     def set_wget_parameters(cls):
@@ -695,7 +624,7 @@ class InstallRemovePane(gtk.VBox):
         
         show_software_icon = gtk.CheckMenuItem(_('Show an icon by the side of software name'))
         show_software_icon.set_active(Config.get_show_software_icon())
-        show_software_icon.connect('toggled', lambda w: Config.set_show_software_icon(w.get_active()) or self.treeview.queue_draw())
+        show_software_icon.connect('toggled', lambda w: Config.set_show_software_icon(w.get_active()) or self.right_treeview.queue_draw())
         
         if UBUNTU or UBUNTU_DERIV: # this feature only support UBUNTU or MINT.
             return [show_quick_setup, set_wget_param, show_software_icon]
@@ -715,25 +644,24 @@ class InstallRemovePane(gtk.VBox):
     
     def __init__(self, parentwindow, app_objs):
         gtk.VBox.__init__(self, False, 5)
-        self.detail = None # A gtk.Label which shows widget detail.
-        self.treeview = None # A gtk.TreeView in right pane.
-        self.treestore = None # A gtk.TreeStore behind self.treeview
-        self.treestorefilter = None # A gtk.TreeModelFilter of self.treestore
+        self.right_treeview = None # A gtk.TreeView in right pane.
+        self.right_store = None # A gtk.TreeStore behind self.treeview
+        self.right_store_filter = None # A gtk.TreeModelFilter of self.treestore
         self.filter_text = ''
         self.filter_option = ''
-        self.selected_categories = [ 'tweak' ] # Selected categories in the left pane
+        self.right_pane_visible_category = 'all' # string, selected category in the left pane
+        self.left_pane_visible_class = 'all' # string, visible class name in the left pane
         self.app_objs = None # objs in self.treestore
         self.left_treeview = None # A gtk.TreeView in left pane.
         self.hpaned = hpaned = gtk.HPaned()
-        self.vpaned = None
         assert hasattr(parentwindow, 'lock')
         assert hasattr(parentwindow, 'unlock')
         self.parentwindow = parentwindow
         from support.terminal import Terminal
         self.terminal = Terminal()
-        self.DE_KDE = get_pixbuf(D + 'other_icons/kde.png', 24, 24)
-        self.DE_GNOME = get_pixbuf(D + 'other_icons/gnome.png', 24, 24)
-        self.DE_DEFAULT = get_pixbuf(D + 'other_icons/blank.png', 24, 24)
+        self.DE_KDE = get_pixbuf(D + 'umut_icons/kde.png', 16, 16)
+        self.DE_GNOME = get_pixbuf(D + 'umut_icons/gnome.png', 16, 16)
+        self.DE_DEFAULT = blank_pixbuf(16, 16)
 
         self.final_box = gtk.VBox(False, 5)
         self.final_box.set_border_width(5)
@@ -752,12 +680,14 @@ class InstallRemovePane(gtk.VBox):
         hpaned.pack1 ( self.__left_pane(), False, False )
         hpaned.pack2 ( self.__right_pane(), True, False )
 
-        button_expand_left_treeview = image_stock_button(gtk.STOCK_ADD, _('Expand'))
-        button_expand_left_treeview.connect('clicked', lambda w: self.left_treeview.expand_all())
-        button_collapse_left_treeview = image_stock_button(gtk.STOCK_REMOVE, _('Collapse'))
-        button_collapse_left_treeview.connect('clicked', lambda w: self.left_treeview.collapse_all())
         button_apply = image_stock_button(gtk.STOCK_APPLY, _('_Apply') )
         button_apply.connect('clicked', self.__apply_button_clicked)
+        button_sync = image_stock_button(gtk.STOCK_REFRESH, _('Synchronize'))
+        def synchronize():
+            import subprocess
+            path = os.path.dirname(os.path.abspath(__file__)) + '/download_icons.py'
+            subprocess.Popen(['python', path])
+        button_sync.connect('clicked', lambda w: synchronize())
         from support.searchbox import SearchBoxForApp
         sbox = SearchBoxForApp()
         sbox.connect('changed', self.__search_content_changed)
@@ -766,112 +696,58 @@ class InstallRemovePane(gtk.VBox):
         quick_setup_checkbutton = gtk.CheckButton(_('Hide'))
         quick_setup_checkbutton.connect('clicked', lambda w: w.set_active(False) or Config.set_hide_quick_setup_pane(True) or self.hide_quick_setup())
         self.quick_setup_content = gtk.HBox(False, 3)
+        self.quick_setup_content.pack_start(gtk.VSeparator())
         self.quick_setup_content.pack_start(quick_setup_button, False)
         self.quick_setup_content.pack_start(quick_setup_checkbutton, False)
+        self.quick_setup_content.pack_start(gtk.VSeparator())
         self.quick_setup_area = gtk.HBox(False)
         if (UBUNTU or UBUNTU_DERIV) and not Config.get_hide_quick_setup_pane():
             self.show_quick_setup()
-        bottom_box = gtk.HBox(False, 5)
-        bottom_box.pack_start(button_collapse_left_treeview, False)
-        bottom_box.pack_start(button_expand_left_treeview, False)
-        bottom_box.pack_start(button_apply, False, False, 10)
-        bottom_box.pack_start(sbox, False)
-        bottom_box.pack_start(self.quick_setup_area, False)
 
         self.app_objs = app_objs
-        for obj in app_objs :
-            self.treestore.append ( None, [obj] )
+        for obj in app_objs:
+            self.right_store.append([obj])
+
+        toolbar = gtk.HBox(False, 3)
+        for text, class_name, icon_path in Category.all_left_class():
+            toolbar.pack_start(self.left_class_choose_button(text, class_name, icon_path), False)
+        toolbar.pack_start(gtk.VSeparator(), False)
+        toolbar.pack_start(button_sync, False)
+        toolbar.pack_start(gtk.VSeparator(), False)
+        toolbar.pack_start(sbox, False)
+        toolbar.pack_start(self.quick_setup_area, False)
+        toolbar.pack_start(button_apply, False)
 
         self.fill_left_treestore()
         self.__left_tree_view_default_select()
+        self.pack_start(toolbar, False)
         self.pack_start(hpaned)
-        self.pack_start(bottom_box, False)
         self.show_all()
 
+    def left_class_choose_button_clicked(self, button):
+        self.left_pane_visible_class = button.class_name
+        self.left_store_filter.refilter()
+
+    def left_class_choose_button(self, text, class_name, icon_path):
+        pixbuf = get_pixbuf(icon_path, 24, 24)
+        image = gtk.image_new_from_pixbuf(pixbuf)
+        button = gtk.Button()
+        button.add(image)
+        button.class_name = class_name
+        button.connect('clicked', self.left_class_choose_button_clicked)
+        button.set_tooltip_text(text)
+        return button
+
     def fill_left_treestore(self):
-        items = [
-            [_('All'), None, '*all'],
-            [_('Internet'), None, '*internet'],
-                 [_('Browser'), D+'umut_icons/p_browser.png', 'browser'],
-                 [_('Email'), D+'umut_icons/p_email.png', 'email'],
-                 [_('File sharing'), D+'umut_icons/p_file_sharing.png', 'file_sharing'],
-                 [_('Chat'), D+'umut_icons/p_chat.png', 'chat'],
-                 [_('Firefox extension'), D+'umut_icons/p_firefox_extension.png', 'firefox_extension'],
-                 [_('Flash'), D+'sora_icons/p_flash.png', 'flash'],
-                 [_('Blog'), D+'umut_icons/p_blog.png', 'blog'],
-                 [_('RSS'), D+'sora_icons/p_rss.png', 'rss'],
-            [_('Multimedia'), None, '*multimedia'],
-                 [_('Player'), D+'sora_icons/p_player.png', 'player'],
-                 [_('CD burner'), D+'umut_icons/p_cd_burner.png', 'cd_burner'],
-                 [_('Media editor'), D+'sora_icons/p_media_editor.png', 'media_editor'],
-            [_('Appearance'), None, '*appearance'],
-                 [_('Panel'), D+'sora_icons/p_panel.png', 'panel'],
-                 [_('Theme'), D+'umut_icons/p_theme.png', 'theme'],
-                 [_('Candy'), D+'umut_icons/p_candy.png', 'candy'],
-                 [_('Compiz setting'), D+'sora_icons/p_compiz_setting.png', 'compiz_setting'],
-            [_('Science'), None, '*science'],
-                 [_('Math'), D+'umut_icons/p_math.png', 'math'],
-                 [_('Statistics'), D+'umut_icons/p_statistics.png', 'statistics'],
-                 [_('Electronics'), D+'umut_icons/p_electronics.png', 'electronics'],
-                 [_('Mechanics'), D+'umut_icons/p_mechanics.png', 'mechanics'],
-                 [_('Geography'), D+'sora_icons/p_geography.png', 'geography'],
-                 [_('Biology'), D+'umut_icons/p_biology.png', 'biology'],
-                 [_('LaTeX'), D+'umut_icons/p_latex.png', 'latex'],
-            [_('Programming'), None, '*programming'],
-                 [_('IDE'), D+'sora_icons/p_ide.png', 'ide'],
-                 [_('Version control'), D+'sora_icons/p_version_control.png', 'version_control'],
-                 [_('Library'), D+'sora_icons/p_library.png', 'library'],
-                 [_('Embedded system'), D+'umut_icons/p_embedded_system.png', 'embedded_system'],
-                 [_('Text editor'), D+'umut_icons/p_text_editor.png', 'text_editor'],
-                 [_('Eclipse extension'), D+'sora_icons/p_eclipse_extension.png', 'eclipse_extension'],
-                 [_('Saber'), D+'sora_icons/p_saber.png', 'saber'],
-            [_('Business'), None, '*business'],
-            [_('Design'), None, '*design'],
-                 [_('Drawing'), D+'umut_icons/p_drawing.png', 'drawing'],
-                 [_('Typesetting'), D+'umut_icons/p_typesetting.png', 'typesetting'],
-            [_('For GNOME'), None, '*for_gnome'],
-            [_('Nautilus extension'), D+'sora_icons/p_nautilus_extension.png', '*nautilus_extension'],
-            [_('Simulator'), None, '*simulator'],
-            [_('Education'), None, '*education'],
-            [_('Game'), None, '*game'],
-            [_('Anti-virus'), None, '*antivirus'],
-            [_('Others'), None, '*others'],
-            [_('Establish a server'), D+'umut_icons/p_establish_a_server.png', '*establish_a_server'],
-            [_('Repository'), None, '*repository'],
-                 ] # end of items
-        class T(list):
-            pass
-        for i, item in enumerate(items):
-            items[i] = T(item)
-        for item in items:
-            category = item[2]
-            item.is_big_class = category.startswith('*')
-        for item in items:
-            if item.is_big_class:
-                last_big_class = item
-                item.parent = None
-            else:
-                item.parent = last_big_class
-        for item in items:
-            category = item[2]
-            if category.startswith('*'): category = category[1:]
-            item.category = category
-        for item in items:
-            item.visible = False
         all_categories = [obj.category for obj in self.app_objs]
-        for i, item in enumerate(items):
-            item.visible = item.category in all_categories
-            if item.visible and item.parent!=None: item.parent.visible = True
+        items = Category.all()
         assert items[0].category == 'all'
         items[0].visible = True
-            
         for item in items:
-            if item.visible == False: continue
-            i1, i2, i3 = item
-            if item.is_big_class:
-                last_big_class = self.left_treestore.append(None, [i1, get_pixbuf(D+'other_icons/blank.png', 24, 24), i3])
-            else:
-                self.left_treestore.append(last_big_class, [i1, get_pixbuf(i2, 24, 24), i3])
+            if item.category in all_categories: item.visible = True
+        for item in items:
+            if item.visible:
+                self.left_store.append(item.to_list())
         
         right_categories = [item.category for item in items]
         for obj in self.app_objs:

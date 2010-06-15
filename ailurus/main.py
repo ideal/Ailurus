@@ -27,7 +27,7 @@ from libu import *
 from loader import *
 
 def detect_running_instances():
-    string = get_output('ps -a -u $USER | grep ailurus', True)
+    string = get_output('pgrep -u $USER ailurus', True)
     if string!='':
         notify(_('Warning!'), 
            _('Another instance of Ailurus is running. '
@@ -92,6 +92,29 @@ def check_required_packages():
     if not os.path.exists('/usr/bin/xterm'):
         fedora_missing.append('xterm')
         archlinux_missing.append('xterm')
+    try: # detect policykit version 0.9.x
+        import dbus
+        obj = dbus.SystemBus().get_object('org.freedesktop.PolicyKit', '/')
+        obj = dbus.Interface(obj, 'org.freedesktop.PolicyKit')
+        has_policykit_0 = True
+    except ImportError:
+        has_policykit_0 = True # We cannot detect PolicyKit if we haven't dbus.
+    except:
+        has_policykit_0 = False
+    try: # detect policykit version 1.x
+        import dbus
+        obj = dbus.SystemBus().get_object('org.freedesktop.PolicyKit1', '/org/freedesktop/PolicyKit1/Authority')
+        obj = dbus.Interface(obj, 'org.freedesktop.PolicyKit1.Authority')
+        has_policykit_1 = True
+    except ImportError:
+        has_policykit_1 = True # We cannot detect PolicyKit if we haven't dbus.
+    except:
+        has_policykit_1 = False
+    if not has_policykit_0 and not has_policykit_1:
+        ubuntu_missing.append('policykit-gnome (or policykit-kde or policykit-1-gnome)') # FIXME: It is not good to list all these packages. Should be more precise.
+        # FIXME: policykit-1-kde does not exist in Ubuntu.
+        fedora_missing.append('polkit-gnome (or polkit-kde)')
+        archlinux_missing.append('polkit-gnome (or polkit-kde)')
 
     error = ((UBUNTU or UBUNTU_DERIV) and ubuntu_missing) or (FEDORA and fedora_missing) or (ARCHLINUX and archlinux_missing)
     if error:
@@ -102,11 +125,11 @@ def check_required_packages():
         print >>message, _('Please install these packages:')
         print >>message, ''
         if UBUNTU or UBUNTU_DERIV:
-            print >>message, '<span color="blue">', ' '.join(ubuntu_missing), '</span>'
+            print >>message, '<span color="blue">', ', '.join(ubuntu_missing), '</span>'
         if FEDORA:
-            print >>message, '<span color="blue">', ' '.join(fedora_missing), '</span>'
+            print >>message, '<span color="blue">', ', '.join(fedora_missing), '</span>'
         if ARCHLINUX:
-            print >>message, '<span color="blue">', ' '.join(archlinux_missing), '</span>'
+            print >>message, '<span color="blue">', ', '.join(archlinux_missing), '</span>'
         dialog = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK)
         dialog.set_title('Ailurus ' + AILURUS_VERSION)
         dialog.set_markup(message.getvalue())
@@ -182,65 +205,6 @@ def wait_firefox_to_create_profile():
             start = time.time()
             while not os.path.exists(propath) and time.time() - start < 6:
                 time.sleep(0.1)
-
-def exception_happened(etype, value, tb):
-    if etype == KeyboardInterrupt: return
-    
-    import traceback, StringIO, os, platform
-    traceback.print_tb(tb, file=sys.stderr)
-    msg = StringIO.StringIO()
-    traceback.print_tb(tb, file=msg)
-    print >>msg, etype, ':', value
-    print >>msg, platform.dist()
-    print >>msg, os.uname()
-    print >>msg, 'Ailurus version:', AILURUS_VERSION
-
-    title_box = gtk.HBox(False, 5)
-    import os
-    if os.path.exists(D+'umut_icons/bug.png'):
-        image = gtk.Image()
-        image.set_from_file(D+'umut_icons/bug.png')
-        title_box.pack_start(image, False)
-    title = label_left_align(_('A bug appears. Would you please tell Ailurus developers? Thank you!') + 
-                             '\n' + _('Please copy and paste following text into bug report web-page.'))
-    title_box.pack_start(title, False)
-    
-    textview_traceback = gtk.TextView()
-    gray_bg(textview_traceback)
-    textview_traceback.set_wrap_mode(gtk.WRAP_WORD)
-    textview_traceback.get_buffer().set_text(msg.getvalue())
-    textview_traceback.set_cursor_visible(False)
-    scroll_traceback = gtk.ScrolledWindow()
-    scroll_traceback.set_shadow_type(gtk.SHADOW_IN)
-    scroll_traceback.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-    scroll_traceback.add(textview_traceback)
-    scroll_traceback.set_size_request(-1, 300)
-    button_copy = image_stock_button(gtk.STOCK_COPY, _('Copy text to clipboard'))
-    def clicked():
-        buffer = textview_traceback.get_buffer()
-        start = buffer.get_start_iter()
-        end = buffer.get_end_iter()
-        clipboard = gtk.clipboard_get()
-        clipboard.set_text(buffer.get_text(start, end))
-    button_copy.connect('clicked', lambda w: clicked())
-    button_report_bug = image_stock_button(gtk.STOCK_DIALOG_WARNING, _('Click here to report bug via web-page') )
-    button_report_bug.connect('clicked', lambda w: report_bug() )
-    button_close = image_stock_button(gtk.STOCK_CLOSE, _('Close'))
-    button_close.connect('clicked', lambda w: window.destroy())
-    bottom_box = gtk.HBox(False, 10)
-    bottom_box.pack_end(button_close, False)
-    bottom_box.pack_end(button_report_bug, False)
-    bottom_box.pack_end(button_copy, False)
-    
-    vbox = gtk.VBox(False, 5)
-    vbox.pack_start(title_box, False)
-    vbox.pack_start(scroll_traceback)
-    vbox.pack_start(bottom_box, False)
-    window = gtk.Window()
-    window.set_title(_('Bug appears!'))
-    window.set_border_width(10)
-    window.add(vbox)
-    window.show_all()
 
 sys.excepthook = exception_happened
 
@@ -494,7 +458,7 @@ class MainView:
         self.toolbar.set_orientation(gtk.ORIENTATION_HORIZONTAL)
         self.toolbar.set_style(gtk.TOOLBAR_BOTH)
         vbox.pack_start(self.toolbar, False)
-        
+        vbox.pack_start(gtk.HSeparator(), False)
         vbox.pack_start(self.toggle_area, True, True)
         
         self.window = window = gtk.Window(gtk.WINDOW_TOPLEVEL)

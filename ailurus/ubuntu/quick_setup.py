@@ -34,22 +34,23 @@ import gtk
 class Adobe_Flash_plugin(_apt_install):
     pkgs = 'flashplugin-installer'
 
-class Fix_error_in_49_sansserif_conf(I):
-    def installed(self):
-        try:
-            with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
-                if '>sans-serif<' in f.read():
-                    return False
-        except IOError: # File does not exist
-            pass
-        return True
-    def install(self):
-        with TempOwn('/etc/fonts/conf.d/49-sansserif.conf') as o:
-            with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
-                content = f.read()
-            content = content.replace('>sans-serif<', '>sans serif<')
-            with open('/etc/fonts/conf.d/49-sansserif.conf', 'w') as f:
-                f.write(content)
+if VERSION < 'lucid':
+    class Fix_error_in_49_sansserif_conf(I):
+        def installed(self):
+            try:
+                with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
+                    if '>sans-serif<' in f.read():
+                        return False
+            except IOError: # File does not exist
+                pass
+            return True
+        def install(self):
+            with TempOwn('/etc/fonts/conf.d/49-sansserif.conf') as o:
+                with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
+                    content = f.read()
+                content = content.replace('>sans-serif<', '>sans serif<')
+                with open('/etc/fonts/conf.d/49-sansserif.conf', 'w') as f:
+                    f.write(content)
 
 class Full_Language_Pack(I):
     def determine_packages(self):
@@ -82,7 +83,8 @@ WORKS = [
             [_(u'Moonlight: an open source implementation of Microsoft® Silverlight'), 'Moonlight', True],
             [_('Flash plugin for web browser') + ' (GNU Gnash)', 'Gnash', False],
             [_('Flash plugin for web browser') + ' (Adobe)', 'Adobe_Flash_plugin', True],
-            [_('Fix Flash plugin font error'), 'Fix_error_in_49_sansserif_conf', True],
+# Some people say that this operation has side effect.
+#            [_('Fix Flash plugin font error'), 'Fix_error_in_49_sansserif_conf', True],
             [_('Install hardware drivers'), 'Install_Hardware_Driver', True],
         ]
 
@@ -455,10 +457,10 @@ class DoStuffDialog(gtk.Dialog):
             except:
                 print_traceback()
 
-        self.pixbuf_fail = get_pixbuf(D+'other_icons/fail.png', 16, 16)
-        self.pixbuf_blank = get_pixbuf(D+'other_icons/blank.png', 16, 16)
-        self.pixbuf_started = get_pixbuf(D+'other_icons/started.png', 16, 16)
-        self.pixbuf_done = get_pixbuf(D+'other_icons/done.png', 16, 16)
+        self.pixbuf_fail = get_pixbuf(D+'sora_icons/quicksetup_fail.png', 16, 16)
+        self.pixbuf_blank = blank_pixbuf(16, 16)
+        self.pixbuf_started = get_pixbuf(D+'sora_icons/quicksetup_start.png', 16, 16)
+        self.pixbuf_done = get_pixbuf(D+'sora_icons/quicksetup_done.png', 16, 16)
 
         render_pixbuf = gtk.CellRendererPixbuf()
         render_text = gtk.CellRendererText()

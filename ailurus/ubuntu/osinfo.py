@@ -38,7 +38,7 @@ def __ubuntu_derivative():
     try:
         import platform
         name, version = platform.dist()[0:2]
-        return [row(_('%s version:') % name, version, D+'other_icons/tux.png' )]
+        return [row(_('%s version:') % name, version, D+'umut_icons/tux.png' )]
     except: print_traceback()
 
 def get():

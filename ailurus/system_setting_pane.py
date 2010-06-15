@@ -43,8 +43,8 @@ class SystemSettingPane(gtk.VBox):
         self.left_store = left_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str) #pixbuf, text, category
         
         for iconpath, text, category in [
-              (D+'other_icons/s_nautilus.png', _('Nautilus'), 'nautilus', ), 
-              (D+'other_icons/s_desktop.png', _('Desktop'), 'desktop', ), 
+              (D+'sora_icons/s_nautilus.png', _('Nautilus'), 'nautilus', ), 
+              (D+'sora_icons/s_desktop.png', _('Desktop'), 'desktop', ), 
               (D+'umut_icons/s_window.png', _('Window effect'), 'window', ), 
               (D+'umut_icons/s_menu.png', _('Menu'), 'menu', ), 
               (D+'umut_icons/s_icon.png', _('Icon'), 'icon', ), 
@@ -59,7 +59,7 @@ class SystemSettingPane(gtk.VBox):
               (D+'umut_icons/s_update.png', _('Update'), 'update', ),
               (D+'umut_icons/s_restriction.png', _('Restriction'), 'restriction', ),
               (D+'umut_icons/s_shortcutkey.png', _('Shortcut key'), 'shortcut', ),
-              (D+'other_icons/s_configure_firefox.png', _('Configure Firefox'), 'firefox', ),
+              (D+'sora_icons/s_firefox.png', _('Configure Firefox'), 'firefox', ),
               (D+'umut_icons/s_host_name.png', _('Host name'), 'host_name', ),
               (D+'umut_icons/s_login_window.png', _('Login window'), 'login_window', ),
               (D+'umut_icons/s_compression.png', _('Compression'), 'compression', ),

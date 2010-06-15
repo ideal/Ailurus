@@ -15,7 +15,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: python-devel python2-devel python-distutils-extra intltool
 BuildArch: noarch
 # The automatic dependency consists of python and rpmlib only. It is insufficient.
-Requires: pygtk2 notify-python vte rpm-python pygobject2 dbus-python wget unzip xterm gnome-python2-gnomekeyring
+Requires: polkit pygtk2 notify-python vte rpm-python pygobject2 dbus-python wget unzip xterm gnome-python2-gnomekeyring
 
 %description
 Ailurus is an application which makes Linux easier to use.

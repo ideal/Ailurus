@@ -22,14 +22,18 @@
 
 from __future__ import with_statement
 
-def get_pixbuf(file, width, height):
-    from lib import D
+def blank_pixbuf(width, height):
     import gtk
-    try:
-        return gtk.gdk.pixbuf_new_from_file_at_size(file, width, height)
-    except:
-        print file, 'not found'
-        return gtk.gdk.pixbuf_new_from_file_at_size(D + 'other_icons/blank.png', width, height)
+    pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, True, 8, width, height)
+    pixbuf.fill(0) # transparent black
+    return pixbuf
+
+def get_pixbuf(path, width, height):
+    import os, gtk
+    if os.path.exists(path): return gtk.gdk.pixbuf_new_from_file_at_size(path, width, height)
+    else:
+        print path, 'is missing'
+        return blank_pixbuf(width, height)
 
 def gray_bg(widget):
     import gtk
@@ -185,4 +189,84 @@ def show_text_window(title, content, show_textbox_border = True, show_a_big_wind
         window.set_default_size(600, 400)
     window.set_border_width(10)
     window.set_position(gtk.WIN_POS_CENTER)
+    window.show_all()
+
+def do_access_denied_error():
+    import gtk
+    message = _('Operation is canceled because you refused authentication.\n'
+                'Authentication is provided by system PolicyKit service.\n'
+                'Ailurus does not know your password at all.')
+    label = gtk.Label(message)
+    label.set_alignment(0, 0.5)
+    button_close = image_stock_button(gtk.STOCK_CLOSE, _('Close'))
+    button_close.connect('clicked', lambda w: window.destroy())
+    vbox = gtk.VBox(False, 5)
+    vbox.pack_start(label, False)
+    vbox.pack_start(right_align(button_close), False)
+    window = gtk.Window()
+    window.set_title(_('Operation is canceled'))
+    window.set_border_width(10)
+    window.set_position(gtk.WIN_POS_CENTER)
+    window.add(vbox)
+    window.show_all()
+    
+def exception_happened(etype, value, tb):
+    import traceback, StringIO, os, sys, platform, gtk
+    from lib import AILURUS_VERSION, D, AccessDeniedError
+
+    if etype == KeyboardInterrupt: return
+    if etype == AccessDeniedError: return do_access_denied_error()
+    
+    traceback.print_tb(tb, file=sys.stderr)
+    msg = StringIO.StringIO()
+    traceback.print_tb(tb, file=msg)
+    print >>msg, etype, ':', value
+    print >>msg, platform.dist()
+    print >>msg, os.uname()
+    print >>msg, 'Ailurus version:', AILURUS_VERSION
+
+    title_box = gtk.HBox(False, 5)
+    if os.path.exists(D+'umut_icons/bug.png'):
+        image = gtk.Image()
+        image.set_from_file(D+'umut_icons/bug.png')
+        title_box.pack_start(image, False)
+    title = label_left_align(_('A bug appears. Would you please tell Ailurus developers? Thank you!') + 
+                             '\n' + _('Please copy and paste following text into bug report web-page.'))
+    title_box.pack_start(title, False)
+    
+    textview_traceback = gtk.TextView()
+    gray_bg(textview_traceback)
+    textview_traceback.set_wrap_mode(gtk.WRAP_WORD)
+    textview_traceback.get_buffer().set_text(msg.getvalue())
+    textview_traceback.set_cursor_visible(False)
+    scroll_traceback = gtk.ScrolledWindow()
+    scroll_traceback.set_shadow_type(gtk.SHADOW_IN)
+    scroll_traceback.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+    scroll_traceback.add(textview_traceback)
+    scroll_traceback.set_size_request(-1, 300)
+    button_copy = image_stock_button(gtk.STOCK_COPY, _('Copy text to clipboard'))
+    def clicked():
+        buffer = textview_traceback.get_buffer()
+        start = buffer.get_start_iter()
+        end = buffer.get_end_iter()
+        clipboard = gtk.clipboard_get()
+        clipboard.set_text(buffer.get_text(start, end))
+    button_copy.connect('clicked', lambda w: clicked())
+    button_report_bug = image_stock_button(gtk.STOCK_DIALOG_WARNING, _('Click here to report bug via web-page') )
+    button_report_bug.connect('clicked', lambda w: report_bug() )
+    button_close = image_stock_button(gtk.STOCK_CLOSE, _('Close'))
+    button_close.connect('clicked', lambda w: window.destroy())
+    bottom_box = gtk.HBox(False, 10)
+    bottom_box.pack_end(button_close, False)
+    bottom_box.pack_end(button_report_bug, False)
+    bottom_box.pack_end(button_copy, False)
+    
+    vbox = gtk.VBox(False, 5)
+    vbox.pack_start(title_box, False)
+    vbox.pack_start(scroll_traceback)
+    vbox.pack_start(bottom_box, False)
+    window = gtk.Window()
+    window.set_title(_('Bug appears!'))
+    window.set_border_width(10)
+    window.add(vbox)
     window.show_all()

@@ -1,3 +1,29 @@
+2010-06-15 QI Chengjie <starboy.qi@gmail.com>
+
+    * Add Adobe AIR
+
+2010-06-15 Homer Xing <homer.xing@gmail.com>
+
+    * Improve processing for AccessDeniedError
+    * Show a horizontal separator on main-view
+    * Hide 49-sansserif cure
+    * Improve icons fetch
+    * Support online synchronization
+    * Detect policykit
+    * Improve server list for Ubuntu and Fedora
+    * Improve MTJ server list
+    * Detect Poland software as the same way as Chinese software
+    * Add GMarks
+    * Improve software center pane
+
+2010-06-13 MA Yue <velly.empire@gmail.com>
+
+    * Complete all Firefox tweaks
+
+2010-06-12 Devil Wang <wxjeacen@gmail.com>
+    
+    * Add DOSBox to software pane
+
 2010-06-11 Ray Chen <chenrano2002@gmail.com>
 
     * Do not raise Exception if proxy string is empty
@@ -37,6 +63,10 @@
     * Do not try to read Firefox preference location if Firefox is not installed.
     * Fix bug: state is not refeshed after running quick setup.
     * Support proxy server.
+
+2010-06-03 MA Yue <velly.empire@gail.com>
+
+    * Add Flashblock, Ease Link and WebMail Notifier
 
 2010-06-02 Homer Xing <homer.xing@gmail.com>
 

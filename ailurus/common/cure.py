@@ -171,7 +171,7 @@ class Show_a_Linux_skill_bubble(C):
                     'Exec=/usr/share/ailurus/support/show-a-linux-skill-bubble\n'
                     'Terminal=false\n'
                     'Type=Application\n'
-                    'Icon=/usr/share/ailurus/data/suyun_icons/shortcut.png\n'
+                    'Icon=' + D + 'suyun_icons/shortcut.png\n'
                     'Categories=System;\n'
                     'StartupNotify=false\n')
 

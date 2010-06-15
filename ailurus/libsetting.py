@@ -184,12 +184,16 @@ class ImageChooser(gtk.Button):
         chooser.destroy()
     
     def display_image(self, image_path):
+        'If image_path is none, then show blank.'
         child = self.get_child()
         if child:
             self.remove(child)
         
-        pixbuf = gtk.gdk.pixbuf_new_from_file(image_path)
-        pixbuf = self.scale_pixbuf(pixbuf)
+        if image_path:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(image_path)
+            pixbuf = self.scale_pixbuf(pixbuf)
+        else:
+            pixbuf = blank_pixbuf(self.image_max_width, self.image_max_height)
         image = gtk.image_new_from_pixbuf(pixbuf)
         self.add(image)
         self.show_all()
@@ -317,48 +321,120 @@ class Setting(gtk.VBox):
         self.category = category
 
 class FirefoxPrefText(gtk.Label):
-    def __init__(self, text, key):
+    def __init__(self, text, key, tips = ''):
         assert isinstance(text, (str, unicode)) and text
         assert isinstance(key, str) and key
-        new_text = '%s <small>(%s)</small>' % (text, key)
+        new_text = '%s <small>(<span color="#8A00C2">%s</span>)</small>' % (text, key)
+        if tips: new_text += '\n' + '<small><span color="#0072B2">%s</span></small>' % tips
         gtk.Label.__init__(self)
         self.set_markup(new_text)
         self.set_ellipsize(pango.ELLIPSIZE_END)
         self.set_alignment(0, 0.5)
+        self.set_selectable(True)
 
 class FirefoxBooleanPref(gtk.HBox):
-    def __init__(self, key):
+    def __init__(self, key, default=None):
         assert isinstance(key, str) and key
-        self.key = key
+        if default is not None: assert isinstance(default, bool)
+        self.key, self.default = key, default
         self.combo = combo = gtk.combo_box_new_text()
         combo.append_text(_('Yes'))
         combo.append_text(_('No'))
-        combo.connect('scroll-event', lambda w: True)
+        combo.connect('scroll-event', lambda *w: True)
         gtk.HBox.__init__(self, False, 5)
         self.pack_start(combo, False)
-        self.get_value()
-        combo.connect('changed', lambda w: self.set_value())
-    def get_value(self):
+        self.m_get_value()
+        combo.connect('changed', lambda *w: self.m_set_value())
+    def m_get_value(self):
         try:
             value = bool(firefox.get_pref(self.key))
         except:
-            pass
+            if self.default is not None:
+                self.combo.set_active({True:0, False:1}[self.default])
         else:
             self.combo.set_active({True:0, False:1}[value])
-    def set_value(self):
+    def m_set_value(self):
         index = self.combo.get_active()
         if index == -1: firefox.remove_pref(self.key)
         else: firefox.set_pref(self.key, {0:True, 1:False}[index])
+    def set_value(self, new_value):
+        assert isinstance(new_value, bool)
+        self.combo.set_active({True:0, False:1}[new_value])
 
-class FirefoxNumericPref(gtk.SpinButton):
-    def __init__(self, key, min, max, step, default_value):
+class FirefoxComboPref(gtk.HBox):
+    def __init__(self, key, texts, values, default=None): # "text" is displayed. "value" is stored in pref.js
+        assert isinstance(key, str) and key
+        assert isinstance(texts, list) and texts
+        assert isinstance(values, list) and values
+        assert len(texts) == len(values)
+        if default: assert default in values
+        self.key, self.texts, self.values, self.default = key, texts, values, default
+        self.combo = combo = gtk.combo_box_new_text()
+        combo.connect('scroll-event', lambda *w: True)
+        for text in self.texts:
+            combo.append_text(text)
+        gtk.HBox.__init__(self, False, 5)
+        self.pack_start(combo, False)
+        combo.connect('changed', lambda *w: self.m_set_value())
+    def m_get_value(self):
+        try:    value = firefox.get_pref(self.key)
+        except:
+            if self.default:
+                for i in range(len(self.values)):
+                    if self.values[i] == default:
+                        self.combo.set_active(i)
+        else:
+            for i in range(len(self.values)):
+                if self.values[i] == value:
+                    self.combo.set_active(i)
+    def m_set_value(self):
+        i = self.combo.get_active()
+        firefox.set_pref(self.key, self.values[i])
+    def set_value(self, new_value):
+        assert new_value in self.values
+        for i in range(len(self.values)):
+            if self.values[i] == new_value:
+                self.combo.set_active(i)
+
+class FirefoxNumericPref(gtk.Entry):
+    def __init__(self, key, default):
+        'default is displayed if the preference is not set'
+        assert isinstance(key, str) and key
+        assert isinstance(default, (int, long))
+        self.key = key
+        self.default_value = str(default)
+        gtk.Entry.__init__(self)
+        self.set_width_chars(7)
+        self.connect('changed', lambda w: self.m_set_value())
+        self.m_get_value()
+    def m_get_value(self):
+        try:
+            value = int(firefox.get_pref(self.key))
+        except:
+            self.set_text(self.default_value)
+        else:
+            self.set_text(str(value))
+    def m_set_value(self):
+        try:
+            value = int(self.get_text())
+        except:
+            pass
+        else:
+            firefox.set_pref(self.key, value)
+    def set_value(self, new_value):
+        assert isinstance(new_value, (int, long))
+        self.set_text(str(new_value))
+        
+class FirefoxNumericPref2(gtk.SpinButton): # do not use this class, because min & max is hard to determine
+    def __init__(self, key, min, max, default):
+        'default_value is displayed if the preference is not set'
         assert isinstance(key, str) and key
         assert isinstance(min, (int, long))
         assert isinstance(max, (int, long))
-        assert isinstance(step, (int, long)) and step>0
-        assert isinstance(default_value, (int, long)) and min<=default_value<=max
+        assert isinstance(default, (int, long)) and min<=default<=max
+        step = max(1, (max-min)/100)
         self.key = key
-        self.default_value = default_value
+        self.default_value = default
         gtk.SpinButton.__init__(self)
         self.set_range(min, max)
         self.set_increments(step, step)
@@ -377,46 +453,15 @@ class FirefoxNumericPref(gtk.SpinButton):
             self.set_value(value)
     def m_set_value(self):
         value = self.get_value_as_int()
-        firefox.set_pref(self.key, value)
-
-class FirefoxConfig(gtk.CheckButton):          
-    def check_active(self):
-        import os
-        if not os.path.isfile(self.path + 'user.js'):
-            return False
-        else :
-            with open(self.path + 'user.js') as f:
-                p = self.config_item.split('\n')
-                v = f.readlines()
-                for s in p:
-                    for i in v:
-                        if i[:-1] == s:
-                            return True
-                return False
-
-    def __init__(self, container, config_item, 
-             plain_text, tooltip=None, ):
-        self.path = firefox.preference_dir
-        gtk.CheckButton.__init__(self)
-        assert isinstance(container, gtk.Container)
-        self.__container = container
-        assert isinstance(config_item, str)
-        self.config_item = config_item
-        assert isinstance(plain_text, (str,unicode))
-        self.plain_text = plain_text
-        self.label = gtk.Label(plain_text)
-        self.add(self.label)
-        self.tooltip = tooltip
-        self.set_active(self.check_active())
-        self.connect("query-tooltip", lambda *w: True)
+        firefox.set_pref(self.key, value)        
 
 if __name__ == '__main__':
     content_interrupt_parsing_t = FirefoxPrefText(_('whether interrupt parsing a page to respond to UI events?') , 'content.interrupt.parsing')
     content_interrupt_parsing = FirefoxBooleanPref('content.interrupt.parsing')
     content_max_tokenizing_time_t = FirefoxPrefText(_('maximum number of microseconds between two page rendering'), 'content.max.tokenizing.time')
-    content_max_tokenizing_time = FirefoxNumericPref('content.max.tokenizing.time', 100000, 5000000, 100000, 5000000)
+    content_max_tokenizing_time = FirefoxNumericPref('content.max.tokenizing.time', 100000)
     content_maxtextrun_t = FirefoxPrefText(_('maximum number of bytes to split a long text node'), 'content.maxtextrun')
-    content_maxtextrun = FirefoxNumericPref('content.maxtextrun', 1024, 32768, 1024, 8192)
+    content_maxtextrun = FirefoxNumericPref('content.maxtextrun', 1024)
     
     table = gtk.Table()
     row = 0

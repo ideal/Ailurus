@@ -22,11 +22,11 @@
 
 from __future__ import with_statement
 
-D = '/usr/share/ailurus/data/'
-import warnings
-warnings.filterwarnings("ignore", "apt API not stable yet", FutureWarning)
+def get_icons_path():
+    import os
+    return os.path.dirname(os.path.abspath(__file__))+'/icons/'
 
-def row(text, value, icon=D+'umut_icons/i_default.png', tooltip = None):
+def row(text, value, icon, tooltip = None): # only used in hardwareinfo.py and osinfo.py
     return (text, value, icon, tooltip)
 
 class I:
@@ -55,6 +55,8 @@ class C:
         raise NotImplementedError
     
 class Config:
+    import os
+    config_dir = os.path.expanduser('~/.config/ailurus/')
     @classmethod
     def make_config_dir(cls):
         import os
@@ -68,8 +70,7 @@ class Config:
             os.chmod(dir, 0755)
     @classmethod
     def get_config_dir(cls):
-        import os
-        return os.path.expanduser('~/.config/ailurus/')
+        return cls.config_dir
     @classmethod
     def init(cls):
         assert not hasattr(cls, 'inited')
@@ -520,7 +521,7 @@ def run_as_root(cmd, ignore_error=False):
     try:
         obj.run(cmd, packed_env_string(), secret_key, ignore_error, timeout=36000, dbus_interface='cn.ailurus.Interface')
     except dbus.exceptions.DBusException, e:
-        if e.get_dbus_name() == 'cn.ailurus.AccessDeniedError': raise AccessDeniedError
+        if e.get_dbus_name() == 'cn.ailurus.AccessDeniedError': raise AccessDeniedError(*e.args)
         else: raise
 
 def is_string_not_empty(string):
@@ -683,7 +684,7 @@ def run_as_root_in_terminal(command):
     try:
         obj.run(string, packed_env_string(), secret_key, False, timeout=36000, dbus_interface='cn.ailurus.Interface')
     except dbus.exceptions.DBusException, e:
-        if e.get_dbus_name() == 'cn.ailurus.AccessDeniedError': raise AccessDeniedError
+        if e.get_dbus_name() == 'cn.ailurus.AccessDeniedError': raise AccessDeniedError(*e.args)
         else: raise
 
 class RPM:
@@ -1835,6 +1836,13 @@ def get_ailurus_release_date():
     info = os.stat(path)
     return time.strftime('%Y-%m-%d', time.gmtime(info.st_mtime))
 
+try:
+    D = get_icons_path()
+except: # raise exception in python console because __file__ is not defined
+    import os
+    D = os.path.expanduser('~/workspace/Ailurus/ailurus/icons/')
+    assert os.path.exists(D)
+    
 try:
     AILURUS_VERSION = get_ailurus_version()
     AILURUS_RELEASE_DATE = get_ailurus_release_date()

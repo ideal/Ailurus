@@ -32,10 +32,10 @@ def __host_name():
 
 def __kernel():
     ret = []
-    try: ret.append( row(_('Kernel version:'), get_output('uname -r'), D+'other_icons/tux.png' ) )
+    try: ret.append( row(_('Kernel version:'), get_output('uname -r'), D+'umut_icons/tux.png' ) )
     except: print_traceback()
     
-    try: ret.append( row(_('Kernel arch:'), get_output('uname -m'), D+'other_icons/tux.png' ) )
+    try: ret.append( row(_('Kernel arch:'), get_output('uname -m'), D+'umut_icons/tux.png' ) )
     except: print_traceback()
     return ret
 

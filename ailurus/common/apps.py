@@ -216,9 +216,17 @@ class FFEasyDragToGo(_ff_extension):
     name = u'Easy DragToGo'
     R = R(latest(6639), filename='easy_dragtogo.xpi')
 
+class FFEaseLink(_ff_extension):
+    __doc__ = _('Ease Link: Decode Thunder, QQ, Flashget, Rayfile, Namipan links')
+    detail = _('Get normal HTML hyperlink from hyperlink dedicated to special software')
+    license = MPL
+    Chinese = True
+    download_url = 'https://addons.mozilla.org/en-US/firefox/addon/59133'
+    name = u'Ease Link'
+    R = R(latest(59133), filename='ease_link.xpi')
+
 class FFFireBug(_ff_extension):
     __doc__ = _('FireBug: Real-time edit and debug CSS/HTML/JavaScript in webpage')
-    category = 'firefox_extension'
     license = BSD
     detail = _('This is a powerful web development tool.')
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/1843'
@@ -249,6 +257,13 @@ class FFFoxyProxy(_ff_extension):
     name = u'FoxyProxy Standard'
     R = R(latest(2464), filename='foxyproxy_standard.xpi')
 
+class FFGMarks(_ff_extension):
+    __doc__ = _('GMarks: Synchronize bookmarks with Google Bookmarks service')
+    detail = ''
+    download_url = 'https://addons.mozilla.org/en-US/firefox/addon/2888'
+    name = u'GMarks'
+    R = R(latest(2888), filename='gmarks.xpi')
+
 class FFGreaseMonkey(_ff_extension):
     __doc__ = _('GreaseMonkey: Make change to web pages')
     license = MIT
@@ -260,9 +275,16 @@ class FFGreaseMonkey(_ff_extension):
     name = u'Greasemonkey'
     R = R(latest(748), filename='greasemonke.xpi')
 
+class FFFlashblock(_ff_extension):
+    __doc__ = _('Flashblock: blocks Flash animation')
+    license = DUAL_LICENSE(GPL, MPL)
+    detail = _('Never annoyed by Flash animations')
+    download_url = 'https://addons.mozilla.org/en-US/firefox/addon/433/'
+    name = u'Flashblock'
+    R = R(latest(433), filename='flashblock.xpi')
+
 class FFLiveHTTPHeaders(_ff_extension):
     __doc__ = _('Live HTTP Headers: View HTTP headers in real-time')
-    category = 'firefox_extension'
     license = GPL
     detail = ''
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/3829'
@@ -289,7 +311,6 @@ class FFRadioGet(_ff_extension):
 
 class FFSeoQuake(_ff_extension):
     __doc__ = _('SeoQuake: Help you view search engine parameters of your web site')
-    category = 'firefox_extension'
     license = MPL
     detail = _('It helps you promote your web sites.')
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/3036'
@@ -306,7 +327,6 @@ class FFStylish(_ff_extension):
 
 class FFTamperData(_ff_extension):
     __doc__ = _('Tamper Data: View and modify HTTP/HTTPS headers and post request parameters.')
-    category = 'firefox_extension'
     license = GPL
     detail = ''
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/966'
@@ -323,7 +343,6 @@ class FFUserAgentSwitcher(_ff_extension):
 
 class FFViewSourceChart(_ff_extension):
     __doc__ = _('View Source Chart: Show pretty color-coded HTML source code')
-    category = 'firefox_extension'
     license = GPL
     detail = _("This extension helps you quickly scan and recognize a document's tags.")
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/655'
@@ -340,7 +359,6 @@ class FFFirefoxSync(_ff_extension):
 
 class FFWebDeveloper(_ff_extension):
     __doc__ = _('Web Developer: Web page analysis tools')
-    category = 'firefox_extension'
     license = LGPL
     detail = _('Many developers installed it.')
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/60'
@@ -357,9 +375,16 @@ class FFYetAnotherSmoothScrolling(_ff_extension):
 
 class FFYSlow(_ff_extension):
     __doc__ = _("YSlow: web page performance tuning")
-    category = 'firefox_extension'
     license = MPL
     detail = _("It helps you improve web page performance. It tells you why web page is slow.")
     download_url = 'https://addons.mozilla.org/en-US/firefox/addon/5369'
     name = u'YSlow'
     R = R(latest(5369), filename='yslow.xpi')
+        
+class FFWebMailNotifier(_ff_extension):
+    __doc__ = _('WebMail Notifier: check your email accounts and notify unread emails')
+    license = MPL
+    detail = _('Supports many email server')
+    download_url = 'https://addons.mozilla.org/en-US/firefox/addon/4490'
+    name = u'WebMail Notifier'
+    R = R(latest(4490), filename='webmail_notifier.xpi')

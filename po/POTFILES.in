@@ -13,6 +13,7 @@ ailurus/common/setting.py
 ailurus/common/tips.py
 ailurus/computer_doctor_pane.py
 ailurus/daemon.py
+ailurus/download_icons.py
 ailurus/fedora/apps_eclipse.py
 ailurus/fedora/apps.py
 ailurus/fedora/cure.py
@@ -75,3 +76,4 @@ ailurus/ubuntu/quick_setup.py
 ailurus/ubuntu/setting.py
 ailurus/ubuntu/third_party_repos.py
 ailurus/ubuntu/tips.py
+ailurus/urls.py

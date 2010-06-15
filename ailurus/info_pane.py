@@ -25,21 +25,15 @@ import gtk, sys, os
 from lib import *
 from libu import *
 
+def get_information_pixbuf(path, width, height):
+    if not os.path.exists(path):
+        print path, 'is missing'
+        path = D+'sora_icons/default_information_icon.png'
+    return get_pixbuf(path, width, height)
+
 class InfoPane(gtk.VBox):
     icon = D+'sora_icons/m_hardware.png'
     text = _('Information')
-    
-    def __tree_pixbuf(self, column, cell, model, iter):
-        pixbuf = model.get_value(iter, 0)
-        cell.set_property('pixbuf', pixbuf)
-    
-    def __tree_text(self, column, cell, model, iter):
-        text = model.get_value(iter, 1)
-        cell.set_property('text', text)
-    
-    def __tree_value(self, column, cell, model, iter):
-        text = model.get_value(iter, 2)
-        cell.set_property('text', text)
 
     def print_all_information(self):
         import StringIO
@@ -86,11 +80,11 @@ class InfoPane(gtk.VBox):
         text_render = gtk.CellRendererText()
         value_render = gtk.CellRendererText()
         column.pack_start(pixbuf_render, False)
-        column.set_cell_data_func(pixbuf_render, self.__tree_pixbuf)
+        column.add_attribute(pixbuf_render, 'pixbuf', 0)
         column.pack_start(text_render, False)
-        column.set_cell_data_func(text_render, self.__tree_text)
+        column.add_attribute(text_render, 'text', 1)
         column.pack_start(value_render, False)
-        column.set_cell_data_func(value_render, self.__tree_value)
+        column.add_attribute(value_render, 'text', 2)
         
         scrollwindow = gtk.ScrolledWindow ()
         scrollwindow.add (treeview)
@@ -117,7 +111,7 @@ class InfoPane(gtk.VBox):
             rows = function() # some function may returns many lines
             trees = self.function2trees[function] = []
             for row in rows:
-                pixbuf = get_pixbuf(row[2], 24, 24)
+                pixbuf = get_information_pixbuf(row[2], 24, 24)
                 t = self.treestore.append(tree, [pixbuf, row[0], row[1]])
                 trees.append(t)
         
