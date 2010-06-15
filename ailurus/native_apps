@@ -4,6 +4,10 @@ license = GPL
 ubuntu = openjdk-6-jdk openjdk-6-jre-lib
 archlinux = openjdk6
 
+[Chromium]
+category = browser
+archlinux = chromium
+
 [Geany]
 category = text_editor
 fedora = geany
