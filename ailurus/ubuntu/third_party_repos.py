@@ -245,19 +245,6 @@ class Repo_Moovida(_launchpad):
     content = 'moovida'
     ppa = 'moovida-packagers'
     
-#class Repo_Synapse(_repo):
-#    __doc__ = _('Synapse (stable)')
-#    license = GPL
-#    def __init__(self):
-#        self.detail = _('Synapse is an instant messager.')
-#        self.apt_content = 'synapse'
-#        self.web_page = 'http://synapse.im/download/'
-#        self.apt_file = '/etc/apt/sources.list.d/synapse.list'
-#        self.apt_conf = [ 'deb http://ppa.launchpad.net/firerabbit/ppa/ubuntu $version main' ]
-#        self.key_url = 'http://keyserver.ubuntu.com:11371/pks/lookup?op=get&search=0x83419668F12469157BCD4BE904508D5C1654E635'
-#        self.key_id = '1654E635'
-#        _repo.__init__(self)
-
 class Repo_X_Server_Updates(_launchpad):
     __doc__ = _('X server updates (stable)')
     license = GPL
@@ -410,7 +397,7 @@ class Repo_Acire(_launchpad):
 
 class Repo_ElementaryArtwork(_launchpad):
     __doc__ = _('Elementary Theme')
-    ppa = 'elementaryart/ppa'
+    ppa = 'elementaryart'
 
 class Repo_Docky(_launchpad):
     'Docky'

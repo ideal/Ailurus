@@ -31,6 +31,10 @@ def row(text, value, icon, tooltip = None): # only used in hardwareinfo.py and o
 
 class I:
     this_is_an_installer = True
+    this_is_a_repository = False
+    sane = True # False means installed() == False after calling install()
+    category = 'others'
+    detail = ''
     how_to_install = ''
     download_url = ''
     def self_check(self):
@@ -43,6 +47,10 @@ class I:
         raise NotImplementedError
     def remove(self):
         raise NotImplementedError
+    def add_temp_repository(self):
+        'Add repository before installing me'
+    def clean_temp_repository(self):
+        'Remove repository after installing me'
 
 class C:
     this_is_a_cure = True
@@ -133,6 +141,36 @@ class Config:
         value = str(value)
         return value=='True' or value=='true'
     @classmethod
+    def set_login_window_background(cls, value):
+        'just a cache. value may be wrong. cache the gconf value "/desktop/gnome/background/picture_filename" of user "gdm".'
+        cls.set_string('login_window_background', value)
+    @classmethod
+    def get_login_window_background(cls):
+        return cls.get_string('login_window_background') # please do not catch exception
+    @classmethod
+    def set_last_check_update_time_to_now(cls):
+        import time
+        value = long(time.time()) # the time as a floating point number expressed in seconds since the epoch, in UTC
+        cls.set_long('last_check_update_time', value)
+    @classmethod
+    def get_last_check_update_time(cls):
+        try: return cls.get_long('last_check_update_time')
+        except: return 0
+    @classmethod
+    def is_long_enough_since_last_check_update(cls):
+        import time
+        last_check_time = cls.get_last_check_update_time()
+        now = time.time() # the time as a floating point number expressed in seconds since the epoch, in UTC
+        one_day = 3600 * 24
+        return now - last_check_time > one_day * 14
+    @classmethod
+    def set_synced(cls): # has synchronized latest application data?
+        cls.set_bool('synced', True)
+    @classmethod
+    def get_synced(cls):
+        try: return cls.get_bool('synced')
+        except: return False
+    @classmethod
     def set_use_proxy(cls, value):
         cls.set_bool('use_proxy', value)
     @classmethod
@@ -147,12 +185,19 @@ class Config:
         # do not wrap it in try..except
         return cls.get_long('proxy_string_id_in_keyring')
     @classmethod
-    def set_hide_quick_setup_pane(cls, value):
-        cls.set_bool('hide_quick_setup_pane', value)
+    def set_show_quick_setup_area(cls, value):
+        cls.set_bool('show_quick_setup_area', value)
     @classmethod
-    def get_hide_quick_setup_pane(cls):
-        try:        return cls.get_bool('hide_quick_setup_pane')
-        except:     return False
+    def get_show_quick_setup_area(cls):
+        try:        return cls.get_bool('show_quick_setup_area')
+        except:     return True
+    @classmethod
+    def set_show_sync_area(cls, value):
+        cls.set_bool('show_sync_area', value)
+    @classmethod
+    def get_show_sync_area(cls):
+        try:        return cls.get_bool('show_sync_area')
+        except:     return True
     @classmethod
     def set_query_before_exit(cls, value):
         cls.set_bool('query_before_exit', value)
@@ -177,14 +222,6 @@ class Config:
     def wget_get_triesnum(cls):
         try:       value = cls.get_int('wget_triesnum')
         except: value = 3
-        return value
-    @classmethod
-    def set_show_software_icon(cls, value):
-        cls.set_bool('show_software_icon', value)
-    @classmethod
-    def get_show_software_icon(cls):
-        try: value = cls.get_bool('show_software_icon')
-        except: value = True
         return value
     @classmethod
     def set_default_pane(cls, value):
@@ -543,7 +580,7 @@ class TempOwn:
         if path[0]=='-':
             raise ValueError
         import os
-        dirname = os.path.dirname(path)
+        dirname = os.path.dirname(os.path.abspath(path))
         if not os.path.exists(dirname):
             run_as_root('mkdir "%s"'%dirname)
         if not os.path.exists(path):
@@ -741,7 +778,6 @@ class RPM:
         assert isinstance(path, str)
         import os
         assert os.path.exists(path)
-        
         run_as_root_in_terminal('yum localinstall --nogpgcheck -y %s' % path)
         cls.cache_changed()
     @classmethod
@@ -756,35 +792,36 @@ class RPM:
 class APT:
     fresh_cache = False
     apt_get_update_is_called = False
-    __set1 = set() # __set1 consists of all installed software
-    __set2 = set() # __set2 = __set1 + all available software
+    installed_set = set()
+    avail_set = set()
     @classmethod
     def cache_changed(cls):
         cls.fresh_cache = False
     @classmethod
     def refresh_cache(cls):
-        if getattr(cls, 'fresh_cache', False): return
+        if cls.fresh_cache: return
         cls.fresh_cache = True
-        cls.__set1 = set()
-        cls.__set2 = set()
+        cls.installed_set.clear()
+        cls.avail_set.clear()
         import subprocess, os
-        path = os.path.dirname(os.path.abspath(__file__))+'/support/dumpaptcache.py'
-        task = subprocess.Popen(['python', path],
-            stdout=subprocess.PIPE,
-            )
+        path = os.path.dirname(os.path.abspath(__file__))+'/support/dump_deb_installed.py'
+        task = subprocess.Popen(['python', path], stdout=subprocess.PIPE)
         for line in task.stdout:
-            name = line[2:-1]
-            if line[0]=='i': cls.__set1.add(name)
-            else: cls.__set2.add(name)
+            cls.installed_set.add(line.rstrip())
+        task.wait()
+        path = os.path.dirname(os.path.abspath(__file__))+'/support/dump_deb_existing.py'
+        task = subprocess.Popen(['python', path], stdout=subprocess.PIPE)
+        for line in task.stdout:
+            cls.avail_set.add(line.rstrip())
         task.wait()
     @classmethod
     def get_installed_pkgs_set(cls):
         cls.refresh_cache()
-        return cls.__set1
+        return cls.installed_set
     @classmethod
     def get_existing_pkgs_set(cls):
         cls.refresh_cache()
-        return cls.__set2
+        return cls.avail_set
     @classmethod
     def get_autoremovable_pkgs(cls):
         ret = []
@@ -812,12 +849,12 @@ class APT:
     def installed(cls, package_name):
         is_pkg_list([package_name])
         cls.refresh_cache()
-        return package_name in cls.__set1
+        return package_name in cls.installed_set
     @classmethod
     def exist(cls, package_name):
         is_pkg_list([package_name])
         cls.refresh_cache()
-        return package_name in cls.__set1 or package_name in cls.__set2
+        return package_name in cls.installed_set or package_name in cls.avail_set
     @classmethod
     def install(cls, *packages):
         is_pkg_list(packages)
@@ -827,10 +864,6 @@ class APT:
         # use "force-yes" because playonlinux repository has no gpg key, we want to install it without key.
         run_as_root_in_terminal('apt-get install -y --force-yes ' + ' '.join(packages))
         APT.cache_changed()
-        failed = [p for p in packages if not APT.installed(p)]
-        if failed:
-            msg = 'Cannot install "%s".' % ' '.join(failed)
-            raise CommandFailError(msg)
     @classmethod
     def remove(cls, *packages):
         is_pkg_list(packages)
@@ -838,10 +871,9 @@ class APT:
         packages = [p for p in packages if APT.installed(p)]
         run_as_root_in_terminal('apt-get remove -y ' + ' '.join(packages))
         APT.cache_changed()
-        failed = [p for p in packages if APT.installed(p)]
-        if failed:
-            msg = 'Cannot remove "%s".' % ' '.join(failed)
-            raise CommandFailError(msg)
+    @classmethod
+    def neet_to_run_apt_get_update(cls):
+        cls.apt_get_update_is_called = False
     @classmethod
     def apt_get_update(cls):
         # (c) 2005-2007 Canonical, GPL
@@ -850,32 +882,13 @@ class APT:
         cls.apt_get_update_is_called = True
         cls.cache_changed()
     @classmethod
-    def get_deb_depends(cls, filename):
-        is_pkg_list([filename])
-        import os, re
-        if not filename.endswith('.deb'): raise ValueError
-        if not os.path.exists(filename): raise ValueError
-        output = get_output('LANG=C dpkg --info %s' % filename)
-        match=re.search('Depends: (.*)', output)
-        if match is None: # no depends 
-            return [] 
-        items=match.group(1).split(',')
-        depends = []
-        for item in items:
-            depends.append(item.split()[0])
-        return depends
-    @classmethod
     def install_local(cls, *packages):
-        is_pkg_list(packages)
         for package in packages:
-            import os
-            if not package.endswith('.deb'): raise ValueError
-            if not os.path.exists(package): raise ValueError
-            depends = cls.get_deb_depends(package)
-            if len(depends):
-                cls.install(*depends)
-            run_as_root_in_terminal('dpkg --install --force-architecture %s'%package)
-            cls.cache_changed()
+            if VERSION>='lucid': # -n == non-interactive
+                run_as_root('gdebi-gtk -n --auto-close %s' % package)
+            else:
+                run_as_root('gdebi-gtk -n %s' % package)
+        cls.cache_changed()
 
 class PACMAN:
     fresh_cache = False
@@ -927,10 +940,6 @@ class PACMAN:
         print '\x1b[1;32m', _('Installing packages:'), ' '.join(packages), '\x1b[m'
         run_as_root_in_terminal('pacman -S --noconfirm %s' % ' '.join(packages))
         cls.cache_changed()
-        failed = [p for p in packages if not PACMAN.installed(p)]
-        if failed:
-            msg = 'Cannot install "%s".' % ' '.join(failed)
-            raise CommandFailError(msg)
     @classmethod
     def install_local(cls, path):
         assert isinstance(path, str)
@@ -945,10 +954,6 @@ class PACMAN:
         packages = [p for p in packages if PACMAN.installed(p)]
         run_as_root_in_terminal('pacman -R --noconfirm %s' % ' '.join(packages))
         cls.cache_changed()
-        failed = [p for p in packages if PACMAN.installed(p)]
-        if failed:
-            msg = 'Cannot remove "%s".' % ' '.join(failed)
-            raise CommandFailError(msg)
     @classmethod
     def pacman_sync(cls):
         print '\x1b[1;36m', _('Run "pacman -Sy". Please wait for a few minutes.'), '\x1b[m'
@@ -1049,15 +1054,12 @@ class APTSource2:
         for file in cls.all_conf_files():
             f = open(file)
             for line in f:
+                if not line.endswith('\n'): line += '\n'
                 yield line
             f.close()
     @classmethod
     def all_lines(cls):
-        ret = []
-        for file in cls.all_conf_files():
-            with open(file) as f:
-                ret.extend(f.readlines())
-        return ret
+        return [line for line in cls.iter_all_lines()]
     @classmethod
     def all_lines_contain(cls, snip):
         snip = cls.remove_comment(snip)

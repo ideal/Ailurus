@@ -25,40 +25,9 @@ import sys, os
 from lib import *
 from libapp import *
 from apps_eclipse import *
-from app_tasksel import *
+#from app_tasksel import * # Shall we provide tasksel GUI? Its loading time is almost the same as dump_deb
 from app_from_external_repos import *
-
-#class OpenJDK6(I):
-#    'OpenJDK 6'
-#    category = 'saber'
-#    license = GPL
-#    def install(self):
-#        APT.install('openjdk-6-jdk')
-#        
-#        env = ETCEnvironment()
-#        env.remove('JAVA_HOME')
-#        env.remove('JAVA_BIN')
-#        env.remove('CLASSPATH')
-#        env.add('JAVA_HOME', '/usr/lib/jvm/java-6-openjdk')
-#        env.add('JAVA_BIN', '/usr/lib/jvm/java-6-openjdk/bin')
-#        env.add('CLASSPATH', '.', '/usr/lib/jvm/java-6-openjdk/lib/dt.jar', '/usr/lib/jvm/java-6-openjdk/lib/tools.jar')
-#        env.save()
-#        
-#        run_as_root('update-java-alternatives -s java-6-openjdk', ignore_error=True)
-#        
-#        with TempOwn('/etc/jvm') as o:
-#            with open('/etc/jvm', "w") as f:
-#                f.write('/usr/lib/jvm/java-6-openjdk\n')
-#    def installed(self):
-#        return APT.installed('openjdk-6-jdk')
-#    def remove(self):
-#        APT.remove('openjdk-6-jre-lib')
-#
-#        env = ETCEnvironment()
-#        env.remove('JAVA_HOME')
-#        env.remove('JAVA_BIN')
-#        env.remove('CLASSPATH')
-#        env.save()
+from third_party_repos import *
 
 class WorldofPadman_Ubuntu(I):
     __doc__ = _('World of Padman: Funny shooter game')
@@ -138,52 +107,53 @@ class DisableGetty(I):
     __doc__ = _('Deactivate Getty ( Ctrl+Alt+F2 ... F6 ), Ctrl+Alt+F1 is still activated')
     detail = _('Speed up Linux start up process. Free 2.5 MBytes memory. ')
     def visible(self):
-        return VERSION in ['hardy', 'intrepid', 'jaunty'] and os.path.exists('/etc/event.d/')
+        return os.path.exists('/etc/event.d/tty1')
     def installed(self):
         with Chdir('/etc/event.d/') as o:
             for i in range(2,7):
-                if file_contain('tty%s'%i, 'start on runlevel 2'):
-                    return False
-            return True
+                file_name = 'tty%s' % i
+                with open(file_name) as f:
+                    for line in f:
+                        if line.startswith('exec'): return False
+        return True
     def install(self):
         with Chdir('/etc/event.d/') as o:
             for i in range(2,7):
-                filename = 'tty%s'%i
-                with TempOwn(filename) as o:
-                    with open(filename) as f:
+                file_name = 'tty%s'%i
+                with TempOwn(file_name) as o:
+                    with open(file_name) as f:
                         contents = f.readlines()
                     for j, line in enumerate(contents):
-                        if line=='start on runlevel 2\n':
-                            contents[j]='stop on runlevel 2\n'
-                        elif line=='start on runlevel 3\n':
-                            contents[j]='stop on runlevel 3\n'
-                    with open(filename, 'w') as f:
+                        if line.startswith('exec'):
+                            contents[j]='#' + line
+                    with open(file_name, 'w') as f:
                         f.writelines(contents)
     def remove(self):
         with Chdir('/etc/event.d/') as o:
             for i in range(2,7):
-                filename = 'tty%s'%i
-                with TempOwn(filename) as o:
-                    with open(filename) as f:
+                file_name = 'tty%s'%i
+                with TempOwn(file_name) as o:
+                    with open(file_name) as f:
                         contents = f.readlines()
                     for j, line in enumerate(contents):
-                        if line=='stop on runlevel 2\n':
-                            contents[j]='start on runlevel 2\n'
-                        elif line=='stop on runlevel 3\n':
-                            contents[j]='start on runlevel 3\n'
-                    with open(filename, 'w') as f:
+                        if line.startswith('#exec'):
+                            contents[j]='exec /sbin/getty 38400 tty%s\n' % i
+                    with open(file_name, 'w') as f:
                         f.writelines(contents)
 
-class DisableGettyKarmic(DisableGetty):
-    __doc__ = DisableGetty.__doc__
+class DisableGettyKarmic(I):
+    __doc__ = _('Deactivate Getty ( Ctrl+Alt+F2 ... F6 ), Ctrl+Alt+F1 is still activated')
+    detail = _('Speed up Linux start up process. Free 2.5 MBytes memory. ')
     def visible(self):
-        return VERSION not in ['hardy', 'intrepid', 'jaunty']
+        return os.path.exists('/etc/init/tty1.conf')
     def installed(self):
         with Chdir('/etc/init/') as o:
             for i in range(2,7):
-                if file_contain('tty%s.conf'%i, 'exec /sbin/getty -8 38400 tty%s'%i):
-                    return False
-            return True
+                file_name = 'tty%s.conf' % i
+                with open(file_name) as f:
+                    for line in f:
+                        if line.startswith('exec'): return False
+        return True
     def install(self):
         with Chdir('/etc/init/') as o:
             for i in range(2,7):
@@ -192,11 +162,8 @@ class DisableGettyKarmic(DisableGetty):
                     with open(filename) as f:
                         contents = f.readlines()
                     for j, line in enumerate(contents):
-                        if line.strip()=='exec /sbin/getty -8 38400 tty%s'%i:
-                            contents[j]='#exec\n'
-                            break
-                    else:
-                        raise CommandFailError('Not found', contents)
+                        if line.startswith('exec'):
+                            contents[j]='#' + line
                     with open(filename, 'w') as f:
                         f.writelines(contents)
     def remove(self):
@@ -207,11 +174,8 @@ class DisableGettyKarmic(DisableGetty):
                     with open(filename) as f:
                         contents = f.readlines()
                     for j, line in enumerate(contents):
-                        if line=='#exec\n':
+                        if line.startswith('#exec'):
                             contents[j]='exec /sbin/getty -8 38400 tty%s\n'%i
-                            break
-                    else:
-                        raise CommandFailError('Not found', contents)
                     with open(filename, 'w') as f:
                         f.writelines(contents)
 
@@ -220,3 +184,14 @@ class OpenJUMP(_apt_install): # OpenJUMP is not in Fedora :(
     license = GPL
     category = 'geography'
     pkgs = 'openjump'
+
+class Remastersys(_apt_install):
+    __doc__ = _('Remastersys: Backup your system to a live CD')
+    download_url = 'http://sourceforge.net/projects/remastersys/'
+    category = 'others'
+    pkgs = 'remastersys'
+    def visible(self):
+        return VERSION >= 'karmic'
+    def install(self):
+        f = R(urls.remastersys).download()
+        APT.install_local(f)

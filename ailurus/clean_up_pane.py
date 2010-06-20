@@ -39,11 +39,7 @@ class CleanUpPane(gtk.VBox):
         self.pack_start(self.clean_nautilus_cache_button(), False)
         if UBUNTU or UBUNTU_DERIV:
             self.pack_start(self.clean_apt_cache_button(), False)
-            self.pack_start(UbuntuCleanKernelBox(), False)
-            hbox = gtk.HBox(True, 20)
-            hbox.pack_start(UbuntuAutoRemovableBox())
-            hbox.pack_start(UbuntuDeleteUnusedConfigBox())
-            self.pack_start(hbox)
+            self.pack_start(Ubuntu_dedicated_clean_up_box())
         elif FEDORA:
             self.pack_start(self.clean_rpm_cache_button(), False)
         elif ARCHLINUX:
@@ -220,6 +216,34 @@ class ReclaimMemoryBox(gtk.VBox):
             after = self.get_free_memory()
             amount = max(0, after - before)
             notify(' ', _('%s KB memory was reclaimed.') % amount)
+
+class Ubuntu_dedicated_clean_up_box(gtk.HBox):
+    def change_content(self, button):
+        if self.content_pane.get_children():
+            for child in self.content_pane.get_children():
+                self.content_pane.remove(child)
+        self.content_pane.pack_start(button.content)
+        self.content_pane.show_all()
+        
+    def __init__(self):
+        button_1 = gtk.Button(_('Auto-removable packages'))
+        button_1.content = UbuntuAutoRemovableBox()
+        button_1.connect('clicked', self.change_content)
+        button_2 = gtk.Button(_('Unused software configuration'))
+        button_2.content = UbuntuDeleteUnusedConfigBox()
+        button_2.connect('clicked', self.change_content)
+        button_3 = gtk.Button(_('Unused Linux kernels'))
+        button_3.content = UbuntuCleanKernelBox()
+        button_3.connect('clicked', self.change_content)
+        self.buttons_pane = gtk.VBox(False, 5)
+        self.buttons_pane.pack_start(button_1, False)
+        self.buttons_pane.pack_start(button_2, False)
+        self.buttons_pane.pack_start(button_3, False)
+        self.content_pane = gtk.VBox(False, 0)
+        gtk.HBox.__init__(self, False, 5)
+        self.pack_start(self.buttons_pane, False)
+        self.pack_start(self.content_pane)
+        button_1.emit('clicked')
 
 class UbuntuCleanKernelBox(gtk.HBox):
     def version_of_current_kernel(self):

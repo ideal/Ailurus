@@ -31,6 +31,10 @@ Files: data/suyun_icons/*.png
 Copyright: 2010, SU Yun
 License: GPL-2+
 
+Files: data/umut_icons/*.png
+Copyright: 2010, M. Umut Pulat
+License: LGPL
+
 Files: data/sora_icons/*.png
 Copyright: 2010, Andrea Soragna
 License: GPL-2+
@@ -38,7 +42,3 @@ License: GPL-2+
 Files: data/velly_icons/*.png
 Copyright: 2010, MA Yue
 License: GPL-2+
-
-Files: data/umut_icons/*.png, data/appicons/*.png
-Copyright: 2010, M. Umut Pulat
-License: LGPL

@@ -63,7 +63,7 @@ def __java():
     return []
 
 def __python():
-     try: return [row(_('Python version:'), sys.version.split()[0], D+'other_icons/python.png' )]
+     try: return [row(_('Python version:'), sys.version.split()[0], D+'appicons/python.png' )]
      except: print_traceback()
      return []
  
@@ -145,9 +145,16 @@ def __firefox():
     except: print_traceback()
     return []
 
+def __os_version():
+    try:
+        import platform
+        name, version = platform.dist()[0:2]
+        return [row(_('%s version:') % name, version, D+'umut_icons/tux.png' )]
+    except: print_traceback()    
+
 def get():
     return [ __host_name, __user, __uptime, __kernel, __xorg,
-             __opengl, __gcc, __java, __python, __gtk, __pygtk,  __firefox ]
+             __opengl, __gcc, __java, __python, __gtk, __pygtk,  __firefox, __os_version ]
 
 if __name__ == '__main__':
     print get()

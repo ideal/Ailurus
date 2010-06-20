@@ -26,43 +26,6 @@ from lib import *
 from libapp import *
 from apps_eclipse import *
 
-class DisableGetty(I):
-    __doc__ = _('Deactivate Getty ( Ctrl+Alt+F2 ... F6 ), Ctrl+Alt+F1 is still activated')
-    detail = _('Speed up Linux start up process. Free 2.5 MBytes memory. ')
-    def installed(self):
-        with Chdir('/etc/event.d/') as o:
-            for i in range(2,7):
-                with open('tty%s'%i) as f:
-                    content = f.read()
-                if 'exec /sbin/' in content: return False
-            return True
-    def install(self):
-        with Chdir('/etc/event.d/') as o:
-            for i in range(2,7):
-                filename = 'tty%s'%i
-                with open(filename) as f:
-                    contents = f.readlines()
-                for j, line in enumerate(contents):
-                    if line.startswith('exec /sbin/'):
-                        contents[j] = '#' + line[1:]
-                with TempOwn(filename) as o:
-                    with open(filename, 'w') as f:
-                        f.writelines(contents)
-    def remove(self):
-        with Chdir('/etc/event.d/') as o:
-            for i in range(2,7):
-                filename = 'tty%s'%i
-                with open(filename) as f:
-                    contents = f.readlines()
-                for j, line in enumerate(contents):
-                    if line.startswith('#xec /sbin/'):
-                        contents[j] = 'e' + line[1:]
-                with TempOwn(filename) as o:
-                    with open(filename, 'w') as f:
-                        f.writelines(contents)
-    def visible(self):
-        return os.path.exists('/etc/event.d/')
-
 class Disable_SELinux(I):
     __doc__ = _('Put Selinux in permissive mode, instead of enforcing mode.')
     def installed(self):

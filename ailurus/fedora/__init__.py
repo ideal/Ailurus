@@ -23,4 +23,3 @@
 import apps
 import cure
 import menu
-import osinfo

@@ -75,6 +75,7 @@ class Aptana(I):
     how_to_install = 'http://download.aptana.org/tools/studio/plugin/install/studio'
     category = 'eclipse_extension'
     license = DUAL_LICENSE(APL, GPL)
+    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/com.aptana.ide.*')
@@ -98,6 +99,7 @@ class RadRails(I):
     how_to_install = 'http://download.aptana.com/tools/radrails/plugin/install/radrails-bundle'
     category = 'eclipse_extension'
     license = DUAL_LICENSE(APL, GPL)
+    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/com.aptana.radrails.*')
@@ -121,6 +123,7 @@ class DLTK(I):
     category = 'eclipse_extension'
     License = ('Eclipse Distribution License (EDL), Eclipse Public License (EPL), '
                'see http://www.eclipse.org/legal/')
+    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/org.eclipse.dltk.*')
@@ -147,6 +150,7 @@ class PDT(I):
     download_url = 'http://www.eclipse.org/pdt/downloads/'
     category = 'eclipse_extension'
     license = EPL + ' http://www.eclipse.org/legal/'
+    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/org.eclipse.php.*')
@@ -169,6 +173,7 @@ class Subversive(I):
     how_to_install = 'http://download.eclipse.org/technology/subversive/0.7/update-site/'
     category = 'eclipse_extension'
     license = EPL
+    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/org.eclipse.team.svn.*')
@@ -191,6 +196,7 @@ class VEditor(I):
     how_to_install = 'http://veditor.sourceforge.net/update'
     category = 'eclipse_extension'
     license = EPL
+    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/org.eclipse.team.svn.*')

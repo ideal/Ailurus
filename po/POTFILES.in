@@ -21,7 +21,6 @@ ailurus/fedora/fastest_mirror_pane.py
 ailurus/fedora/__init__.py
 ailurus/fedora/libserver.py
 ailurus/fedora/menu.py
-ailurus/fedora/osinfo.py
 ailurus/fedora/rpm_recovery_pane.py
 ailurus/gnome/apps.py
 ailurus/gnome/__init__.py
@@ -42,7 +41,8 @@ ailurus/strings.py
 ailurus/support/checkupdate.py
 ailurus/support/dump_apt_autoremovable.py
 ailurus/support/dumpaptcache2.py
-ailurus/support/dumpaptcache.py
+ailurus/support/dump_deb_existing.py
+ailurus/support/dump_deb_installed.py
 ailurus/support/dump_rpm_existing_new.py
 ailurus/support/dump_rpm_existing.py
 ailurus/support/dump_rpm_installed.py
@@ -71,7 +71,6 @@ ailurus/ubuntu/fastest_mirror_pane.py
 ailurus/ubuntu/__init__.py
 ailurus/ubuntu/libserver.py
 ailurus/ubuntu/menu.py
-ailurus/ubuntu/osinfo.py
 ailurus/ubuntu/quick_setup.py
 ailurus/ubuntu/setting.py
 ailurus/ubuntu/third_party_repos.py

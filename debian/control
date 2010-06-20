@@ -5,11 +5,11 @@ Maintainer: Aron Xu <happyaron.xu@gmail.com>
 Build-Depends: cdbs, debhelper (>= 5), python (>= 2.5), python-support, python-distutils-extra
 Build-Depends-Indep: autotools-dev, gettext
 Standards-Version: 3.8.4
-Homepage: http://ailurus.cn/
+Homepage: http://ailurus.googlecode.com/
 
 Package: ailurus
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-gnome | policykit-kde | policykit-1-gnome, python-gnomekeyring
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome | policykit-gnome | policykit-kde, python-gnomekeyring | python-gnome2-desktop, gdebi
 Description: make Linux easier to use
  Ailurus is an application which aims at making Linux easier to use.
  .

@@ -155,7 +155,7 @@ class ImageChooser(gtk.Button):
     import gobject
     __gsignals__ = {'changed':( gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,) ) }
     
-    def get_image_filter(self):
+    def image_filter(self):
         filter = gtk.FileFilter()
         filter.set_name(_("Images"))
         for type, pattern in [('image/png', '*.png'),
@@ -167,72 +167,42 @@ class ImageChooser(gtk.Button):
             filter.add_pattern(pattern)
         return filter
     
-    def choose_image(self, *args):
-        title = _('Choose an image')
-        chooser = gtk.FileChooserDialog(title, None, gtk.FILE_CHOOSER_ACTION_OPEN,
+    def choose_image(self):
+        chooser = gtk.FileChooserDialog(_('Choose an image'), None, gtk.FILE_CHOOSER_ACTION_OPEN,
                 (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                 gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-                )
-        import os
-        chooser.set_current_folder('/usr/share/pixmaps/')
+                 gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        chooser.set_current_folder(self.default_dir)
         chooser.set_select_multiple(False)
-        chooser.add_filter(self.get_image_filter())
+        chooser.add_filter(self.image_filter())
         if chooser.run() == gtk.RESPONSE_OK:
             image_path = chooser.get_filename()
-            self.emit('changed', image_path)
             self.display_image(image_path)
+            self.emit('changed', image_path)
         chooser.destroy()
     
     def display_image(self, image_path):
         'If image_path is none, then show blank.'
         child = self.get_child()
-        if child:
-            self.remove(child)
+        if child: self.remove(child)
         
         if image_path:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(image_path)
-            pixbuf = self.scale_pixbuf(pixbuf)
+            pixbuf = gtk.gdk.pixbuf_new_from_file(image_path).scale_simple(self.width, self.height, gtk.gdk.INTERP_HYPER)
         else:
-            pixbuf = blank_pixbuf(self.image_max_width, self.image_max_height)
-        image = gtk.image_new_from_pixbuf(pixbuf)
-        self.add(image)
+            pixbuf = blank_pixbuf(self.width, self.height)
+        self.add(gtk.image_new_from_pixbuf(pixbuf))
         self.show_all()
 
-    def scale_pixbuf(self, pixbuf):
-        pixbuf_height = pixbuf.get_height()
-        pixbuf_width = pixbuf.get_width()
-        if self.image_max_height != -1 and pixbuf_height > self.image_max_height:
-            scale = float(pixbuf_height)/float(self.image_max_height)
-            new_height = self.image_max_height
-            new_width = pixbuf_width/scale
-        elif self.image_max_width != -1 and pixbuf_width > self.image_max_width:
-            scale = float(pixbuf_width)/float(self.image_max_width)
-            new_width = self.image_max_width
-            new_height = pixbuf_height/scale
-        else:
-            return pixbuf
-        return pixbuf.scale_simple(int(new_width), int(new_height), gtk.gdk.INTERP_HYPER)
-
-    def __init__(self, tooltip_text = '', image_max_width = -1, image_max_height = -1):
-        is_string_not_empty(tooltip_text)
-        assert isinstance(image_max_width, int)
-        assert isinstance(image_max_height, int)
-        
+    def __init__(self, default_dir, width, height, tooltip=None):
+        assert isinstance(default_dir, str) and default_dir
+        assert isinstance(width, int)
+        assert isinstance(height, int)
+        if tooltip: assert isinstance(tooltip, str)
+        self.default_dir = default_dir
+        self.width = width
+        self.height = height
         gtk.Button.__init__(self)
-        if tooltip_text: self.set_tooltip_text(tooltip_text)
-        self.image_max_width = image_max_width
-        self.image_max_height = image_max_height
-
-        self.connect('clicked', self.choose_image)
-
-    @classmethod
-    def scale_image(cls, old_path, new_path, new_width, new_height):
-        pixbuf = gtk.gdk.pixbuf_new_from_file(old_path)
-        if pixbuf.get_width == new_width and pixbuf.get_height == new_height:
-            pass
-        else:
-            pixbuf = pixbuf.scale_simple(new_width, new_height, gtk.gdk.INTERP_HYPER)
-        pixbuf.save(new_path, 'png')
+        if tooltip: self.set_tooltip_text(tooltip)
+        self.connect('clicked', lambda *w: self.choose_image())
 
 class GConfNumericEntry(gtk.HBox):
     def __value_changed(self, *w):
@@ -376,12 +346,13 @@ class FirefoxComboPref(gtk.HBox):
         gtk.HBox.__init__(self, False, 5)
         self.pack_start(combo, False)
         combo.connect('changed', lambda *w: self.m_set_value())
+        self.m_get_value()
     def m_get_value(self):
         try:    value = firefox.get_pref(self.key)
         except:
             if self.default:
                 for i in range(len(self.values)):
-                    if self.values[i] == default:
+                    if self.values[i] == self.default:
                         self.combo.set_active(i)
         else:
             for i in range(len(self.values)):

@@ -213,7 +213,8 @@ def __others():
     help_update = image_file_menuitem(_('Check for updates'), D+'suyun_icons/m_check_update.png', 16) 
     def callback(*w):
         while gtk.events_pending(): gtk.main_iteration()
-        check_update()
+        import thread
+        thread.start_new_thread(check_update, ())
     help_update.connect('activate', callback)
 
     help_report_bug = image_file_menuitem(_('Propose suggestion and report bugs'), D+'umut_icons/m_propose_suggestion.png', 16) 

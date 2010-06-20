@@ -4,10 +4,11 @@ import sys, os, urllib, gtk, thread, time
 from lib import *
 from libu import *
 
+icons_pack_version = 2
+
 class DownloadIconsWindow(gtk.Window):
-    icons_pack_version = 1
-    url = 'http://ailurus.googlecode.com/files/other_icons_v%s.tar.gz' % icons_pack_version
-    filename = '/tmp/other_icons.tar.gz'
+    url = 'http://ailurus.googlecode.com/files/appicons_v%s.tar.gz' % icons_pack_version
+    filename = '/tmp/appicons.tar.gz'
     
     def __init__(self):
         gtk.Window.__init__(self)
@@ -86,20 +87,21 @@ class DownloadIconsWindow(gtk.Window):
         import lib
         icons_path = os.path.dirname(os.path.abspath(lib.__file__))+'/icons/'
         assert os.path.exists(icons_path)
-        other_icons_path = icons_path + '/other_icons/'
-        if not os.path.exists(other_icons_path):
-            run_as_root('mkdir ' + other_icons_path)
-        os.chdir(other_icons_path)
+        appicons_path = icons_path + '/appicons/'
+        if not os.path.exists(appicons_path):
+            run_as_root('mkdir ' + appicons_path)
+        os.chdir(appicons_path)
         run_as_root('tar xf ' + self.filename)
 
-import ctypes # change_task_name
-libc = ctypes.CDLL('libc.so.6')
-libc.prctl(15, 'ailurus_icon_downloader', 0, 0, 0)
-if get_output('pgrep -u $USER ailurus_icon_downloader', True): # detect_running_instances
-    sys.exit(1) # another instance is running, therefore I exit
-gtk.gdk.threads_init()
-window = DownloadIconsWindow()
-thread.start_new_thread(window.download_thread, ())
-gtk.gdk.threads_enter()
-window.main_thread()
-gtk.gdk.threads_leave()
+if __name__ == '__main__':
+    import ctypes # change_task_name
+    libc = ctypes.CDLL('libc.so.6')
+    libc.prctl(15, 'ailurus_icon_downloader', 0, 0, 0)
+    if get_output('pgrep -u $USER ailurus_icon_downloader', True): # detect_running_instances
+        sys.exit(1) # another instance is running, therefore I exit
+    gtk.gdk.threads_init()
+    window = DownloadIconsWindow()
+    thread.start_new_thread(window.download_thread, ())
+    gtk.gdk.threads_enter()
+    window.main_thread()
+    gtk.gdk.threads_leave()

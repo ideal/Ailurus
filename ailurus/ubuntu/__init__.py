@@ -23,6 +23,5 @@
 import apps
 import cure
 import menu
-import osinfo
 import setting
 import tips

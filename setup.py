@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys
+import os, sys, glob
 from distutils.core import setup
 try:
     from DistUtilsExtra.command import *
@@ -7,7 +7,6 @@ except ImportError:
     print 'Cannot install Ailurus :('
     print 'Would you please install package "python-distutils-extra" first?'
     sys.exit()
-from glob import glob
 
 f = open('ailurus/version')
 version = f.read().strip()
@@ -38,8 +37,8 @@ Features:
       platforms = ['linux'],
       packages = ['ailurus', 'ailurus.common', 'ailurus.gnome', 'ailurus.archlinux', 'ailurus.fedora', 'ailurus.ubuntu', 'ailurus.support', ],
       package_data={'ailurus': ['native_apps', 'version', 
-                                'icons/appicons/*', 'icons/sora_icons/*', 'icons/suyun_icons/*', 'icons/umut_icons/*', 'icons/velly_icons/*', ],
-                    'ailurus.support': ['MTJ_urls', 'fedora_server_list', 'ubuntu_server_list']},
+                                'icons/suyun_icons/*', 'icons/umut_icons/*', 'icons/sora_icons/*', 'icons/velly_icons/*', ],
+                    'ailurus.support': [os.path.basename(f) for f in glob.glob('ailurus/support/*') if '.' not in os.path.basename(f)]},
       data_files = [
         ('share/man/man1/', ['ailurus.1']),
         ('share/applications/', ['ailurus.desktop']),
@@ -49,7 +48,7 @@ Features:
         ('/etc/dbus-1/system.d/', ['support/dbus/cn.ailurus.conf']),
         ('share/PolicyKit/policy/', ['support/policykit0/cn.ailurus.policy']),
         ('share/polkit-1/actions/', ['support/policykit1/cn.ailurus.policy']),
-        ('share/ailurus/support/', [ e for e in glob('support/*') if os.path.isfile(e)] ),
+        ('share/ailurus/support/', [ e for e in glob.glob('support/*') if os.path.isfile(e)] ),
         ('share/ailurus/support/', ['support/dbus/cn.ailurus.service', 'support/dbus/cn.ailurus.conf']),
       ],
       scripts = ['bin/ailurus'],

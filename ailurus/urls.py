@@ -20,15 +20,15 @@
 # along with Ailurus; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
-bioclipse32 = 'http://sourceforge.net/projects/bioclipse/files/bioclipse2/bioclipse2.0/bioclipse2.0.linux.gtk.x86.zip/download'
-bioclipse64 = 'http://sourceforge.net/projects/bioclipse/files/bioclipse2/bioclipse2.0/bioclipse2.0.linux.gtk.x86_64.zip/download'
+bioclipse32 = 'http://prdownloads.sourceforge.net/bioclipse/bioclipse2.0.linux.gtk.x86.zip'
+bioclipse64 = 'http://prdownloads.sourceforge.net/bioclipse2.0/bioclipse2.0.linux.gtk.x86_64.zip'
 electric = 'http://ftp.gnu.org/pub/gnu/electric/electricBinary-8.09.jar'
-sweethome32 = 'http://ncu.dl.sourceforge.net/project/sweethome3d/SweetHome3D/SweetHome3D-2.3/SweetHome3D-2.3-linux-x86.tgz'
-sweethome64 = 'http://ncu.dl.sourceforge.net/project/sweethome3d/SweetHome3D/SweetHome3D-2.3/SweetHome3D-2.3-linux-x64.tgz'
+sweethome32 = 'http://prdownloads.sourceforge.net/sweethome3d/SweetHome3D-2.4-linux-x86.tgz'
+sweethome64 = 'http://prdownloads.sourceforge.net/sweethome3d/SweetHome3D-2.4-linux-x64.tgz'
 tsinghuatex = 'http://thuthesis.googlecode.com/files/thuthesis-4.5.1.tgz'
 nscript = 'http://www.nanolx.org/free/NScripts-3.6.tar.bz2'
 cdt = 'http://download.eclipse.org/tools/cdt/releases/galileo/dist/cdt-master-6.0.0.zip'
-pydev = 'http://ncu.dl.sourceforge.net/project/pydev/pydev/Pydev%201.4.6/org.python.pydev.feature-1.4.6.2788.zip'
+pydev = 'http://prdownloads.sourceforge.net/pydev/org.python.pydev.feature-1.5.7.2010050621.zip'
 pbcdev32 = 'http://voltar.org/pbcfiles/libpbc-dev_0.5.4-1_i386.deb'
 pbcdev64 = 'http://voltar.org/pbcfiles/libpbc-dev_0.5.4-1_amd64.deb'
 pbc32 = 'http://voltar.org/pbcfiles/libpbc0_0.5.4-1_i386.deb'
@@ -57,3 +57,4 @@ rpmfusion_repos_free = 'http://download1.rpmfusion.org/free/fedora/rpmfusion-fre
 rpmfusion_repos_nonfree = 'http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm'
 nvidia_32 = 'ftp://download.nvidia.com/XFree86/Linux-x86/195.36.24/NVIDIA-Linux-x86-195.36.24-pkg1.run'
 nvidia_64 = 'ftp://download.nvidia.com/XFree86/Linux-x86_64/195.36.24/NVIDIA-Linux-x86_64-195.36.24-pkg2.run'
+remastersys = 'http://prdownloads.sourceforge.net/remastersys/remastersys_2.0.17-1_all.deb'

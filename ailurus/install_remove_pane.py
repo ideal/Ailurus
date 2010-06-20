@@ -118,6 +118,22 @@ class Category:
                  ]
         return cls.m_all
 
+class Area(gtk.HBox):
+    def __init__(self):
+        gtk.HBox.__init__(self, False, 3)
+        self.content = []
+    def pack_start(self, *arg):
+        self.content.append(arg[0])
+        gtk.HBox.pack_start(self, *arg)
+    def content_visible(self, visible):
+        assert isinstance(visible, bool)
+        for child in self.get_children():
+            self.remove(child)
+        if visible:
+            for child in self.content:
+                gtk.HBox.pack_start(self, child, False)
+            self.show_all()
+
 class InstallRemovePane(gtk.VBox):
     icon = D+'sora_icons/m_install_remove.png'
     text = _('Install\nSoftware')
@@ -307,66 +323,54 @@ class InstallRemovePane(gtk.VBox):
             print >>error_traceback, 'Ailurus version: ', AILURUS_VERSION
             self.__clean_and_show_vte_window()
             run.terminal = self.terminal
-            r,w = os.pipe()
-            os.dup2(w, sys.stdout.fileno())
-            thread.start_new_thread(self.terminal.read, (r,) )
-            try:    run_as_root('true') # require authentication first. do not require authentication any more.
-            except: print_traceback() # do not hang if run_as_root failed.
-            s_i = []; s_r = []; f_i = []; f_r = []
+            self.terminal.redirect_stdout()
+            f_i = [] # failed to install
+            f_r = [] # failed to remove
             
-            to_install = [ o for o in self.app_objs
-                               if o.cache_installed==False
-                               and o.showed_in_toggle ]
-            depends = [ o.depends() for o in to_install # the type of o.depends is types.ClassType 
-                                   if hasattr(o, 'depends') ]
-            to_install += depends
-            to_install_repos = [ o for o in to_install 
-                                     if getattr(o, 'this_is_a_repository', False) ]
-            to_install_non_repos = [ o for o in to_install
-                                                 if o not in to_install_repos ]
-            if to_install_repos:
-                for obj in to_install_repos:
-                    print '\x1b[1;32m', _('Installing:'), obj.__doc__, '\x1b[m'
-                    try: 
-                        reset_dir()
-                        if not obj.installed(): obj.install()
-                    except: f_i += [(obj, sys.exc_info())]
-                    else: s_i += [obj]
-                APT.apt_get_update()
+            to_install = [ o for o in self.app_objs if not o.cache_installed and o.showed_in_toggle ]
+            to_remove = [ o for o in self.app_objs if o.cache_installed and not o.showed_in_toggle ]
+            
+            for obj in to_install:
+                try:    obj.add_temp_repository()
+                except: f_i += [(obj, sys.exc_info())]
                 
-            for obj in to_install_non_repos:
+            for obj in to_install:
                 print '\x1b[1;32m', _('Installing:'), obj.__doc__, '\x1b[m'
                 try: 
                     reset_dir()
-                    if not obj.installed(): obj.install()
+                    obj.install()
                 except: f_i += [(obj, sys.exc_info())]
-                else: s_i += [obj]
             
-            to_remove = [ o for o in self.app_objs
-                         if o.cache_installed 
-                         and o.showed_in_toggle==False ]
+            for obj in to_install:
+                try:    obj.clean_temp_repository()
+                except: f_i += [(obj, sys.exc_info())]
+
             for obj in to_remove:
                 print '\x1b[1;35m', _('Removing:'), obj.__doc__, '\x1b[m'
                 try: 
                     reset_dir()
                     obj.remove()
                 except: f_r += [(obj, sys.exc_info())]
-                else: s_r += [obj]
             
             for o in self.app_objs:
                 o.showed_in_toggle = o.cache_installed = o.installed()
             
-            print '\n', _('Summary:'), '\n'
-            if len(s_i):
-                for o in s_i: print '\x1b[1;32m', _('Successfully installed:'), o.__doc__, '\x1b[m'
-            if len(s_r):
-                for o in s_r: print '\x1b[1;35m', _('Successfully removed:'), o.__doc__, '\x1b[m'
+            for obj in to_install:
+                try:
+                    if obj.sane: assert obj.cache_installed
+                except: f_i += [(obj, sys.exc_info())]
+            
+            for obj in to_remove:
+                try:
+                    if obj.sane: assert not obj.cache_installed
+                except: f_r += [(obj, sys.exc_info())]
+            
             if len(f_i):
                 for tup in f_i:
                     print '\x1b[1;31m', _('Failed to install:'), tup[0].__doc__, '\x1b[m'
                     exc = tup[1]
                     print >>error_traceback, tup[0].__doc__
-                    traceback.print_exception( exc[0], exc[1], exc[2], file=error_traceback) 
+                    traceback.print_exception( exc[0], exc[1], exc[2], file=error_traceback)
             if len(f_r):
                 for tup in f_r: 
                     print '\x1b[1;31m', _('Failed to remove:'), tup[0].__doc__, '\x1b[m'
@@ -375,25 +379,24 @@ class InstallRemovePane(gtk.VBox):
                     traceback.print_exception( exc[0], exc[1], exc[2], file=error_traceback)
             print 
 
-            delay_notify_firefox_restart(True)
+            gtk.gdk.threads_enter()
+            if len(f_i) or len(f_r): #If any operation failed, we display "Report problems" dialog
+                self.show_error(error_traceback.getvalue())
+            gtk.gdk.threads_leave()
 
+            delay_notify_firefox_restart(True)
+        except:
+            print_traceback()
+        finally:
             gtk.gdk.threads_enter()
             parentbox = self.terminal.get_widget().parent
             parentbox.pack_start(self.final_box, False)
             parentbox.show_all()
-            if len(f_i) or len(f_r): #If any operation failed, we display "Report problems" dialog
-                self.show_error(error_traceback.getvalue())
             self.right_treeview.queue_draw()
             self.right_treeview.get_selection().unselect_all()
             gtk.gdk.threads_leave()
-        except:
-            print_traceback()
-        finally:
-            sys.stdout.flush()
-            os.close(r)
-            os.close(w)
+            self.terminal.recover_stdout()
             run.terminal = None
-            os.dup2(self.backup_stdout, sys.stdout.fileno())
 
     def __return_to_app_view(self, *w):
         self.parentwindow.unlock()
@@ -414,6 +417,8 @@ class InstallRemovePane(gtk.VBox):
         has_work = len(to_install) or len(to_remove)
         if not has_work: return
         if not self.__query_work(to_install, to_remove): return
+
+        run_as_root('true') # require authentication first. do not require authentication any more.
         
         self.parentwindow.lock()
         import thread
@@ -462,20 +467,26 @@ class InstallRemovePane(gtk.VBox):
         cell.set_property('markup', markup.getvalue())
 
     def __right_visible_func(self, treestore, iter):
+        def inside(p, str2):
+            return p.search(str2) != None
+
         assert isinstance(self.right_pane_visible_category, str)
         obj = treestore.get_value(iter, 0)
         if obj == None: return False
-        
-        is_right_category = 'all'==self.right_pane_visible_category or obj.category==self.right_pane_visible_category
-        if self.filter_text=='':
-            return is_right_category
+
+        if 'all' == self.right_pane_visible_category:
+            visible1 = not obj.this_is_a_repository
         else:
-            def inside(p, str2):
-                return p.search(str2) != None
-            if self.filter_option=='name' or not hasattr(obj, 'detail'):
-                return is_right_category and inside(self.filter_RE, obj.__doc__)
-            else: # both
-                return is_right_category and ( inside(self.filter_RE, obj.__doc__) or inside(self.filter_RE, obj.detail) )
+            visible1 = obj.category == self.right_pane_visible_category
+
+        if self.filter_text == '':
+            visible2 = True
+        elif self.filter_option == 'name':
+            visible2 = inside(self.filter_RE, obj.__doc__)
+        else: # both
+            visible2 = inside(self.filter_RE, obj.__doc__) or inside(self.filter_RE, obj.detail)
+        
+        return visible1 and visible2
 
     def __left_visible_func(self, treestore, iter):
         assert isinstance(self.left_pane_visible_class, str)
@@ -484,9 +495,8 @@ class InstallRemovePane(gtk.VBox):
         return self.left_pane_visible_class == 'all' or class_name == self.left_pane_visible_class
 
     def __right_pixbuf_data_func(self, column, cell, model, iter):
-        class0 = model.get_value ( iter, 0 )
-        cell.set_property('pixbuf', class0.logo_pixbuf)
-        cell.set_property('visible', Config.get_show_software_icon())
+        appobj = model.get_value(iter, 0)
+        cell.set_property('pixbuf', appobj.logo_pixbuf)
         
     def __right_DE_pixbuf_data_func(self, column, cell, model, iter):
         class0 = model.get_value ( iter, 0 )
@@ -612,35 +622,29 @@ class InstallRemovePane(gtk.VBox):
     
     def get_preference_menuitems(self):
         def toggled(w):
-            Config.set_hide_quick_setup_pane(not w.get_active())
-            if w.get_active(): self.show_quick_setup()
-            else: self.hide_quick_setup()
+            visible = w.get_active()
+            Config.set_show_sync_area(visible)
+            self.sync_area.content_visible(visible)
+        show_sync = gtk.CheckMenuItem(_('Show "synchronize" button'))
+        show_sync.set_active(Config.get_show_sync_area())
+        show_sync.connect('toggled', toggled)
+        def toggled(w):
+            visible = w.get_active()
+            Config.set_show_quick_setup_area(visible)
+            self.quick_setup_area.content_visible(visible)
         show_quick_setup = gtk.CheckMenuItem(_('Show "quickly install popular software" button'))
-        show_quick_setup.set_active(not Config.get_hide_quick_setup_pane())
+        show_quick_setup.set_active(Config.get_show_quick_setup_area())
         show_quick_setup.connect('toggled', toggled)
     
         set_wget_param = gtk.MenuItem(_("Set download parameters"))
         set_wget_param.connect('activate', lambda w: self.set_wget_parameters())
         
-        show_software_icon = gtk.CheckMenuItem(_('Show an icon by the side of software name'))
-        show_software_icon.set_active(Config.get_show_software_icon())
-        show_software_icon.connect('toggled', lambda w: Config.set_show_software_icon(w.get_active()) or self.right_treeview.queue_draw())
-        
-        if UBUNTU or UBUNTU_DERIV: # this feature only support UBUNTU or MINT.
-            return [show_quick_setup, set_wget_param, show_software_icon]
-        else:
-            return [set_wget_param, show_software_icon]
-    
-    def hide_quick_setup(self):
-        children = self.quick_setup_area.get_children()
-        if children:
-            for child in children:
-                self.quick_setup_area.remove(child)
-    
-    def show_quick_setup(self):
-        self.hide_quick_setup()
-        self.quick_setup_area.pack_start(self.quick_setup_content, False)
-        self.quick_setup_area.show_all()
+        return [set_wget_param]
+# always show sync & quick_setup
+#        if UBUNTU or UBUNTU_DERIV: # this feature only support UBUNTU or MINT.
+#            return [show_sync, show_quick_setup, set_wget_param]
+#        else:
+#            return [show_sync, set_wget_param]
     
     def __init__(self, parentwindow, app_objs):
         gtk.VBox.__init__(self, False, 5)
@@ -682,27 +686,28 @@ class InstallRemovePane(gtk.VBox):
 
         button_apply = image_stock_button(gtk.STOCK_APPLY, _('_Apply') )
         button_apply.connect('clicked', self.__apply_button_clicked)
-        button_sync = image_stock_button(gtk.STOCK_REFRESH, _('Synchronize'))
-        def synchronize():
-            import subprocess
-            path = os.path.dirname(os.path.abspath(__file__)) + '/download_icons.py'
-            subprocess.Popen(['python', path])
-        button_sync.connect('clicked', lambda w: synchronize())
+        self.sync_button = button_sync = image_file_only_button(D+'sora_icons/synchronize.png', 24)
+        button_sync.set_tooltip_text(_('Synchronize'))
+        button_sync.connect('clicked', lambda w: self.synchronize())
+        self.sync_area = Area()
+        self.sync_area.pack_start(gtk.VSeparator(), False)
+        self.sync_area.pack_start(button_sync)
+        self.sync_area.content_visible( #Config.get_show_sync_area()
+                                        True # always show sync
+                                      )
         from support.searchbox import SearchBoxForApp
-        sbox = SearchBoxForApp()
-        sbox.connect('changed', self.__search_content_changed)
-        quick_setup_button = image_file_button(_('Quickly install popular software'), D + 'umut_icons/quick_setup.png', 24)
+        searchbox = SearchBoxForApp()
+        searchbox.connect('changed', self.__search_content_changed)
+        quick_setup_button = image_file_only_button(D+'umut_icons/quick_setup.png', 24)
+        quick_setup_button.set_tooltip_text(_('Quickly install popular software'))
         quick_setup_button.connect('clicked', self.__launch_quick_setup)
-        quick_setup_checkbutton = gtk.CheckButton(_('Hide'))
-        quick_setup_checkbutton.connect('clicked', lambda w: w.set_active(False) or Config.set_hide_quick_setup_pane(True) or self.hide_quick_setup())
-        self.quick_setup_content = gtk.HBox(False, 3)
-        self.quick_setup_content.pack_start(gtk.VSeparator())
-        self.quick_setup_content.pack_start(quick_setup_button, False)
-        self.quick_setup_content.pack_start(quick_setup_checkbutton, False)
-        self.quick_setup_content.pack_start(gtk.VSeparator())
-        self.quick_setup_area = gtk.HBox(False)
-        if (UBUNTU or UBUNTU_DERIV) and not Config.get_hide_quick_setup_pane():
-            self.show_quick_setup()
+        self.quick_setup_area = Area()
+        self.quick_setup_area.pack_start(gtk.VSeparator(), False)
+        self.quick_setup_area.pack_start(quick_setup_button, False)
+        self.quick_setup_area.content_visible(
+#            (UBUNTU or UBUNTU_DERIV) and Config.get_show_quick_setup_area()
+             (UBUNTU or UBUNTU_DERIV) # always show quick_setup on Ubuntu
+            )
 
         self.app_objs = app_objs
         for obj in app_objs:
@@ -711,11 +716,11 @@ class InstallRemovePane(gtk.VBox):
         toolbar = gtk.HBox(False, 3)
         for text, class_name, icon_path in Category.all_left_class():
             toolbar.pack_start(self.left_class_choose_button(text, class_name, icon_path), False)
+        toolbar.pack_start(self.sync_area, False)
         toolbar.pack_start(gtk.VSeparator(), False)
-        toolbar.pack_start(button_sync, False)
-        toolbar.pack_start(gtk.VSeparator(), False)
-        toolbar.pack_start(sbox, False)
+        toolbar.pack_start(searchbox, False)
         toolbar.pack_start(self.quick_setup_area, False)
+        toolbar.pack_start(gtk.VSeparator(), False)
         toolbar.pack_start(button_apply, False)
 
         self.fill_left_treestore()
@@ -723,6 +728,28 @@ class InstallRemovePane(gtk.VBox):
         self.pack_start(toolbar, False)
         self.pack_start(hpaned)
         self.show_all()
+    
+        import thread
+        thread.start_new_thread(self.notify_sync, ())
+    
+    def notify_sync(self):
+        if not Config.get_synced():
+            gtk.gdk.threads_enter()
+            dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_YES_NO,
+                                       message_format=
+                                       _('Would you like to download latest application data from web?'))
+            ret = dialog.run()
+            dialog.destroy()
+            Config.set_synced()
+            if ret == gtk.RESPONSE_YES:
+                self.synchronize()
+            gtk.gdk.threads_leave()
+
+    def synchronize(self):
+        import subprocess
+        path = os.path.dirname(os.path.abspath(__file__)) + '/download_icons.py'
+        task = subprocess.Popen(['python', path])
+        Config.set_synced()
 
     def left_class_choose_button_clicked(self, button):
         self.left_pane_visible_class = button.class_name

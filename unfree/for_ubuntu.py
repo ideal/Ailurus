@@ -252,6 +252,8 @@ class EIOffice(I):
     download_url = 'http://www.evermoresw.com.cn/webch/download/downEIOPersonal.jsp'
     category='business'
     Chinese = True
+    def visible(self): # EIOffice website is offline :(
+        return False
     def install(self):
         with Chdir('/tmp') as o:
             f = R(urls.eioffice).download()

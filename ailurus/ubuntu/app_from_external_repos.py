@@ -24,13 +24,12 @@ from __future__ import with_statement
 import sys, os
 from lib import *
 from libapp import *
-from third_party_repos import *
 
 class Acire(_apt_install):
     __doc__ = _('Acire: A Python code fragment manager')
     license = GPL
     category = 'saber'
-    depends = Repo_Acire
+    ppa = 'acire-team/acire-releases'
     pkgs = 'acire'
     def visible(self):
         return VERSION not in ['hardy', 'intrepid', 'jaunty']
@@ -39,28 +38,28 @@ class Audacious(_apt_install):
     __doc__ = _('Audacious: Audio player')
     license = GPL
     category = 'player'
-    depends = Repo_Audacious
+    ppa = 'dupondje'
     pkgs = 'audacious audacious-plugins'
     
 class Blueman(_apt_install):
     __doc__ = _('Blueman: Graphical blue-tooth manager')
     license = GPL
     category = 'others'
-    depends = Repo_Blueman
+    ppa = 'blueman'
     pkgs = 'blueman'
     
 class Christine(_apt_install):
     __doc__ = _('Christine: Media player')
     license = GPL
     category = 'player'
-    depends = Repo_Christine
+    ppa = 'markuz'
     pkgs = 'christine'
     
 class Chromium(_apt_install):
     __doc__ = _('Chromium: Web browser')
     license = BSD
     category = 'browser'
-    depends = Repo_Chromium_Daily
+    ppa = 'chromium-daily'
     pkgs = 'chromium-browser'
     
 class ComicVODPlayer_new(I):
@@ -69,7 +68,7 @@ class ComicVODPlayer_new(I):
     category = 'player'
     Chinese = True
     license = GPL
-    depends = Repo_Mplayer_VOD
+    ppa = 'homer-xing/mplayer-vod'
     def __init__(self):
         self.comicview = ComicView()
     def install(self):
@@ -103,14 +102,14 @@ class Exaile(_apt_install):
     __doc__ = _('Exaile: Audio player')
     license = GPL
     category = 'player'
-    depends = Repo_Exaile
+    ppa = 'exaile-devel'
     pkgs = 'exaile'
 
 class Firefox_3_6(_apt_install):
     __doc__ = _('Firefox 3.6')
     license = TRI_LICENSE(MPL, GPL, LGPL)
     category = 'browser'
-    depends = Repo_Firefox_3_6
+    ppa = 'mozillateam/firefox-stable'
     pkgs = 'firefox'
     def visible(self): # Hide it in Lucid. Since Firefox is 3.6.3 in Lucid.
         return VERSION in ['hardy', 'intrepid', 'jaunty', 'karmic']
@@ -120,21 +119,21 @@ class Getting_things_gnome(_apt_install):
     license = GPL
     category = 'business'
     logo = 'gtg.png'
-    depends = Repo_GTG
+    ppa = 'gtg'
     pkgs = 'gtg'
 
 class Gmchess(_apt_install):
     __doc__ = _('Gmchess: Chinese chess game')
     license = GPL
     category = 'game'
-    depends = Repo_Gmchess
+    ppa = 'gmchess'
     pkgs = 'gmchess'
 
 class Gnome_color(_apt_install):
     __doc__ = _('GNOME colors themes')
     license = GPL
     category = 'theme'
-    depends = Repo_GNOMEColors
+    ppa = 'gnome-colors-packagers'
     pkgs = 'gnome-colors'
     DE = 'gnome'
     def visible(self):
@@ -144,7 +143,7 @@ class Gnome_global_menu(_apt_install):
     __doc__ = _('Global Menu: A globally shared menu bar')
     license = GPL
     category = 'others'
-    depends = Repo_GlobalMenu
+    ppa = 'globalmenu-team'
     pkgs = 'gnome-globalmenu'
     DE = 'gnome'
 
@@ -152,35 +151,35 @@ class Moovida(_apt_install):
     __doc__ = _('Moovida: Media player')
     license = GPL
     category = 'player'
-    depends = Repo_Moovida
+    ppa = 'moovida-packagers'
     pkgs = 'moovida'
 
 class OSD_Lyrics(_apt_install):
     __doc__ = _('OSD-Lyrics: Display lyrics')
     category = 'others'
     license = GPL
-    depends = Repo_OSD_Lyrics
+    ppa = 'osd-lyrics'
     pkgs = 'osdlyrics'
 
 class PlayOnLinux(_apt_install):
     __doc__ = _('PlayOnLinux: A graphical front-end for wine')
     license = LGPL
     category = 'simulator'
-    depends = Repo_PlayOnLinux
+    deb = 'deb http://deb.playonlinux.com/ %s main' % VERSION
     pkgs = 'playonlinux'
 
 class RSSOwl(_apt_install):
     __doc__ = _('RSSOwl: RSS feed reader')
     license = EPL
     category = 'rss'
-    depends = Repo_RSSOwl
+    deb = 'deb http://packages.rssowl.org/ubuntu %s main' % VERSION
     pkgs = 'rssowl'
 
 class RedNoteBook(_apt_install):
     __doc__ = _('RedNoteBook: A desktop diary application')
     license = GPL
     category = 'business'
-    depends = Repo_RedNoteBook
+    deb = 'deb http://robin.powdarrmonkey.net/ubuntu %s/' % VERSION
     pkgs = 'rednotebook'
     def visible(self):
         return VERSION != 'lucid'
@@ -189,25 +188,25 @@ class XBMC(_apt_install):
     __doc__ = _('XBMC: Home entertainment system')
     category = 'player'
     license = GPL
-    depends = Repo_XBMC
+    ppa = 'team-xbmc'
     pkgs = 'xbmc'
 
 class ElementaryTheme(_apt_install):
     __doc__ = _('Elementary: Beautiful theme which looks like Mac OS X')
     category = 'theme'
-    depends = Repo_ElementaryArtwork
+    ppa = 'elementaryart'
     pkgs = 'elementary-icon-theme elementary-theme elementary-wallpapers'
 
 class Docky(_apt_install):
     'Docky'
     detail = _('Simple GNOME dock')
     category = 'panel'
-    depends = Repo_Docky
+    ppa = 'docky-core'
     pkgs = 'docky'
 
 class CairoDock(_apt_install):
     'Cairo-Dock'
     detail = _('A dock, a taskbar, and many applets')
     category = 'panel'
-    depends = Repo_CairoDock
+    ppa = 'cairo-dock-team/weekly'
     pkgs = 'cairo-dock cairo-dock-plug-ins'

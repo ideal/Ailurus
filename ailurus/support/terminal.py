@@ -83,7 +83,7 @@ class Terminal:
         except OSError: pass #no such process
     
     def __init__(self):
-        import vte, gtk
+        import os, sys, vte, gtk, thread
         self.terminal = terminal = vte.Terminal()
         label = gtk.Label(_('You can press "Ctrl+C" to terminate Ailurus installation process.'))
         align_label = gtk.Alignment(0, 0)
@@ -96,3 +96,14 @@ class Terminal:
         self.scrollwindow = scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         scroll.add_with_viewport(vbox)
+        self.stdout_origin = os.dup(sys.stdout.fileno())
+        self.r, self.w = os.pipe()
+        thread.start_new_thread(self.read, (self.r,) )
+    
+    def redirect_stdout(self):
+        import os, sys
+        os.dup2(self.w, sys.stdout.fileno())
+    
+    def recover_stdout(self):
+        import os, sys
+        os.dup2(self.stdout_origin, sys.stdout.fileno())

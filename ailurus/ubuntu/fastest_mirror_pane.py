@@ -44,6 +44,7 @@ class UbuntuFastestMirrorPane(gtk.VBox):
     # If the server does not respond PING, then its response time is NO_PING_RESPONSE .
     # This value is displayed as text "No response" in TreeView.
     NO_PING_RESPONSE = 100000000
+    NOT_DETECTED = NO_PING_RESPONSE + 1
 
     def get_fastest_repository(self):
         min = None
@@ -153,6 +154,8 @@ class UbuntuFastestMirrorPane(gtk.VBox):
         assert isinstance(value, int)
         if value == self.NO_PING_RESPONSE: 
             text = _('No response')
+        elif value == self.NOT_DETECTED:
+            text = '' # if the server has not been detected, then show nothing
         else:
             text = '%s ms' % value
         cell.set_property('text', text)
@@ -330,11 +333,9 @@ class UbuntuFastestMirrorPane(gtk.VBox):
     def __update_candidate_store_with_ping_result(self, result):
         for i in result:
             server = i[0]
-            if isinstance(i[1], float):
-                time = int(i[1])
-                ResponseTime.set(server, time)
-            else:
-                time = self.NO_PING_RESPONSE
+            if isinstance(i[1], float): time = int(i[1])
+            else: time = self.NO_PING_RESPONSE
+            ResponseTime.set(server, time)
         for row in self.candidate_store:
             try:
                 server = row[self.SERVER]
@@ -496,7 +497,7 @@ class UbuntuFastestMirrorPane(gtk.VBox):
             try:
                 res_time = ResponseTime.get(e[self.SERVER])
             except KeyError:
-                res_time = self.NO_PING_RESPONSE
+                res_time = self.NOT_DETECTED
             e.append(res_time)
             url = e[2]
             in_use = APTSource2.all_lines_contain(url)
@@ -572,7 +573,8 @@ deb-src %(fastest)s %(version)s-updates main restricted universe multiverse
         spawn_as_root(launcher)
     
     def __callback__merge_sourceslist(self, *w):
+        lines = APTSource2.all_lines()
         with TempOwn('/etc/apt/sources.list') as o:
             with open('/etc/apt/sources.list', 'w') as f:
-                f.writelines(APTSource2.all_lines())
+                f.writelines(lines)
         run_as_root('rm /etc/apt/sources.list.d/* -rf')

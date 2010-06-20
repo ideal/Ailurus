@@ -1,3 +1,34 @@
+2010-06-19 Homer Xing <homer.xing@gmail.com>
+
+    * Improve clean up pane. Reduce space cost.
+    * If the server has not been detected, then show nothing.
+    * Fix problems when disable getty.
+
+2010-06-19 MA Yue <velly.empire@gmail.com>
+
+    * Add a lot of applications icons
+
+2010-06-18 Homer Xing <homer.xing@gmail.com>
+
+    * Add youtube-dl, download youtube video software, in "Applications->File sharing" category
+    * Add unetbootin, create bootable USB flash disk, in "Applications->Other" category
+    * Add remastersys, backup your system to live cd, in "Applications->Other" category
+    * Improve local deb installation
+    * Do not list repositories when list all software items.
+    * Recover 49-sansserif.conf
+    * Improve software installation speed
+    * Display detailed information if software is from Launchpad or external repository
+
+2010-06-17 Homer Xing <homer.xing@gmail.com>
+
+    * Change login window background.
+
+2010-06-16 Homer Xing <homer.xing@gmail.com>
+
+    * Synchronize latest application data from web
+    * Automatically check new version
+    * Fix bug: bad file descriptor
+
 2010-06-15 QI Chengjie <starboy.qi@gmail.com>
 
     * Add Adobe AIR

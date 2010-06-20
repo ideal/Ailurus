@@ -180,9 +180,13 @@ def __configure_firefox():
     table.attach(explain, 0, 2, row, row+1, gtk.FILL, gtk.FILL)
     row += 1
 
-    tweak_key = gtk.Button()
     tweak_key = image_stock_button(gtk.STOCK_APPLY, _('Auto tweak Firefox') )
-    table.attach(left_align(tweak_key), 0, 2, row, row+1, gtk.FILL, gtk.FILL)
+    save = image_stock_button(gtk.STOCK_SAVE, _('Save'))
+    save.connect('clicked', lambda w: firefox.save_user_prefs())
+    hbox = gtk.HBox(False, 10)
+    hbox.pack_start(tweak_key, False)
+    hbox.pack_start(save, False)
+    table.attach(hbox, 0, 2, row, row+1, gtk.FILL, gtk.FILL)
     row += 1
 
     # DNS

@@ -33,17 +33,15 @@ else: distribution = None
 
 def check_class_members(app_class):
     import types
-    if type(app_class)!=types.ClassType: raise TypeError, app_class
-    if not hasattr(app_class,'category'): app_class.category = 'others'
-    if type( getattr(app_class,'category','') ) != str: raise TypeError, app_class
-    if not hasattr(app_class, 'detail'): app_class.detail=''
-    if type( getattr(app_class,'detail','') ) != str: app_class.detail = str( getattr(app_class,'detail','') ) 
+    if not isinstance(app_class, types.ClassType): raise TypeError, app_class
+    if not isinstance(app_class.category, str): raise TypeError, app_class
+    if not isinstance(app_class.detail, (str, unicode)): raise TypeError, app_class
     if app_class.__doc__ is None: app_class.__doc__ = app_class.__name__
     return app_class
 
 def load_app_icon(name):
     import os
-    for dir in ['other_icons/', 'appicons/']:
+    for dir in ['appicons/', 'umut_icons/', 'sora_icons/',]:
         path = D + dir + name + '.png'
         if os.path.exists(path): break
     else:

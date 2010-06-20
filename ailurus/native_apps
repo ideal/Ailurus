@@ -879,3 +879,11 @@ category = simulator
 fedora = dosbox
 ubuntu = dosbox
 archlinux = dosbox
+
+[Youtubedl]
+category = file_sharing
+ubuntu = youtube-dl
+
+[Unetbootin]
+category = others
+ubuntu = unetbootin

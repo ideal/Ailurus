@@ -160,10 +160,20 @@ def fedora_installation_command(package_names):
 def archlinux_installation_command(package_names):
     return 'pacman -S ' + package_names
 
+def ppa_to_deb_conf(ppa_string):
+    'return deb conf string from ppa string'
+    ppa_owner = ppa_string.split("/")[0]
+    try: ppa_name = ppa_string.split("/")[1]
+    except IndexError: ppa_name = "ppa"
+    return "deb http://ppa.launchpad.net/%s/%s/ubuntu %s main" % (ppa_owner, ppa_name, VERSION)
+
 class _apt_install(I):
+    deb = '' # deb conf string. It will be written to /etc/apt/sources.list
+    ppa = '' # ppa string. If it is not empty, then set self.deb = ppa_to_deb_conf(self.ppa)
     'Must subclass me and set "pkgs".'
     def self_check(self):
         is_package_names_string(self.pkgs)
+        if self.ppa: self.deb = ppa_to_deb_conf(self.ppa)
     def install(self):
         APT.install(*self.pkgs.split())
     def installed(self):
@@ -180,12 +190,22 @@ class _apt_install(I):
     def remove(self):
         APT.remove(*self.pkgs.split() )
     def fill(self):
-        self.how_to_install = debian_installation_command(self.pkgs)
-# FIXME
-#        string = ''
-#        if hasattr(self, 'depends') and hasattr(self.depends, 'launchpad_installation_command'):
-#            string = self.depends().launchpad_installation_command() + '; '
-#        return '%s %s apt-get install %s' % (_('Command:'), string, self.pkgs)
+        command = debian_installation_command(self.pkgs)
+        if self.ppa:
+            self.how_to_install = 'add-apt-repository ppa:%s; %s' % (self.ppa, command)
+        elif self.deb:
+            self.how_to_install = _('Add source "<b>%s</b>"; %s') % (self.deb, command)
+        else:
+            self.how_to_install = command
+    def add_temp_repository(self):
+        if self.deb:
+            with TempOwn('/etc/apt/sources.list.d/temp.list'):
+                with open('/etc/apt/sources.list.d/temp.list', 'a') as f:
+                    print >>f, self.deb
+            APT.neet_to_run_apt_get_update()
+    def clean_temp_repository(self):
+        if os.path.exists('/etc/apt/sources.list.d/temp.list'):
+            run_as_root('rm -f /etc/apt/sources.list.d/temp.list')
 
 class _rpm_install(I):
     def self_check(self):
@@ -206,6 +226,14 @@ class _rpm_install(I):
                 print >>f, _('Because the packages "%s" are not installed.')%' '.join(not_installed),
     def fill(self):
         self.how_to_install = fedora_installation_command(self.pkgs)
+    def add_temp_repository(self):
+        # FIXME: should write repository configuration to temp file
+        if hasattr(self, 'depends'):
+            self.depends.install()
+    def clean_temp_repository(self):
+        # FIXME
+        if hasattr(self, 'depends'):
+            self.depends.remove()
 
 class _pacman_install(I):
     def self_check(self):
@@ -303,6 +331,7 @@ def latest(id): # used in all subclasses of _ff_extension, to construct download
 class _ff_extension(I):
     'Firefox Extension'
     category = 'firefox_extension'
+    sane = False # FIXME: we don't know how to remove Firefox extensions
     def self_check(self):
         assert self.name
         assert isinstance(self.name, unicode)

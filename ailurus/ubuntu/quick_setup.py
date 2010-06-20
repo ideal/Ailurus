@@ -93,7 +93,7 @@ class SelectWorksDialog(gtk.Dialog):
         item[2] = check_button.get_active()
         
     def __init__(self):
-        gtk.Dialog.__init__(self, _('Quick setup'), None, gtk.DIALOG_NO_SEPARATOR, 
+        gtk.Dialog.__init__(self, _('Quickly install popular software'), None, gtk.DIALOG_NO_SEPARATOR, 
                             (gtk.STOCK_CANCEL, gtk.RESPONSE_DELETE_EVENT, 
                              gtk.STOCK_OK, gtk.RESPONSE_OK) )
         image = gtk.Image()
@@ -440,7 +440,7 @@ class DoStuffDialog(gtk.Dialog):
         import os, sys
         self.backup_stdout = os.dup(sys.stdout.fileno())
 
-        gtk.Dialog.__init__(self, _('Quick setup'), None, gtk.DIALOG_NO_SEPARATOR, None )
+        gtk.Dialog.__init__(self, _('Quickly install popular software'), None, gtk.DIALOG_NO_SEPARATOR, None )
         self.connect('delete-event', self._before_delete_event)
         
         self.start_button = gtk.Button()

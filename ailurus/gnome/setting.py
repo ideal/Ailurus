@@ -59,7 +59,7 @@ def __desktop_icon_setting():
 
 def __start_here_icon_setting():
     def apply(imagechooser, old_image):
-        imagechooser.scale_image(old_image, '/tmp/start-here.png', 24, 24)
+        scale_image(old_image, '/tmp/start-here.png', 24, 24)
         
         import os
         local_icons_dir = os.path.expanduser('~/.icons')
@@ -87,11 +87,9 @@ def __start_here_icon_setting():
         return ''
 
     path = get_start_here_icon_path()
-    i = ImageChooser(_('The "start-here" icon is %s') % path, 24, 24)
-    try:
-        i.display_image(path)
-    except:
-        i.display_image(None) # show blank
+    i = ImageChooser('/usr/share/pixmaps/', 24, 24, _('The "start-here" icon is %s') % path)
+    try:    i.display_image(path)
+    except: i.display_image(None) # show blank
     i.connect('changed', apply)
     box = gtk.VBox(False, 0)
     box.pack_start(left_align(i))
@@ -99,14 +97,11 @@ def __start_here_icon_setting():
 
 def __login_icon_setting():
     def apply(w, image):
-        path = os.path.expanduser('~/.face')
-        os.system('cp %s %s' % (image, path))
+        os.system('cp %s ~/.face' % image)
 
-    i = ImageChooser(_('The login icon is ~/.face'), 96, 96)
-    try:
-        i.display_image(os.path.expanduser('~/.face'))
-    except:
-        i.display_image(None) # show blank
+    i = ImageChooser('/usr/share/pixmaps/', 96, 96, _('The login icon is ~/.face'))
+    try:    i.display_image(os.path.expanduser('~/.face'))
+    except: i.display_image(None) # show blank
     i.connect('changed',apply)
     box = gtk.VBox(False, 0)
     box.pack_start(left_align(i))
@@ -119,7 +114,6 @@ def __menu_icon_setting():
              _('Whether menus may display an icon next to a menu entry.'))
     vbox.pack_start(o, False)
     return Setting(vbox, _('Menu entry icons setting'), ['menu', 'icon'])
-
 
 def __button_icon_setting():
     vbox = gtk.VBox()
@@ -264,7 +258,8 @@ def __gnome_splash_setting():
     import gconf
     g = gconf.client_get_default()
     image_path = g.get_string('/apps/gnome-session/options/splash_image')
-    o = ImageChooser(_('GConf key: ') + '/apps/gnome-session/options/splash_image', 96, 96)
+    o = ImageChooser('/usr/share/pixmaps/', 96, 96,
+                     _('GConf key: ') + '/apps/gnome-session/options/splash_image')
     try: o.display_image(image_path)
     except: o.display_image(None) # show blank
     o.connect('changed', changed)
@@ -446,8 +441,36 @@ def __login_window_setting():
     box.pack_start(o, False)
     o = GConfCheckButton(_('Do not display "restart" button'), '/apps/gdm/simple-greeter/disable_restart_buttons')
     box.pack_start(o, False)
-    
     return Setting(box, _('Login window settings'), ['login_window'])
+
+def __login_window_background():
+    # the method is on http://blog.roodo.com/rocksaying/archives/12316205.html
+    
+    if (UBUNTU or UBUNTU_DERIV) and VERSION >= 'karmic': pass
+    elif ARCHLINUX: pass
+    else: return None # do not support on Fedora because there is no sudo.
+
+    box = gtk.VBox(False, 5)
+
+    def apply(w, image):
+        try:
+            run_as_root('sudo -u gdm gconftool-2 --set --type string /desktop/gnome/background/picture_filename "%s"' % image)
+#           path = D+'/../support/gdm_gconf.py'
+#           run_as_root('python "%s" --type string --set /desktop/gnome/background/picture_filename "%s"' % (path, image))
+        except:
+            w.display_image(Config.get_login_window_background())
+            raise
+        else:
+            Config.set_login_window_background(image)
+
+    i = ImageChooser('/usr/share/backgrounds/', 160, 120,
+                     _('The login window background is the gconf value "/desktop/gnome/background/picture_filename" of user "gdm".'))
+    try:    i.display_image(Config.get_login_window_background())
+    except: i.display_image(None) # show blank
+    i.connect('changed',apply)
+    box = gtk.VBox(False, 0)
+    box.pack_start(left_align(i))    
+    return Setting(box, _('Change login window background'), ['login_window'])
 
 def __shortcut_setting():
     l1 = gtk.Label(_('Command line'))
@@ -592,13 +615,15 @@ def get():
             __more_nautilus_settings,
             __shortcut_setting,
             __login_window_setting,
+            __login_window_background,
             __compression_strategy,
             __gedit_setting,
             __reset_gnome,
             __screen_saver,
             ]:
         try:
-            ret.append(f())
+            a = f()
+            if a: ret.append(a)
         except:
             print_traceback()
     return ret

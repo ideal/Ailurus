@@ -87,11 +87,16 @@ def check_required_packages():
         fedora_missing.append('unzip')
         archlinux_missing.append('unzip')
     if not os.path.exists('/usr/bin/wget'):
+        ubuntu_missing.append('wget')
         fedora_missing.append('wget')
         archlinux_missing.append('wget')
     if not os.path.exists('/usr/bin/xterm'):
+        ubuntu_missing.append('xterm')
         fedora_missing.append('xterm')
         archlinux_missing.append('xterm')
+    if not os.path.exists('/usr/bin/gdebi-gtk'):
+        ubuntu_missing.append('gdebi')
+
     try: # detect policykit version 0.9.x
         import dbus
         obj = dbus.SystemBus().get_object('org.freedesktop.PolicyKit', '/')
@@ -503,6 +508,12 @@ class MainView:
         self.add_study_button_preference_button_other_button()
         self.add_pane_buttons_in_toolbar()
         self.window.show_all()
+        
+        if Config.is_long_enough_since_last_check_update():
+            Config.set_last_check_update_time_to_now()
+            from support.checkupdate import check_update
+            import thread
+            thread.start_new_thread(check_update, (True, )) # "True" means "silent"
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 change_task_name()

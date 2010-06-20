@@ -43,8 +43,7 @@ class Fix_error_in_49_sansserif_conf(C):
     detail = _('Change "sans-serif" to "sans serif".')
     type = C.MUST_FIX
     def exists(self):
-        if VERSION >= 'lucid': # Some people say this method is incorrect ...
-            return False
+        return False # some users found side effect
         try:
             with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
                 return '>sans-serif<' in f.read()
@@ -55,6 +54,24 @@ class Fix_error_in_49_sansserif_conf(C):
             with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
                 content = f.read()
             content = content.replace('>sans-serif<', '>sans serif<')
+            with open('/etc/fonts/conf.d/49-sansserif.conf', 'w') as f:
+                f.write(content)
+
+class Recover_49_sansserif_conf(C):
+    __doc__ = _('Recover 49-sansserif.conf. Change "sans serif" back to "sans-serif".')
+    detail = _('Ailurus tried to fix Flash font bug. But some users found that font in other applications is also affected.\n'
+               'This operation aims at recovering font configuration file.')
+    def exists(self):
+        try:
+            with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
+                return '>sans serif<' in f.read()
+        except IOError: # File does not exist
+            return False
+    def cure(self):
+        with TempOwn('/etc/fonts/conf.d/49-sansserif.conf') as o:
+            with open('/etc/fonts/conf.d/49-sansserif.conf') as f:
+                content = f.read()
+            content = content.replace('>sans serif<', '>sans-serif<')
             with open('/etc/fonts/conf.d/49-sansserif.conf', 'w') as f:
                 f.write(content)
 
@@ -125,27 +142,29 @@ class Google_chrome_is_upgradable(C):
         APT.remove('google-chrome-beta')
         open_web_page('http://www.google.com/chrome/')
 
-class Install_full_language_support(C):
-    __doc__ = _('Install full language support and input method')
-    def exists(self):
-        lang = Config.get_locale().split('_')[0]
-        list = [
-                'language-pack-' + lang,
-                'language-support-fonts-' + lang,
-                'language-support-input-' + lang,
-                'language-support-translations-' + lang,
-                'language-support-' + lang,
-                'language-support-writing-' + lang,
-                ]
-        if GNOME: list.append('language-pack-gnome-' + lang)
-        if KDE:   list.append('language-pack-kde-' + lang)
-        pkgs = [p for p in list if APT.exist(p) and not APT.installed(p)]
-        self.pkgs = pkgs
-        self.detail = _('Command:') + ' apt-get install ' + ' '.join(self.pkgs)
-        return bool(pkgs)
-    def cure(self):
-        if self.pkgs:
-            APT.install(*self.pkgs)
+# FIXME: After Chinese language support successfully installed, language-pack-zh will be automatically removed.
+# Then this item always appears.
+#class Install_full_language_support(C):
+#    __doc__ = _('Install full language support and input method')
+#    def exists(self):
+#        lang = Config.get_locale().split('_')[0]
+#        list = [
+#                'language-pack-' + lang,
+#                'language-support-fonts-' + lang,
+#                'language-support-input-' + lang,
+#                'language-support-translations-' + lang,
+#                'language-support-' + lang,
+#                'language-support-writing-' + lang,
+#                ]
+#        if GNOME: list.append('language-pack-gnome-' + lang)
+#        if KDE:   list.append('language-pack-kde-' + lang)
+#        pkgs = [p for p in list if APT.exist(p) and not APT.installed(p)]
+#        self.pkgs = pkgs
+#        self.detail = _('Command:') + ' apt-get install ' + ' '.join(self.pkgs)
+#        return bool(pkgs)
+#    def cure(self):
+#        if self.pkgs:
+#            APT.install(*self.pkgs)
 
 class Install_GCompris_voice(C):
     __doc__ = _('Install voice data for GCompris')
