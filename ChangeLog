@@ -1,3 +1,14 @@
+2010-06-27 Homer Xing <homer.xing@gmail.com>
+
+    * Try to lock apt cache before install software
+
+2010-06-23 Homer Xing <homer.xing@gmail.com>
+
+    * Display size of swap partitions
+    * Example proxy string is selectable
+    * Hide bios & motherboard item if value is empty
+    * Return to original software list immediately after successfully install software
+
 2010-06-19 SHANG Yuanchun <idealities@gmail.com>
 
     * Add chromium in archlinux

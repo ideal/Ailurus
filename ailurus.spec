@@ -4,7 +4,7 @@
 %endif
 
 Name: ailurus
-Version: 10.05.93
+Version: 10.06.8
 Release: 0%{?dist}
 Summary: makes Linux easier to use
 Group: Applications/System
@@ -48,6 +48,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_mandir}/man1/ailurus.1*
 %{_datadir}/applications/ailurus.desktop
 %{_datadir}/ailurus/
+%{_datadir}/icons/
 %{_datadir}/dbus-1/system-services/cn.ailurus.service
 %{_sysconfdir}/dbus-1/system.d/cn.ailurus.conf
 %{_datadir}/PolicyKit/policy/cn.ailurus.policy
@@ -57,5 +58,5 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/ailurus*.egg-info
 
 %changelog
-* Sat Jun 05 2010 Homer Xing <homer.xing@gmail.com> 10.05.93-1
+* Thu Jun 24 2010 Homer Xing <homer.xing@gmail.com> 10.06.8-1
 - Initial package

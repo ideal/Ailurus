@@ -131,20 +131,21 @@ class SweetHome3D(_path_lists):
                                    'Categories=Graphics;\n')
 
 # Do not install it via Launchpad, because the packages there is 1.6. It is old, since 1.8 has been released. 
-class Songbird(I):
-    __doc__ = _('Songbird: Open source substitution of iTunes')
-    detail = (_('Music player which integrates with online content via plugins. '
-               'Site contains project news, download, add-ons directory, help, and how to contribute.') + '\n' + 
-              _('Launch it by this command:') + ' LD_BIND_NOW=1 ./songbird')
-    download_url = 'http://developer.songbirdnest.com/builds/trunk/latest/' 
-    category = 'player'
-    license = GPL
-    def install(self):
-        open_web_page('http://developer.songbirdnest.com/builds/trunk/latest/')
-    def installed(self):
-        return False
-    def remove(self):
-        pass
+# Songbird cannot be downloaded from http://developer.songbirdnest.com/builds/trunk/latest/ now :(
+#class Songbird(I):
+#    __doc__ = _('Songbird: Open source substitution of iTunes')
+#    detail = (_('Music player which integrates with online content via plugins. '
+#               'Site contains project news, download, add-ons directory, help, and how to contribute.') + '\n' + 
+#              _('Launch it by this command:') + ' LD_BIND_NOW=1 ./songbird')
+#    download_url = 'http://developer.songbirdnest.com/builds/trunk/latest/' 
+#    category = 'player'
+#    license = GPL
+#    def install(self):
+#        open_web_page('http://developer.songbirdnest.com/builds/trunk/latest/')
+#    def installed(self):
+#        return False
+#    def remove(self):
+#        pass
 
 class TsingHuaTeXTemplate(_download_one_file):
     __doc__ = _('LaTeX Thesis Templates by Tsing Hua University, China')

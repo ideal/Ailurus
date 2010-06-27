@@ -69,6 +69,7 @@ def set_proxy_server():
     proxy_table.attach(proxy_string_entry, 1, 2, 0, 1)
     label_example = gtk.Label()
     label_example.set_markup('<small>%s</small>'%(_('Example:') + ' http://USERNAME:PASSWORD@inproxy.sjtu.edu.cn:PORTNUMBER/'))
+    label_example.set_selectable(True)
     proxy_table.attach(label_example, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
     
     use_proxy = gtk.CheckButton(_('Use a proxy server'))

@@ -29,7 +29,6 @@ archlinux = gcompris
 
 [StartupManager]
 category = others
-fedora = FIXME
 license = GPL
 ubuntu = startupmanager
 
@@ -41,7 +40,6 @@ archlinux = zim
 
 [Nautilus_Filename_Repairer]
 category = nautilus_extension
-fedora = FIXME
 license = GPL
 DE = gnome
 ubuntu = nautilus-filename-repairer
@@ -116,7 +114,6 @@ ubuntu = qutim
 
 [Nautilus_Audio_Convert]
 category = nautilus_extension
-fedora = FIXME
 license = GPL
 DE = gnome
 ubuntu = nautilus-script-audio-convert lame libid3-3.8.3-dev flac faac faad mppenc
@@ -197,21 +194,18 @@ ubuntu = amule
 archlinux = amule
 
 [CheckInstall]
-fedora = FIXME
 license = GPL
 ubuntu = checkinstall
 archlinux = checkinstall
 
 [Vuze_Karmic]
 category = file_sharing
-fedora = FIXME
 license = GPL
 ubuntu = vuze
 archlinux = vuze
 
 [Extcalc]
 category = math
-fedora = FIXME
 license = GPL
 ubuntu = extcalc
 
@@ -236,14 +230,12 @@ archlinux = anjuta
 
 [MiniCom_Ckermit]
 category = embedded_system
-fedora = FIXME
 license = GPL
 ubuntu = minicom ckermit
 archlinux = minicom
 
 [Minitube]
 category = player
-fedora = FIXME
 ubuntu = minitube
 
 [Ncurses_and_qt3mt]
@@ -300,7 +292,6 @@ archlinux = miro
 
 [Nautilus_Share]
 category = nautilus_extension
-fedora = FIXME
 license = GPL
 DE = gnome
 ubuntu = nautilus-share
@@ -321,7 +312,6 @@ archlinux = gnome-mplayer
 
 [Nautilus_Wallpaper]
 category = nautilus_extension
-fedora = FIXME
 license = GPL
 DE = gnome
 ubuntu = nautilus-wallpaper
@@ -330,7 +320,6 @@ ubuntu = nautilus-wallpaper
 category = others
 fedora = worldofpadman
 license = GPL
-ubuntu = FIXME
 
 [Transmission]
 category = file_sharing
@@ -399,14 +388,12 @@ archlinux = midori
 
 [Kupfer]
 category = candy
-fedora = FIXME
 ubuntu = kupfer
 
 [TeXLive]
 category = latex
 fedora = texlive-xetex texlive-latex texlive
 ubuntu = texlive-xetex texlive lmodern
-archlinux = FIXME
 
 [Comix]
 category = others
@@ -422,7 +409,6 @@ archlinux = gnome-do
 
 [Nautilus_Script_Collection_Svn]
 category = nautilus_extension
-fedora = FIXME
 license = GPL
 DE = gnome
 ubuntu = nautilus-script-collection-svn
@@ -449,7 +435,6 @@ category = saber
 fedora = gcc make gdb
 license = GPL
 ubuntu = build-essential
-archlinux = FIXME
 
 [LinuxDCPP]
 category = file_sharing
@@ -459,7 +444,6 @@ archlinux = linuxdcpp
 
 [Umbrello]
 category = saber
-fedora = FIXME
 license = GPL
 ubuntu = umbrello
 archlinux = kdesdk-umbrello
@@ -474,7 +458,6 @@ archlinux = inkscape
 category = simulator
 fedora = wine
 license = LGPL
-ubuntu = FIXME
 archlinux = wine
 
 [ImageMagick]
@@ -514,7 +497,6 @@ archlinux = gimp
 
 [Moonlight]
 category = others
-fedora = FIXME
 ubuntu = moonlight-plugin-mozilla
 
 [FreeGLut3]
@@ -546,14 +528,12 @@ archlinux = ctags cscope
 
 [Openshot]
 category = media_editor
-fedora = FIXME
 ubuntu = openshot
 archlinux = openshot
 
 [Wesnoth]
 category = game
 fedora = wesnoth
-ubuntu = FIXME
 archlinux = wesnoth
 
 [QCad]
@@ -612,7 +592,6 @@ ubuntu = lshw lshw-gtk
 archlinux = lshw
 
 [AutoApt]
-fedora = FIXME
 license = GPL
 ubuntu = auto-apt
 
@@ -689,12 +668,10 @@ ubuntu = zhcon
 
 [Warsow]
 category = game
-fedora = FIXME
 ubuntu = warsow
 
 [Qnapi]
 category = others
-fedora = FIXME
 license = GPL
 ubuntu = qnapi
 Poland = True
@@ -709,7 +686,6 @@ archlinux = nautilus-actions
 
 [R_Language_Basic]
 category = statistics
-fedora = FIXME
 license = GPL
 ubuntu = r-base-core
 
@@ -729,7 +705,6 @@ archlinux = warzone2100
 
 [ScienceBiology]
 category = biology
-fedora = FIXME
 license = GPL EPL
 ubuntu = med-bio
 
@@ -752,13 +727,11 @@ archlinux = leafpad
 
 [Ubuntu_Studio_Theme]
 category = theme
-fedora = FIXME
 license = GPL
 ubuntu = ubuntustudio-theme ubuntustudio-icon-theme ubuntustudio-wallpapers ubuntustudio-gdm-theme
 
 [BreatheIconTheme]
 category = theme
-fedora = FIXME
 ubuntu = breathe-icon-theme
 
 [AutoTools]
@@ -783,7 +756,6 @@ archlinux = gstreamer0.10 gstreamer0.10-bad-plugins gstreamer0.10-ffmpeg gstream
 
 [FireWall]
 category = internet
-fedora = FIXME
 license = GPL
 ubuntu = firestarter
 
@@ -795,7 +767,6 @@ archlinux = thunderbird
 
 [ShikiColors]
 category = theme
-fedora = FIXME
 ubuntu = shiki-colors
 
 [FileZilla]
@@ -806,7 +777,6 @@ archlinux = filezilla
 
 [Screenlets]
 category = candy
-fedora = FIXME
 license = GPL
 ubuntu = screenlets
 archlinux = screenlets
@@ -844,7 +814,6 @@ archlinux = netbeans
 
 [POSIX_ManPages]
 category = saber
-fedora = FIXME
 license = GPL
 ubuntu = manpages-dev manpages-posix manpages-posix-dev
 

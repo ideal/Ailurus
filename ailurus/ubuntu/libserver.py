@@ -26,7 +26,7 @@ from lib import *
 
 def _g1():
     ret = []
-    path = os.path.dirname(os.path.abspath(__file__))+'/../support/ubuntu_server_list'
+    path = A+'/support/ubuntu_server_list'
     with open(path) as f:
         contents = [l.strip() for l in f]
     for i in range(0, len(contents), 4):

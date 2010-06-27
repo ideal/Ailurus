@@ -33,42 +33,41 @@ def __bios():
     #The idea of this function is borrowd from cpu-g. Thanks!
     ret = []
     try:
-        ret.append( row(_('BIOS vendor:'), 
-             __read('/sys/devices/virtual/dmi/id/bios_vendor'), 
-             D+'umut_icons/i_bios.png') )
+        string = __read('/sys/devices/virtual/dmi/id/bios_vendor')
+        assert string
+        ret.append( row(_('BIOS vendor:'), string, D+'umut_icons/i_bios.png') )
     except:
-        print >>sys.stderr, 'No such file: bios_vendor'
+        print_traceback()
 
     try:
-        ret.append( row(_('BIOS version:'), 
-             __read('/sys/devices/virtual/dmi/id/bios_version'), 
-             D+'umut_icons/i_bios.png') )
+        string = __read('/sys/devices/virtual/dmi/id/bios_version')
+        assert string
+        ret.append( row(_('BIOS version:'), string, D+'umut_icons/i_bios.png') )
     except:
-        print >>sys.stderr, 'No such file: bios_version'
+        print_traceback()
         
     try:
-        ret.append( row(_('BIOS release date:'), 
-             __read('/sys/devices/virtual/dmi/id/bios_date'), 
-             D+'umut_icons/i_bios.png') )
+        string = __read('/sys/devices/virtual/dmi/id/bios_date')
+        assert string
+        ret.append( row(_('BIOS release date:'), string, D+'umut_icons/i_bios.png') )
     except:
-        print >>sys.stderr, 'No such file: bios_date'
+        print_traceback()
     
     return ret
 
 def __motherboard():
     ret = []
     try:
-        ret.append( row(_('Motherboard name:'), 
-             __read('/sys/devices/virtual/dmi/id/board_name'), 
-             D+'umut_icons/i_motherboard.png') )
+        string = __read('/sys/devices/virtual/dmi/id/board_name')
+        assert string
+        ret.append( row(_('Motherboard name:'), string, D+'umut_icons/i_motherboard.png') )
     except IOError: pass
     except:
         print_traceback()
         
     try:
-        ret.append( row(_('Motherboard vendor:'), 
-             __read('/sys/devices/virtual/dmi/id/board_vendor'), 
-             D+'umut_icons/i_motherboard.png') )
+        string = __read('/sys/devices/virtual/dmi/id/board_vendor')
+        ret.append( row(_('Motherboard vendor:'), string, D+'umut_icons/i_motherboard.png') )
     except IOError: pass
     except:
         print_traceback()
@@ -186,6 +185,22 @@ def __mem():
         print_traceback()
         return []
 
+def __swap():
+    try:
+        total_size = 0
+        with open('/proc/swaps') as f:
+            contents = f.readlines()
+        for line in contents[1:]: # the first line is a text header
+            filename, type, size = line.split()[0:3]
+            total_size += int(size)
+        if total_size:
+            return [row(_('Total swap:'), _('%s MBytes') % (total_size/1000), D+'umut_icons/i_memory.png' )]
+        else:
+            return [] # no swap
+    except:
+        print_traceback()
+        return []
+        
 def __pci():
     ret = []
     try:
@@ -232,4 +247,4 @@ def __battery():
 
 def get():
     return [ __motherboard, __bios, __cpu, __cpu_temp,
-             __mem, __pci, __battery ]
+             __mem, __swap, __pci, __battery ]

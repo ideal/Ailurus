@@ -25,7 +25,7 @@ from lib import *
 
 def __set1():
     ret = []
-    path = os.path.dirname(os.path.abspath(__file__))+'/../support/fedora_server_list'
+    path = A+'/support/fedora_server_list'
     with open(path) as f:
         contents = [l.strip() for l in f]
     for i in range(0, len(contents), 3):

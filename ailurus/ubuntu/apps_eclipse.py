@@ -224,7 +224,7 @@ class MTJ(_path_lists):
         self.paths = [ self.path ]
     def install(self):
         make_sure_installed()
-        path = os.path.dirname(os.path.abspath(__file__))+'/../support/MTJ_urls'
+        path = A+'/support/MTJ_urls'
         with open(path) as f:
             urls = f.readlines()
         urls = [u.strip() for u in urls]

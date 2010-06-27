@@ -210,3 +210,12 @@ class CairoDock(_apt_install):
     category = 'panel'
     ppa = 'cairo-dock-team/weekly'
     pkgs = 'cairo-dock cairo-dock-plug-ins'
+
+# It is not available in Launchpad :(
+#class Songbird(_apt_install):
+#    __doc__ = _('Songbird: Open source substitution of iTunes')
+#    detail = _('Music player which integrates with online content via plugins. '
+#               'Site contains project news, download, add-ons directory, help, and how to contribute.')
+#    category = 'player'
+#    ppa = 'songbird-daily'
+#    pkgs = 'songbird'

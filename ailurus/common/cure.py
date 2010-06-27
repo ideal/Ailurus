@@ -193,3 +193,14 @@ class Own_usr_lib_eclipse_by_root(C):
     def cure(self):
         run_as_root('chown -R root:root /usr/lib/eclipse', ignore_error=True)
         run_as_root('chown -R root:root /usr/share/eclipse', ignore_error=True)
+
+class Own_config_dir_by_user(C):
+    __doc__ = _('Let you be the owner of directory ~/.config/ailurus')
+    detail = _('Command:') + ' chown -R $USER:$USER ~/.config/ailurus'
+    type = C.MUST_FIX
+    def exists(self):
+        dir = Config.get_config_dir()
+        if os.stat(dir).st_uid != os.getuid():
+            return True
+    def cure(self):
+        run_as_root('chown $USER:$USER "%s"' % Config.get_config_dir())

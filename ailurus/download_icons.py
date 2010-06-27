@@ -84,10 +84,7 @@ class DownloadIconsWindow(gtk.Window):
                 sys.exit()
     
     def install_icons(self):
-        import lib
-        icons_path = os.path.dirname(os.path.abspath(lib.__file__))+'/icons/'
-        assert os.path.exists(icons_path)
-        appicons_path = icons_path + '/appicons/'
+        appicons_path = D+'/appicons/'
         if not os.path.exists(appicons_path):
             run_as_root('mkdir ' + appicons_path)
         os.chdir(appicons_path)

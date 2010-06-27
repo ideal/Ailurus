@@ -2,6 +2,7 @@ include AUTHORS COPYING INSTALL README
 include MANIFEST.in MANIFEST
 include ChangeLog
 include ailurus*
+recursive-include data/ *
 recursive-include ailurus/ *
 recursive-exclude ailurus/ *.pyc
 recursive-include ailurus/icons *

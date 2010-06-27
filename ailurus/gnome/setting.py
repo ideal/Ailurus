@@ -69,7 +69,7 @@ def __start_here_icon_setting():
                     usr_path = os.path.join(root, file_name)
                     local_path = usr_path.replace('/usr/share/icons', local_icons_dir)
                     local_dir = os.path.dirname(local_path)
-                    if not os.path.exists(local_dir): run('mkdir -p ' + local_dir)
+                    if not os.path.exists(local_dir): run('mkdir -p "%s"' % local_dir)
                     run('cp /tmp/start-here.png %s' % local_path)
 
     def get_start_here_icon_path():
@@ -455,8 +455,6 @@ def __login_window_background():
     def apply(w, image):
         try:
             run_as_root('sudo -u gdm gconftool-2 --set --type string /desktop/gnome/background/picture_filename "%s"' % image)
-#           path = D+'/../support/gdm_gconf.py'
-#           run_as_root('python "%s" --type string --set /desktop/gnome/background/picture_filename "%s"' % (path, image))
         except:
             w.display_image(Config.get_login_window_background())
             raise
