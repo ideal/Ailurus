@@ -149,6 +149,9 @@ def __os_version():
     try:
         import platform
         name, version = platform.dist()[0:2]
+        if not name:
+            name = platform.system()
+            version = platform.release()
         return [row(_('%s version:') % name, version, D+'umut_icons/tux.png' )]
     except: print_traceback()    
 
