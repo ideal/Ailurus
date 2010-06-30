@@ -155,7 +155,7 @@ class UbuntuFastestMirrorPane(gtk.VBox):
         if value == self.NO_PING_RESPONSE: 
             text = _('No response')
         elif value == self.NOT_DETECTED:
-            text = '' # if the server has not been detected, then show nothing
+            text = _('Not detected')
         else:
             text = '%s ms' % value
         cell.set_property('text', text)

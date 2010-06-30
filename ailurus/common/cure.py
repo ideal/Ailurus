@@ -203,4 +203,4 @@ class Own_config_dir_by_user(C):
         if os.stat(dir).st_uid != os.getuid():
             return True
     def cure(self):
-        run_as_root('chown $USER:$USER "%s"' % Config.get_config_dir())
+        run_as_root('chown -R $USER:$USER "%s"' % Config.get_config_dir())

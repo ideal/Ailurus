@@ -36,7 +36,7 @@ except ImportError: # This is not Debian or Ubuntu
 else:
     apt_pkg.init()
 
-version = 8 # must be integer
+version = 10 # must be integer
 
 class AccessDeniedError(dbus.DBusException):
     _dbus_error_name = 'cn.ailurus.AccessDeniedError'
@@ -206,31 +206,32 @@ class AilurusFulgens(dbus.service.Object):
             self.apt_window.destroy()
             self.apt_window = self.apt_progress = None
     
-    def apt_lock_cache(self):
-        # /var/lib/apt/lists/lock, 
-        # locked by apt-get update
-        lockfile = apt_pkg.Config.FindDir("Dir::State::Lists") + "lock"
+    def lock_apt(self, path):
+        if not os.path.exists(path):
+            os.mkdir(path)
+        lockfile = path + 'lock'
         # This will create an empty file of the given name and lock it. 
         # Once this is done all other calls to GetLock in any other process will fail with -1. 
         # The return result is the fd of the file, the call should call close at some time
         lock = apt_pkg.GetLock(lockfile)
         if lock < 0:
-            raise CannotLockAptCacheError
-        self.lock1_fd = lock
+            raise CannotLockAptCacheError(lockfile)
+        return lock
+    
+    def apt_lock_cache(self):
+        # /var/lib/apt/lists/lock, 
+        # locked by apt-get update
+        self.lock1_fd = self.lock_apt(apt_pkg.Config.FindDir("Dir::State::Lists"))
         # /var/cache/apt/archives/lock,
         # try the lock in /var/cache/apt/archive/lock first
         # this is because apt-get install will hold it all the time
         # while the dpkg lock is briefly given up before dpkg is
         # forked off. this can cause a race (LP: #437709)
-        lockfile = apt_pkg.Config.FindDir("Dir::Cache::Archives") + "lock"
-        lock = apt_pkg.GetLock(lockfile)
-        if lock < 0:
-            raise CannotLockAptCacheError
-        self.lock2_fd = lock
+        self.lock2_fd = self.lock_apt(apt_pkg.Config.FindDir("Dir::Cache::Archives"))
         try:
             apt_pkg.PkgSystemLock()
         except SystemError:
-            raise CannotLockAptCacheError
+            raise CannotLockAptCacheError('apt_pkg.PkgSystemLock')
         self.holding_apt_lock = True
     
     @dbus.service.method('cn.ailurus.Interface', in_signature='', out_signature='b')
@@ -240,8 +241,6 @@ class AilurusFulgens(dbus.service.Object):
         try:
             self.apt_lock_cache()
             return True
-        except:
-            return False
         finally:
             self.apt_unlock_cache()
 

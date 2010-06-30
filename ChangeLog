@@ -1,3 +1,15 @@
+2010-06-29 Ray Chen <chenrano2002@gmail.com>
+
+    * Fix Issue 729: load panel failed when there is no selinx on Fedora
+
+2010-06-29 Homer Xing <homer.xing@gmail.com>
+
+    * Display lock path if failed to lock.
+    * Create lock directory if necessary.
+    * Fix bug: No option 'login_window_background'
+    * Do not install Realplayer. It cannot be removed by yum.
+    * Fedora server response time may exceed 10 seconds. 
+
 2010-06-27 Homer Xing <homer.xing@gmail.com>
 
     * Try to lock apt cache before install software

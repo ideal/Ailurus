@@ -28,11 +28,19 @@ from apps_eclipse import *
 
 class Disable_SELinux(I):
     __doc__ = _('Put Selinux in permissive mode, instead of enforcing mode.')
+    # SELinux can take one of these three values:
+    #   enforcing - SELinux security policy is enforced.
+    #   permissive - SELinux prints warnings instead of enforcing.
+    #   disabled - No SELinux policy is loaded.
+    selinux_sysconfig = "/etc/sysconfig/selinux"
+    selinux_config    = "/etc/selinux/config"
+    def visible(self):
+        return os.path.exists(self.selinux_sysconfig) and os.path.exists(self.selinux_config)
     def installed(self):
-        with open('/etc/sysconfig/selinux') as f:
+        with open(self.selinux_sysconfig) as f:
             c = f.read()
         if 'SELINUX=enforcing' in c: return False
-        with open('/etc/selinux/config') as f:
+        with open(self.selinux_config) as f:
             c = f.read()
         if 'SELINUX=enforcing' in c: return False
         return True
@@ -53,7 +61,7 @@ class Disable_SELinux(I):
                 with open(path) as f:
                     lines = f.readlines()
                 for i, line in enumerate(lines):
-                    if 'SELINUX=permissive' in line: lines[i] = 'SELINUX=enforcing\n'
+                    if 'SELINUX=permissive' in line or 'SELINUX=disabled' in line: lines[i] = 'SELINUX=enforcing\n'
                 with open(path, 'w') as f:
                     f.writelines(lines)
         run_as_root_in_terminal('/usr/sbin/setenforce 1')

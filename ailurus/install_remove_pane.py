@@ -410,12 +410,16 @@ class InstallRemovePane(gtk.VBox):
 
     def __apply_button_clicked(self, widget):
         if UBUNTU or UBUNTU_DERIV:
-            if not APT.is_cache_lockable():
+            try:
+                APT.is_cache_lockable()
+            except CannotLockAptCacheError, e:
+                message_format = _('Check if you are currently running another '
+                                   'software management program, e.g. Synaptic or apt-get. '
+                                   'Only one program is allowed to make changes at the '
+                                   'same time.')
+                message_format += '\n' + e.args[0]
                 dialog = gtk.MessageDialog(type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK,
-                                           message_format=_('Check if you are currently running another '
-                                                            'software management program, e.g. Synaptic or apt-get. '
-                                                            'Only one program is allowed to make changes at the '
-                                                            'same time.'))
+                                           message_format=message_format)
                 dialog.set_title(_('Cannot lock apt cache'))
                 dialog.run()
                 dialog.destroy()

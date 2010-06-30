@@ -456,7 +456,8 @@ def __login_window_background():
         try:
             run_as_root('sudo -u gdm gconftool-2 --set --type string /desktop/gnome/background/picture_filename "%s"' % image)
         except:
-            w.display_image(Config.get_login_window_background())
+            try:    w.display_image(Config.get_login_window_background())
+            except: w.display_image(None) # show blank
             raise
         else:
             Config.set_login_window_background(image)
