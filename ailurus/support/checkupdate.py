@@ -195,6 +195,9 @@ def show_special_thank_dialog():
     print >>text, _('The people who maintain PPA repository:')
     print >>text, '<b><big>Aron Xu</big></b>'
     print >>text
+    print >>text, _('The people who maintain ArchLinux package:')
+    print >>text, '<b><big>kiefer</big></b>'
+    print >>text
     print >>text, _('The people who provide a lot of Linux skills:')
     print >>text, '<b><big>Oneleaf</big></b>'
     print >>text
