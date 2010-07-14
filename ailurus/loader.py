@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,15 +33,16 @@ class AppObjs:
     failed_extensions = []
     @classmethod
     def get_icon_path(cls, name):
-        for dir in [D+'appicons/', D+'umut_icons/', D+'sora_icons/',]:
-            path = dir + name + '.png'
-            if os.path.exists(path): return path
-        return D + 'sora_icons/default_application_icon.png'
+        'return (icon path, whether it is default icon)'
+        path = D + 'appicons/' + name + '.png'
+        if os.path.exists(path): return (path, False)
+        return (D + 'sora_icons/default_application_icon.png', True)
     @classmethod
     def all_objs_reload_icon(cls):
         for obj in cls.appobjs:
             name = obj.__class__.__name__
-            obj.logo_pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(cls.get_icon_path(name), 32, 32)
+            icon_path, obj.use_default_icon = cls.get_icon_path(name)
+            obj.logo_pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(icon_path, 32, 32)
     @classmethod
     def all_objs_reset_status(cls):
         for obj in cls.appobjs:
@@ -79,6 +79,25 @@ class AppObjs:
             else:
                 cls.appobjs.append(obj)
                 cls.appobjs_names.append(name)
+    @classmethod
+    def all_installer_names_in_module(cls, module):
+        ret = set()
+        for name in dir(module):
+            if name.startswith('_') or name=='I' or name=='N': continue
+            app_class = getattr(module,name)
+            if not isinstance(app_class, types.ClassType): continue
+            if getattr(app_class, 'this_is_an_installer', False) == False: continue
+            ret.add(name)
+        return list(ret)
+    @classmethod
+    def all_installer_names_in_text_file(cls):
+        ret = set()
+        c = ConfigParser.RawConfigParser()
+        c.optionxform = str # case sensitive in option_name
+        c.read(A+'/native_apps')
+        for section_name in c.sections():
+            ret.add(section_name)
+        return list(ret)
     @classmethod
     def get_extension_path(cls):
         for path in [A+'/../unfree/', Config.get_config_dir()]:
@@ -271,16 +290,34 @@ elif ARCHLINUX: import archlinux as distribution
 else: distribution = None
 
 def load_app_objs():
+    TimeStat.begin('load_app_objs')
     AppObjs.set_basic_modules(common, desktop, distribution)
 
+    TimeStat.begin('load_from_text_file')
     AppObjs.load_from_text_file()
+    TimeStat.end('load_from_text_file')
+    
+    TimeStat.begin('load_from_basic_modules')
     AppObjs.load_from_basic_modules()
+    TimeStat.end('load_from_basic_modules')
+    
+    TimeStat.begin('load_from_extensions')
     AppObjs.load_from_extensions()
+    TimeStat.end('load_from_extensions')
 
+    TimeStat.begin('strip')
     AppObjs.strip_invisible()
     AppObjs.strip_wrong_locale()
+    TimeStat.end('strip')
 
+    TimeStat.begin('reload_icon')
     AppObjs.all_objs_reload_icon()
+    TimeStat.end('reload_icon')
+    
+    TimeStat.begin('reset_status')
     AppObjs.all_objs_reset_status()
+    TimeStat.end('reset_status')
+    
+    TimeStat.end('load_app_objs')
     
     return AppObjs.appobjs

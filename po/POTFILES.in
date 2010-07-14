@@ -36,6 +36,7 @@ ailurus/libsetting.py
 ailurus/libu.py
 ailurus/loader.py
 ailurus/main.py
+ailurus/publickey/__init__.py
 ailurus/show_a_linux_skill_bubble.py
 ailurus/strings.py
 ailurus/support/AptAuth.py

@@ -4,9 +4,9 @@
 %endif
 
 Name: ailurus
-Version: 10.06.8
+Version: 10.06.93
 Release: 0%{?dist}
-Summary: makes Linux easier to use
+Summary: A simple software center and GNOME tweaker
 Group: Applications/System
 License: GPLv2+
 URL: http://ailurus.googlecode.com/
@@ -18,7 +18,7 @@ BuildArch: noarch
 Requires: polkit pygtk2 notify-python vte rpm-python pygobject2 dbus-python wget unzip xterm gnome-python2-gnomekeyring
 
 %description
-Ailurus is an application which makes Linux easier to use.
+Ailurus is a simple software center and GNOME tweaker.
 
 Features:
 * Help users learn some Linux skills
@@ -37,26 +37,26 @@ CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
 %install
 rm -rf $RPM_BUILD_ROOT
 %{__python} setup.py install -O1 --root=$RPM_BUILD_ROOT
+%find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root)
 %{python_sitelib}/ailurus/
 %{_bindir}/ailurus
 %doc %{_mandir}/man1/ailurus.1*
 %{_datadir}/applications/ailurus.desktop
 %{_datadir}/ailurus/
-%{_datadir}/icons/
+%{_datadir}/icons/hicolor/*/apps/ailurus.png
 %{_datadir}/dbus-1/system-services/cn.ailurus.service
-%{_sysconfdir}/dbus-1/system.d/cn.ailurus.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/cn.ailurus.conf
 %{_datadir}/PolicyKit/policy/cn.ailurus.policy
 %{_datadir}/polkit-1/actions/cn.ailurus.policy
-%{_datadir}/locale/*/LC_MESSAGES/ailurus.mo
 %{_datadir}/omf/ailurus
 %{python_sitelib}/ailurus*.egg-info
 
 %changelog
-* Thu Jun 24 2010 Homer Xing <homer.xing@gmail.com> 10.06.8-1
+* Mon Jul 12 2010 Homer Xing <homer.xing@gmail.com> 10.06.93-0
 - Initial package

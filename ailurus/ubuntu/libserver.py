@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,7 +56,7 @@ def get_candidate_repositories():
         assert '://' in e[2]
         assert '.' in e[3], e
         server = e[3]
-        if not server in all_servers:
+        if not server in all_servers: # do not add repeated server
             all_servers.add(server)
             ret.append(e)
     

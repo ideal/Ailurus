@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ailurus 9.12\n"
 "Report-Msgid-Bugs-To: Homer Xing <homer.xing@gmail.com>\n"
-"POT-Creation-Date: 2010-06-27 21:17+0800\n"
-"PO-Revision-Date: 2010-06-28 04:53+0000\n"
+"POT-Creation-Date: 2010-06-29 14:43+0800\n"
+"PO-Revision-Date: 2010-06-30 04:27+0000\n"
 "Last-Translator: Ailurus Developers <Unknown>\n"
 "Language-Team: none\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2010-06-29 03:49+0000\n"
+"X-Launchpad-Export-Date: 2010-07-01 03:54+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../ailurus.desktop.in.h:1
@@ -49,7 +49,7 @@ msgstr "APT 缓存"
 #: ../ailurus/clean_up_pane.py:105 ../ailurus/clean_up_pane.py:119
 #: ../ailurus/clean_up_pane.py:134 ../ailurus/clean_up_pane.py:150
 #: ../ailurus/lib.py:469 ../ailurus/lib.py:551 ../ailurus/lib.py:707
-#: ../ailurus/lib.py:990 ../ailurus/lib.py:1281 ../ailurus/lib.py:1291
+#: ../ailurus/lib.py:998 ../ailurus/lib.py:1289 ../ailurus/lib.py:1299
 #: ../ailurus/support/terminal.py:71
 #: ../ailurus/support/terminal_single_thread.py:53
 msgid "Run command:"
@@ -2025,6 +2025,11 @@ msgstr "全部源:"
 msgid "No response"
 msgstr "无响应"
 
+#: ../ailurus/fedora/fastest_mirror_pane.py:90
+#: ../ailurus/ubuntu/fastest_mirror_pane.py:158
+msgid "Not detected"
+msgstr "未检测"
+
 #: ../ailurus/fedora/fastest_mirror_pane.py:97
 #: ../ailurus/ubuntu/fastest_mirror_pane.py:395
 msgid "Country"
@@ -2462,8 +2467,8 @@ msgid "The layout of window title-bar buttons"
 msgstr "窗口标题栏的按钮的布局"
 
 #: ../ailurus/gnome/setting.py:191 ../ailurus/gnome/setting.py:262
-#: ../ailurus/gnome/setting.py:492 ../ailurus/gnome/setting.py:508
-#: ../ailurus/gnome/setting.py:516 ../ailurus/libsetting.py:38
+#: ../ailurus/gnome/setting.py:493 ../ailurus/gnome/setting.py:509
+#: ../ailurus/gnome/setting.py:517 ../ailurus/libsetting.py:38
 #: ../ailurus/libsetting.py:54 ../ailurus/libsetting.py:99
 #: ../ailurus/libsetting.py:220 ../ailurus/libsetting.py:252
 msgid "GConf key: "
@@ -2791,7 +2796,7 @@ msgstr "不显示 “重启动” 按钮"
 msgid "Login window settings"
 msgstr "登录窗口设置"
 
-#: ../ailurus/gnome/setting.py:465
+#: ../ailurus/gnome/setting.py:466
 msgid ""
 "The login window background is the gconf value "
 "\"/desktop/gnome/background/picture_filename\" of user \"gdm\"."
@@ -2799,114 +2804,114 @@ msgstr ""
 "登录窗口的背景图片，是 \"gdm\" 用户的 gconf 配置选项 "
 "\"/desktop/gnome/background/picture_filename\" 的值。"
 
-#: ../ailurus/gnome/setting.py:471
+#: ../ailurus/gnome/setting.py:472
 msgid "Change login window background"
 msgstr "改变登录窗口的背景图片"
 
-#: ../ailurus/gnome/setting.py:474
+#: ../ailurus/gnome/setting.py:475
 msgid "Command line"
 msgstr "命令行"
 
-#: ../ailurus/gnome/setting.py:475 ../ailurus/gnome/setting.py:488
+#: ../ailurus/gnome/setting.py:476 ../ailurus/gnome/setting.py:489
 #: ../ailurus/system_setting_pane.py:61
 msgid "Shortcut key"
 msgstr "快捷键"
 
-#: ../ailurus/gnome/setting.py:484
+#: ../ailurus/gnome/setting.py:485
 #, python-format
 msgid "%2d:"
 msgstr "%2d"
 
-#: ../ailurus/gnome/setting.py:491
+#: ../ailurus/gnome/setting.py:492
 msgid "Compression strategy of file-roller:"
 msgstr "file-roller 的压缩策略"
 
-#: ../ailurus/gnome/setting.py:495
+#: ../ailurus/gnome/setting.py:496
 msgid "Very high speed"
 msgstr "极快"
 
-#: ../ailurus/gnome/setting.py:495
+#: ../ailurus/gnome/setting.py:496
 msgid "High speed"
 msgstr "快速"
 
-#: ../ailurus/gnome/setting.py:495
+#: ../ailurus/gnome/setting.py:496
 msgid "Balanced"
 msgstr "平衡"
 
-#: ../ailurus/gnome/setting.py:495
+#: ../ailurus/gnome/setting.py:496
 msgid "High compression rate"
 msgstr "高压缩率"
 
-#: ../ailurus/gnome/setting.py:500
+#: ../ailurus/gnome/setting.py:501
 msgid "Compression strategy"
 msgstr "压缩策略"
 
-#: ../ailurus/gnome/setting.py:507
+#: ../ailurus/gnome/setting.py:508
 msgid "Maximum number of undos:"
 msgstr "最大撤销动作的数量:"
 
-#: ../ailurus/gnome/setting.py:515
+#: ../ailurus/gnome/setting.py:516
 msgid "Maximum number of recent files:"
 msgstr "“最近的文件”的数量:"
 
-#: ../ailurus/gnome/setting.py:522
+#: ../ailurus/gnome/setting.py:523
 msgid "GEdit settings"
 msgstr "GEdit 设定"
 
-#: ../ailurus/gnome/setting.py:532
+#: ../ailurus/gnome/setting.py:533
 #, python-format
 msgid "GNOME settings of user %s have been reset."
 msgstr "用户 %s 的 GNOME 设置已经被重置了。"
 
-#: ../ailurus/gnome/setting.py:539
+#: ../ailurus/gnome/setting.py:540
 msgid "Reset GNOME by removing these directories:"
 msgstr "通过删除以下目录，来重置 GNOME:"
 
-#: ../ailurus/gnome/setting.py:548
+#: ../ailurus/gnome/setting.py:549
 msgid ""
 "In order to reset GNOME, please logout first, then login GNOME as another "
 "user."
 msgstr "为了重置 GNOME, 请先注销，然后以其它用户身份登录 GNOME。"
 
-#: ../ailurus/gnome/setting.py:549
+#: ../ailurus/gnome/setting.py:550
 msgid ""
 "Cannot reset GNOME for current user because above files are being used."
 msgstr "不能重置当前用户的 GNOME 设置，因为以上文件正在使用中。"
 
-#: ../ailurus/gnome/setting.py:550
+#: ../ailurus/gnome/setting.py:551
 msgid "Please be careful."
 msgstr "请小心。"
 
-#: ../ailurus/gnome/setting.py:559
+#: ../ailurus/gnome/setting.py:560
 msgid "There is no other user"
 msgstr "没有其他用户"
 
-#: ../ailurus/gnome/setting.py:564
+#: ../ailurus/gnome/setting.py:565
 #, python-format
 msgid "Reset user %s"
 msgstr "重置用户 %s"
 
-#: ../ailurus/gnome/setting.py:569 ../ailurus/system_setting_pane.py:67
+#: ../ailurus/gnome/setting.py:570 ../ailurus/system_setting_pane.py:67
 msgid "Reset GNOME"
 msgstr "重置 GNOME"
 
-#: ../ailurus/gnome/setting.py:574
+#: ../ailurus/gnome/setting.py:575
 msgid "Activate screen saver when computer is idle for long time"
 msgstr "当计算机空闲一定时间时激活屏幕保护程序"
 
-#: ../ailurus/gnome/setting.py:577
+#: ../ailurus/gnome/setting.py:578
 msgid "Lock screen when screen saver is activated"
 msgstr "当屏幕保护程序激活时锁定屏幕"
 
-#: ../ailurus/gnome/setting.py:580
+#: ../ailurus/gnome/setting.py:581
 msgid "Lock screen after hibernating"
 msgstr "在休眠后锁定屏幕"
 
-#: ../ailurus/gnome/setting.py:582
+#: ../ailurus/gnome/setting.py:583
 msgid "Lock screen after suspending"
 msgstr "在挂起后锁定屏幕"
 
-#: ../ailurus/gnome/setting.py:585 ../ailurus/system_setting_pane.py:68
+#: ../ailurus/gnome/setting.py:586 ../ailurus/system_setting_pane.py:68
 msgid "Screensaver"
 msgstr "屏幕保护"
 
@@ -3159,7 +3164,7 @@ msgid "Anti-virus"
 msgstr "杀毒软件"
 
 #. others
-#: ../ailurus/install_remove_pane.py:114 ../ailurus/main.py:343
+#: ../ailurus/install_remove_pane.py:114 ../ailurus/main.py:341
 msgid "Others"
 msgstr "其他"
 
@@ -3275,72 +3280,72 @@ msgstr "没能安装："
 msgid "Failed to remove:"
 msgstr "没能删除："
 
-#: ../ailurus/install_remove_pane.py:415
+#: ../ailurus/install_remove_pane.py:416
 msgid ""
 "Check if you are currently running another software management program, e.g. "
 "Synaptic or apt-get. Only one program is allowed to make changes at the same "
 "time."
 msgstr "请您检查一下，是否正在运行其它软件管理程序，例如新立得或者 apt-get。同一时刻只能有一个程序运行。"
 
-#: ../ailurus/install_remove_pane.py:419
+#: ../ailurus/install_remove_pane.py:423
 msgid "Cannot lock apt cache"
 msgstr "不能锁定 apt 缓存"
 
-#: ../ailurus/install_remove_pane.py:467
+#: ../ailurus/install_remove_pane.py:471
 msgid "will install"
 msgstr "将安装"
 
-#: ../ailurus/install_remove_pane.py:469
+#: ../ailurus/install_remove_pane.py:473
 msgid "will remove"
 msgstr "将删除"
 
-#: ../ailurus/install_remove_pane.py:607
+#: ../ailurus/install_remove_pane.py:611
 msgid ""
 "How long after the server does not respond, give up downloading? (in seconds)"
 msgstr "在服务器停止响应多久后，Ailurus 放弃下载? (单位是秒)"
 
-#: ../ailurus/install_remove_pane.py:613
+#: ../ailurus/install_remove_pane.py:617
 msgid "How many times does Ailurus try to download the same resource?"
 msgstr "对于同一个资源，Ailurus 最多尝试下载多少次？"
 
-#: ../ailurus/install_remove_pane.py:616
+#: ../ailurus/install_remove_pane.py:620
 msgid "Set Ailurus download parameter"
 msgstr "设定 Ailurus 下载选项"
 
-#: ../ailurus/install_remove_pane.py:637
+#: ../ailurus/install_remove_pane.py:641
 msgid "Show \"synchronize\" button"
 msgstr "显示 “同步” 按钮"
 
-#: ../ailurus/install_remove_pane.py:644
+#: ../ailurus/install_remove_pane.py:648
 msgid "Show \"quickly install popular software\" button"
 msgstr "显示 \"快速安装流行软件\" 按钮"
 
-#: ../ailurus/install_remove_pane.py:648
+#: ../ailurus/install_remove_pane.py:652
 msgid "Set download parameters"
 msgstr "设定下载选项"
 
-#: ../ailurus/install_remove_pane.py:681
+#: ../ailurus/install_remove_pane.py:685
 msgid "All works finished. "
 msgstr "所有改变都进行完毕。 "
 
-#: ../ailurus/install_remove_pane.py:684
+#: ../ailurus/install_remove_pane.py:688
 msgid "Close this terminal"
 msgstr "关闭这个终端"
 
-#: ../ailurus/install_remove_pane.py:696
+#: ../ailurus/install_remove_pane.py:700
 msgid "_Apply"
 msgstr "应用(_A)"
 
-#: ../ailurus/install_remove_pane.py:699
+#: ../ailurus/install_remove_pane.py:703
 msgid "Synchronize"
 msgstr "同步"
 
-#: ../ailurus/install_remove_pane.py:711 ../ailurus/ubuntu/quick_setup.py:96
+#: ../ailurus/install_remove_pane.py:715 ../ailurus/ubuntu/quick_setup.py:96
 #: ../ailurus/ubuntu/quick_setup.py:443
 msgid "Quickly install popular software"
 msgstr "快速安装热门软件"
 
-#: ../ailurus/install_remove_pane.py:749
+#: ../ailurus/install_remove_pane.py:753
 msgid "Would you like to download latest application data from web?"
 msgstr "您愿意从网络上下载最新的程序数据吗？"
 
@@ -3415,127 +3420,127 @@ msgstr "双许可证 %(A)s 和 %(B)s"
 msgid "Tri-licensed under %(A)s, %(B)s and %(C)s"
 msgstr "三许可证 %(A)s, %(B)s 和 %(C)s"
 
-#: ../ailurus/lib.py:843 ../ailurus/lib.py:920
+#: ../ailurus/lib.py:843 ../ailurus/lib.py:928
 msgid "Installing packages:"
 msgstr "正在安装软件包："
 
-#: ../ailurus/lib.py:850 ../ailurus/lib.py:933
+#: ../ailurus/lib.py:850 ../ailurus/lib.py:941
 msgid "Removing packages:"
 msgstr "正在删除软件包："
 
-#: ../ailurus/lib.py:939
+#: ../ailurus/lib.py:947
 msgid "Run \"pacman -Sy\". Please wait for a few minutes."
 msgstr "运行 \"pacman -Sy\"。请您等待几分钟。"
 
-#: ../ailurus/lib.py:964
+#: ../ailurus/lib.py:972
 #, python-format
 msgid "%.1f GB"
 msgstr "%.1f G字节"
 
-#: ../ailurus/lib.py:966
+#: ../ailurus/lib.py:974
 #, python-format
 msgid "%.1f MB"
 msgstr "%.1f M字节"
 
-#: ../ailurus/lib.py:968
+#: ../ailurus/lib.py:976
 #, python-format
 msgid "%.1f KB"
 msgstr "%.1f K字节"
 
-#: ../ailurus/lib.py:969
+#: ../ailurus/lib.py:977
 #, python-format
 msgid "%s bytes"
 msgstr "%s 字节"
 
-#: ../ailurus/lib.py:977
+#: ../ailurus/lib.py:985
 #, python-format
 msgid "%.1f hours"
 msgstr "%.1f 小时"
 
-#: ../ailurus/lib.py:979
+#: ../ailurus/lib.py:987
 #, python-format
 msgid "%.1f minutes"
 msgstr "%.1f 分钟"
 
-#: ../ailurus/lib.py:980
+#: ../ailurus/lib.py:988
 #, python-format
 msgid "%d seconds"
 msgstr "%d 秒"
 
-#: ../ailurus/lib.py:1221 ../ailurus/lib.py:1226
+#: ../ailurus/lib.py:1229 ../ailurus/lib.py:1234
 msgid "Opening web page"
 msgstr "正在打开网页"
 
-#: ../ailurus/lib.py:1399
+#: ../ailurus/lib.py:1407
 msgid "Please restart Firefox"
 msgstr "请您重启 Firefox"
 
-#: ../ailurus/lib.py:1399
+#: ../ailurus/lib.py:1407
 msgid "Please restart Firefox to complete installation."
 msgstr "请您重启 Firefox 来完成安装。"
 
-#: ../ailurus/lib.py:1433
+#: ../ailurus/lib.py:1441
 #, python-format
 #| msgid "<span color='black'>Response time of %(server)s is %(value).2f ms.</span>"
 msgid "Response time of server %(name)s is %(time).1f ms."
 msgstr "服务器 %(name)s 的响应时间是 %(time).1f 毫秒。"
 
-#: ../ailurus/lib.py:1435
+#: ../ailurus/lib.py:1443
 #, python-format
 #| msgid "The file \"%s\" does not exist."
 msgid "Server %s does not respond."
 msgstr "服务器 %s 不响应。"
 
-#: ../ailurus/lib.py:1522
+#: ../ailurus/lib.py:1530
 msgid "Checking file integrity ..."
 msgstr "正在检查文件完整性 ..."
 
-#: ../ailurus/lib.py:1526
+#: ../ailurus/lib.py:1534
 msgid "Good."
 msgstr "好。"
 
-#: ../ailurus/lib.py:1533
+#: ../ailurus/lib.py:1541
 #, python-format
 msgid "Using mirror %(i)s. There are a total of %(total)s mirrors."
 msgstr "使用第 %(i)s 个镜像。共有 %(total)s 个镜像。"
 
-#: ../ailurus/lib.py:1764
+#: ../ailurus/lib.py:1772
 msgid "GNU General Public License"
 msgstr "GNU 通用公共许可证"
 
-#: ../ailurus/lib.py:1765
+#: ../ailurus/lib.py:1773
 msgid "GNU Lesser General Public License"
 msgstr "GNU 较宽松公共许可证"
 
-#: ../ailurus/lib.py:1766
+#: ../ailurus/lib.py:1774
 msgid "Eclipse Public License"
 msgstr "Eclipse 公共许可证"
 
-#: ../ailurus/lib.py:1767
+#: ../ailurus/lib.py:1775
 msgid "Mozilla Public License"
 msgstr "Mozilla 公共许可证"
 
-#: ../ailurus/lib.py:1768
+#: ../ailurus/lib.py:1776
 msgid "Berkeley Software Distribution License"
 msgstr "BSD 许可证"
 
-#: ../ailurus/lib.py:1769
+#: ../ailurus/lib.py:1777
 msgid "MIT License"
 msgstr "MIT 许可证"
 
-#: ../ailurus/lib.py:1770
+#: ../ailurus/lib.py:1778
 msgid "Common Development and Distribution License"
 msgstr "通用开发与散布许可证"
 
-#: ../ailurus/lib.py:1771
+#: ../ailurus/lib.py:1779
 msgid "Aptana Public License"
 msgstr "Aptana 公共许可证"
 
-#: ../ailurus/lib.py:1772
+#: ../ailurus/lib.py:1780
 msgid "Artistic License"
 msgstr "Artistic 许可证"
 
-#: ../ailurus/lib.py:1813
+#: ../ailurus/lib.py:1821
 msgid "Your Linux distribution is not supported. :("
 msgstr "不支持您的 Linux 发行版。:("
 
@@ -3617,87 +3622,87 @@ msgid ""
 "multiple instance concurrently."
 msgstr "另一个 Ailurus 实例正在运行。不推荐同时运行多个 Ailurus。"
 
-#: ../ailurus/main.py:128
+#: ../ailurus/main.py:126
 msgid "Necessary packages are not installed. Ailurus cannot work."
 msgstr "必要的软件包没装。Ailurus 不能工作。"
 
-#: ../ailurus/main.py:130
+#: ../ailurus/main.py:128
 msgid "Please install these packages:"
 msgstr "请安装这些软件包:"
 
-#: ../ailurus/main.py:179
+#: ../ailurus/main.py:177
 msgid "Error happened. You cannot install any software by Ailurus. :("
 msgstr "发生错误。您不能用 Ailurus 安装任何软件了。 :("
 
-#: ../ailurus/main.py:182
+#: ../ailurus/main.py:180
 msgid "System configuration file should be updated."
 msgstr "系统配置文件应当更新。"
 
-#: ../ailurus/main.py:183
+#: ../ailurus/main.py:181
 msgid "Please run these commands using <b>su</b> or <b>sudo</b>:"
 msgstr "请用 <b>su</b> 或者 <b>sudo</b> 运行以下命令:"
 
-#: ../ailurus/main.py:190
+#: ../ailurus/main.py:188
 msgid "Please re-install Ailurus."
 msgstr "请您重装 Ailurus。"
 
-#: ../ailurus/main.py:191
+#: ../ailurus/main.py:189
 msgid "Because file contents are different:"
 msgstr "因为文件内容不相同:"
 
-#: ../ailurus/main.py:196
+#: ../ailurus/main.py:194
 msgid "We need to restart Ailurus daemon."
 msgstr "需要重启动 Ailurus 守护进程。"
 
-#: ../ailurus/main.py:197
+#: ../ailurus/main.py:195
 #, python-format
 msgid "Old version is %s."
 msgstr "旧版本是 %s。"
 
-#: ../ailurus/main.py:197
+#: ../ailurus/main.py:195
 #, python-format
 msgid "New version is %s"
 msgstr "新版本是 %s。"
 
-#: ../ailurus/main.py:199
+#: ../ailurus/main.py:197
 msgid "Press this button to restart daemon. Require authentication."
 msgstr "点击这个按钮来重启动守护进程。需要认证。"
 
-#: ../ailurus/main.py:203
+#: ../ailurus/main.py:201
 msgid "Ailurus daemon successfully restarted. Ailurus will work fine."
 msgstr "Ailurus 守护进程成功重启。Ailurus 将正常运行。"
 
-#: ../ailurus/main.py:205
+#: ../ailurus/main.py:203
 msgid "Cannot restart Ailurus daemon. Please restart your computer."
 msgstr "不能重启 Ailurus 守护进程。请重启动您的电脑。"
 
-#: ../ailurus/main.py:339
+#: ../ailurus/main.py:337
 msgid "Quit"
 msgstr "退出"
 
-#: ../ailurus/main.py:347
+#: ../ailurus/main.py:345
 msgid "Default pane"
 msgstr "默认面板"
 
-#: ../ailurus/main.py:351
+#: ../ailurus/main.py:349
 msgid "Preferences"
 msgstr "首选项"
 
-#: ../ailurus/main.py:354
+#: ../ailurus/main.py:352
 msgid ""
 "Study\n"
 "Linux"
 msgstr "学习Linux"
 
-#: ../ailurus/main.py:397
+#: ../ailurus/main.py:395
 msgid "Please wait a few seconds"
 msgstr "请稍等一会儿"
 
-#: ../ailurus/main.py:423
+#: ../ailurus/main.py:421
 msgid "Are you sure to exit?"
 msgstr "您真的要退出程序吗？"
 
-#: ../ailurus/main.py:424
+#: ../ailurus/main.py:422
 msgid "Do not query me any more."
 msgstr "不要再询问我。"
 
@@ -5718,19 +5723,11 @@ msgstr "浏览器的 Flash 插件"
 msgid "Adobe® PDF Reader"
 msgstr "Adobe® PDF Reader"
 
-#: ../unfree/for_fedora.py:287
-msgid ""
-"If you cannot play RMVB video, try this application! You can launch "
-"RealPlayer by \"/opt/real/RealPlayer/realplay\"."
-msgstr ""
-"如果您不能播放 RMVB 视频，那么试试这个程序! 您可以用 \"/opt/real/RealPlayer/realplay\" 来启动 "
-"RealPlayer。"
-
-#: ../unfree/for_fedora.py:300
+#: ../unfree/for_fedora.py:301
 msgid "Google Chrome browser"
 msgstr "Google Chrome 浏览器"
 
-#: ../unfree/for_fedora.py:302
+#: ../unfree/for_fedora.py:303
 msgid ""
 "This is the web browser from Google. \n"
 "You can change themes by opening web-page "
@@ -5740,43 +5737,43 @@ msgstr ""
 "您用 Google Chrome 打开网页 "
 "https://tools.google.com/chrome/intl/pt/themes/index.html 来更换主题。"
 
-#: ../unfree/for_fedora.py:317
+#: ../unfree/for_fedora.py:318
 msgid "You have installed \"google-chrome-unstable\"."
 msgstr "您已经装了 \"google-chrome-unstable\"。"
 
-#: ../unfree/for_fedora.py:319
+#: ../unfree/for_fedora.py:320
 msgid "You have installed \"google-chrome-beta\"."
 msgstr "您已经装了 \"google-chrome-beta\"。"
 
-#: ../unfree/for_fedora.py:322 ../unfree/for_ubuntu.py:197
+#: ../unfree/for_fedora.py:323 ../unfree/for_ubuntu.py:197
 msgid "Google Earth"
 msgstr "Google 地球"
 
-#: ../unfree/for_fedora.py:323 ../unfree/for_ubuntu.py:198
+#: ../unfree/for_fedora.py:324 ../unfree/for_ubuntu.py:198
 msgid ""
 "Please install it in /opt/google-earth. Otherwise it cannot be detected."
 msgstr "请将它安装在 /opt/google-earth 目录。否则不能检测它是否安装。"
 
-#: ../unfree/for_fedora.py:336
+#: ../unfree/for_fedora.py:337
 msgid ""
 "It is the only professional virtual machine which is freely available under "
 "the terms of GPL. Official site: http://www.virtualbox.org/wiki/Downloads"
 msgstr "这是唯一的以 GPL 发布的专业虚拟机。官方网站: http://www.virtualbox.org/wiki/Downloads"
 
-#: ../unfree/for_fedora.py:345
+#: ../unfree/for_fedora.py:346
 msgid ""
 "With Skype you can make free calls over the Internet to other people. "
 msgstr "使用 Skype，您可以免费给别人打电话。 "
 
-#: ../unfree/for_fedora.py:354
+#: ../unfree/for_fedora.py:355
 msgid "Open source web browser"
 msgstr "开源网络浏览器"
 
-#: ../unfree/for_fedora.py:375 ../unfree/for_ubuntu.py:289
+#: ../unfree/for_fedora.py:376 ../unfree/for_ubuntu.py:289
 msgid "ESET NOD32"
 msgstr "ESET NOD32"
 
-#: ../unfree/for_fedora.py:376 ../unfree/for_ubuntu.py:290
+#: ../unfree/for_fedora.py:377 ../unfree/for_ubuntu.py:290
 msgid "Anti virus and anti spyware"
 msgstr "扫描病毒，清除间谍软件"
 
@@ -9612,3 +9609,10 @@ msgstr ""
 
 #~ msgid "Install full language support and input method"
 #~ msgstr "安装输入法和完整的语言支持"
+
+#~ msgid ""
+#~ "If you cannot play RMVB video, try this application! You can launch "
+#~ "RealPlayer by \"/opt/real/RealPlayer/realplay\"."
+#~ msgstr ""
+#~ "如果您不能播放 RMVB 视频，那么试试这个程序! 您可以用 \"/opt/real/RealPlayer/realplay\" 来启动 "
+#~ "RealPlayer。"

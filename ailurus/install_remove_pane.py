@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -169,6 +168,10 @@ class InstallRemovePane(gtk.VBox):
             cell.set_property('text', text)
 
     def __left_pane(self):
+        toolbar = gtk.HBox(False, 3)
+        for text, class_name, icon_path in Category.all_left_class():
+            toolbar.pack_start(self.left_class_choose_button(text, class_name, icon_path), False)
+        
         column_expander = gtk.TreeViewColumn()
         column_expander.set_visible(False)
         pixbuf_render = gtk.CellRendererPixbuf()
@@ -192,10 +195,15 @@ class InstallRemovePane(gtk.VBox):
         treeview.set_expander_column(column_expander)
 
         scrollwindow = gtk.ScrolledWindow ()
-        scrollwindow.add ( treeview )
-        scrollwindow.set_policy ( gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC )
-        scrollwindow.set_shadow_type ( gtk.SHADOW_IN )
-        return scrollwindow
+        scrollwindow.add(treeview)
+        scrollwindow.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scrollwindow.set_shadow_type(gtk.SHADOW_IN)
+
+        vbox = gtk.VBox(False, 5)
+        vbox.pack_start(toolbar, False)
+        vbox.pack_start(scrollwindow)
+
+        return vbox
 
     def __clean_and_show_vte_window(self):
         gtk.gdk.threads_enter()
@@ -390,9 +398,6 @@ class InstallRemovePane(gtk.VBox):
         finally:
             gtk.gdk.threads_enter()
             self.__return_to_app_view()
-#            parentbox = self.terminal.get_widget().parent
-#            parentbox.pack_start(self.final_box, False)
-#            parentbox.show_all()
             self.right_treeview.queue_draw()
             self.right_treeview.get_selection().unselect_all()
             gtk.gdk.threads_leave()
@@ -541,6 +546,35 @@ class InstallRemovePane(gtk.VBox):
         thread.start_new_thread(launch, ())
 
     def __right_pane(self):
+        self.sync_button = button_sync = image_file_only_button(D+'sora_icons/synchronize.png', 24)
+        button_sync.set_tooltip_text(_('Synchronize'))
+        button_sync.connect('clicked', lambda w: self.synchronize())
+
+        from support.searchbox import SearchBoxForApp
+        searchbox = SearchBoxForApp()
+        searchbox.connect('changed', self.__search_content_changed)
+
+        quick_setup_button = image_file_only_button(D+'umut_icons/quick_setup.png', 24)
+        quick_setup_button.set_tooltip_text(_('Quickly install popular software'))
+        quick_setup_button.connect('clicked', self.__launch_quick_setup)
+
+        self.quick_setup_area = Area()
+        self.quick_setup_area.pack_start(gtk.VSeparator(), False)
+        self.quick_setup_area.pack_start(quick_setup_button, False)
+        self.quick_setup_area.content_visible(UBUNTU or UBUNTU_DERIV)
+
+        button_apply = image_stock_button(gtk.STOCK_APPLY, _('_Apply') )
+        button_apply.connect('clicked', self.__apply_button_clicked)
+
+        toolbar = gtk.HBox(False, 3)
+        toolbar.pack_start(gtk.VSeparator(), False)
+        toolbar.pack_start(button_sync, False)
+        toolbar.pack_start(gtk.VSeparator(), False)
+        toolbar.pack_start(searchbox, False)
+        toolbar.pack_start(self.quick_setup_area, False)
+        toolbar.pack_start(gtk.VSeparator(), False)
+        toolbar.pack_start(button_apply, False)
+        
         import gobject, pango
         self.right_store = treestore = gtk.ListStore(gobject.TYPE_PYOBJECT)
         
@@ -583,7 +617,11 @@ class InstallRemovePane(gtk.VBox):
         scroll.add(treeview)
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_IN)
-        return scroll
+        
+        vbox = gtk.VBox(False, 5)
+        vbox.pack_start(toolbar, False)
+        vbox.pack_start(scroll)
+        return vbox
 
     def __search_content_changed(self, widget, text, option):
         self.filter_text = text
@@ -633,31 +671,18 @@ class InstallRemovePane(gtk.VBox):
         Config.wget_set_triesnum(new_tries)
         dialog.destroy()
     
+    def do_refresh_icon(self):
+        AppObjs.all_objs_reload_icon()
+        self.right_treeview.queue_draw()
+
     def get_preference_menuitems(self):
-        def toggled(w):
-            visible = w.get_active()
-            Config.set_show_sync_area(visible)
-            self.sync_area.content_visible(visible)
-        show_sync = gtk.CheckMenuItem(_('Show "synchronize" button'))
-        show_sync.set_active(Config.get_show_sync_area())
-        show_sync.connect('toggled', toggled)
-        def toggled(w):
-            visible = w.get_active()
-            Config.set_show_quick_setup_area(visible)
-            self.quick_setup_area.content_visible(visible)
-        show_quick_setup = gtk.CheckMenuItem(_('Show "quickly install popular software" button'))
-        show_quick_setup.set_active(Config.get_show_quick_setup_area())
-        show_quick_setup.connect('toggled', toggled)
-    
         set_wget_param = gtk.MenuItem(_("Set download parameters"))
         set_wget_param.connect('activate', lambda w: self.set_wget_parameters())
         
-        return [set_wget_param]
-# always show sync & quick_setup
-#        if UBUNTU or UBUNTU_DERIV: # this feature only support UBUNTU or MINT.
-#            return [show_sync, show_quick_setup, set_wget_param]
-#        else:
-#            return [show_sync, set_wget_param]
+        refresh_icon = gtk.MenuItem(_('Refresh icons of all software items'))
+        refresh_icon.connect('activate', lambda w: self.do_refresh_icon())
+        
+        return [set_wget_param, refresh_icon]
     
     def __init__(self, parentwindow, app_objs):
         gtk.VBox.__init__(self, False, 5)
@@ -680,70 +705,33 @@ class InstallRemovePane(gtk.VBox):
         self.DE_GNOME = get_pixbuf(D + 'umut_icons/gnome.png', 16, 16)
         self.DE_DEFAULT = blank_pixbuf(16, 16)
 
-        self.final_box = gtk.VBox(False, 5)
-        self.final_box.set_border_width(5)
-        self._final_box_text = gtk.Label(_('All works finished. '))
-        self._final_box_text.set_alignment(0, 0.5)
-        self.final_box.pack_start( self._final_box_text, False )
-        _close_button = image_stock_button( gtk.STOCK_CLOSE, _('Close this terminal') )
-        _close_button.connect('clicked', self.__return_to_app_view )
-        _hbox = gtk.HBox(False, 5)
-        _hbox.pack_start(_close_button, False) 
-        self.final_box.pack_start(_hbox, False)
-        
         import os, sys
         self.backup_stdout = os.dup(sys.stdout.fileno())
 
         hpaned.pack1 ( self.__left_pane(), False, False )
         hpaned.pack2 ( self.__right_pane(), True, False )
 
-        button_apply = image_stock_button(gtk.STOCK_APPLY, _('_Apply') )
-        button_apply.connect('clicked', self.__apply_button_clicked)
-        self.sync_button = button_sync = image_file_only_button(D+'sora_icons/synchronize.png', 24)
-        button_sync.set_tooltip_text(_('Synchronize'))
-        button_sync.connect('clicked', lambda w: self.synchronize())
-        self.sync_area = Area()
-        self.sync_area.pack_start(gtk.VSeparator(), False)
-        self.sync_area.pack_start(button_sync)
-        self.sync_area.content_visible( #Config.get_show_sync_area()
-                                        True # always show sync
-                                      )
-        from support.searchbox import SearchBoxForApp
-        searchbox = SearchBoxForApp()
-        searchbox.connect('changed', self.__search_content_changed)
-        quick_setup_button = image_file_only_button(D+'umut_icons/quick_setup.png', 24)
-        quick_setup_button.set_tooltip_text(_('Quickly install popular software'))
-        quick_setup_button.connect('clicked', self.__launch_quick_setup)
-        self.quick_setup_area = Area()
-        self.quick_setup_area.pack_start(gtk.VSeparator(), False)
-        self.quick_setup_area.pack_start(quick_setup_button, False)
-        self.quick_setup_area.content_visible(
-#            (UBUNTU or UBUNTU_DERIV) and Config.get_show_quick_setup_area()
-             (UBUNTU or UBUNTU_DERIV) # always show quick_setup on Ubuntu
-            )
-
         self.app_objs = app_objs
         for obj in app_objs:
             self.right_store.append([obj])
 
-        toolbar = gtk.HBox(False, 3)
-        for text, class_name, icon_path in Category.all_left_class():
-            toolbar.pack_start(self.left_class_choose_button(text, class_name, icon_path), False)
-        toolbar.pack_start(self.sync_area, False)
-        toolbar.pack_start(gtk.VSeparator(), False)
-        toolbar.pack_start(searchbox, False)
-        toolbar.pack_start(self.quick_setup_area, False)
-        toolbar.pack_start(gtk.VSeparator(), False)
-        toolbar.pack_start(button_apply, False)
+        self.status_label = gtk.Label()
+        self.status_label.set_alignment(0.5, 0.5)
+        self.show_status()
 
         self.fill_left_treestore()
         self.__left_tree_view_default_select()
-        self.pack_start(toolbar, False)
         self.pack_start(hpaned)
+        self.pack_start(self.status_label, False)
         self.show_all()
     
         import thread
         thread.start_new_thread(self.notify_sync, ())
+    
+    def show_status(self):
+        num = len(self.app_objs)
+        text = _('%s available items') % num
+        self.status_label.set_text(text)
     
     def notify_sync(self):
         if not Config.get_synced():
@@ -762,6 +750,8 @@ class InstallRemovePane(gtk.VBox):
         import subprocess
         task = subprocess.Popen(['python', A+'/download_icons.py'])
         Config.set_synced()
+        task.wait()
+        self.do_refresh_icon()
 
     def left_class_choose_button_clicked(self, button):
         self.left_pane_visible_class = button.class_name

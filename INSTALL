@@ -1,20 +1,6 @@
 Installing Ailurus
 ==================
 
-  Requirements
-  ------------
-
-    * python
-    * python-gtk2
-    * python-notify
-    * python-vte
-    * python-apt
-    * python-gobject
-    * python-dbus
-    * procps
-    * unzip
-    * policykit-gnome | policykit-kde | policykit-1-gnome
-
   Installation
   ------------
 

@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -61,7 +60,7 @@ class Bioclipse(_path_lists):
             f = R(urls.bioclipse32, filename = 'bioclipse.zip').download()
         else:
             f = R(urls.bioclipse64, filename = 'bioclipse.zip').download()
-        with Chdir('/tmp') as o:
+        with Chdir('/tmp'):
             run('unzip -qo %s' %f)
             import os
             if not os.path.exists('/opt'): run_as_root('mkdir /opt')
@@ -100,7 +99,7 @@ class Electric(_path_lists):
         run_as_root('cp %s %s'%(f, self.file) )
         create_file(self.shortcut, '''[Desktop Entry]
 Name=Electric
-Exec=java -jar %s -Xms512M -Xmx1024M -Dsun.java2d.opengl=true
+Exec=java -jar %s
 Encoding=UTF-8
 StartupNotify=true
 Terminal=false
@@ -119,7 +118,7 @@ class SweetHome3D(_path_lists):
         else:       url = urls.sweethome64
         f = R(url).download()
         run_as_root('mkdir /opt', ignore_error=True)
-        with Chdir('/opt') as c:
+        with Chdir('/opt'):
             run_as_root('tar xf ' + f)
         create_file(self.shortcut, '[Desktop Entry]\n'
                                    'Name=SweetHome3D\n'

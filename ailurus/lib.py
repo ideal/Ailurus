@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,6 +46,7 @@ class I:
     download_url = ''
     cache_installed = showed_in_toggle = None # boolean
     logo_pixbuf = None # gtk.gdk.Pixbuf
+    use_default_icon = None # boolean
     def self_check(self):
         'check errors in source code'
     def fill(self):
@@ -156,6 +156,15 @@ class Config:
     def get_login_window_background(cls):
         return cls.get_string('login_window_background') # please do not catch exception
     @classmethod
+    def set_username_of_suggestion_window(cls, value):
+        cls.set_string('username_of_suggestion_window', value)
+    @classmethod
+    def get_username_of_suggestion_window(cls):
+        try: return cls.get_string('username_of_suggestion_window')
+        except:
+            import os
+            return os.environ['USER']
+    @classmethod
     def set_last_check_update_time_to_now(cls):
         import time
         value = long(time.time()) # the time as a floating point number expressed in seconds since the epoch, in UTC
@@ -192,20 +201,6 @@ class Config:
     def get_proxy_string_id_in_keyring(cls):
         # do not wrap it in try..except
         return cls.get_long('proxy_string_id_in_keyring')
-    @classmethod
-    def set_show_quick_setup_area(cls, value):
-        cls.set_bool('show_quick_setup_area', value)
-    @classmethod
-    def get_show_quick_setup_area(cls):
-        try:        return cls.get_bool('show_quick_setup_area')
-        except:     return True
-    @classmethod
-    def set_show_sync_area(cls, value):
-        cls.set_bool('show_sync_area', value)
-    @classmethod
-    def get_show_sync_area(cls):
-        try:        return cls.get_bool('show_sync_area')
-        except:     return True
     @classmethod
     def set_query_before_exit(cls, value):
         cls.set_bool('query_before_exit', value)
@@ -543,11 +538,6 @@ def run_as_root(cmd, ignore_error=False):
     is_string_not_empty(cmd)
     assert isinstance(ignore_error, bool)
     
-    import os
-    if os.getuid()==0:
-        run(cmd, ignore_error)
-        return
-    
     print '\x1b[1;33m', _('Run command:'), cmd, '\x1b[m'
     authenticate()
     try:
@@ -735,6 +725,8 @@ class RPM:
         cls.__set1 = set()
         cls.__set2 = set()
         import subprocess, os
+
+        TimeStat.begin(_('scan installed packages'))
         path = A+'/support/dump_rpm_installed.py'
         task = subprocess.Popen(['python', path],
             stdout=subprocess.PIPE,
@@ -742,6 +734,9 @@ class RPM:
         for line in task.stdout:
             cls.__set1.add(line.strip())
         task.wait()
+        TimeStat.end(_('scan installed packages'))
+        
+        TimeStat.begin(_('scan available packages'))
         path = A+'/support/dump_rpm_existing_new.py'
         task = subprocess.Popen(['python', path],
             stdout=subprocess.PIPE,
@@ -749,6 +744,7 @@ class RPM:
         for line in task.stdout:
             cls.__set2.add(line.strip())
         task.wait()
+        TimeStat.end(_('scan available packages'))
     @classmethod
     def get_installed_pkgs_set(cls):
         cls.refresh_cache()
@@ -797,8 +793,10 @@ class APT:
     def refresh_cache(cls):
         if cls.fresh_cache: return
         cls.fresh_cache = True
+        TimeStat.begin(_('scan packages'))
         import apt
         cls.apt_cache = apt.cache.Cache()
+        TimeStat.end(_('scan packages'))
     @classmethod
     def get_installed_pkgs_set(cls):
         cls.refresh_cache()
@@ -892,21 +890,24 @@ class PACMAN:
         cls.fresh_cache = True
         cls.__pkgs = set()
         cls.__allpkgs = set()
+        TimeStat.begin(_('scan installed packages'))
         import subprocess, os
-        #get installed package names
         task = subprocess.Popen(['pacman', '-Q'],
             stdout=subprocess.PIPE,
             )
         for line in task.stdout:
             cls.__pkgs.add(line.split()[0])
         task.wait()
-        #get all existing package names
+        TimeStat.end(_('scan installed packages'))
+        
+        TimeStat.begin(_('scan available packages'))
         task = subprocess.Popen(['pacman', '-Sl'],
             stdout=subprocess.PIPE,
             )
         for line in task.stdout:
             cls.__allpkgs.add(line.split()[1])
         task.wait()
+        TimeStat.end(_('scan available packages'))
     @classmethod
     def get_existing_pkgs_set(cls):
         cls.refresh_cache()
@@ -1064,7 +1065,7 @@ class APTSource2:
         assert isinstance(lines, list)
         assert isinstance(file_path, str)
         
-        with TempOwn(file_path) as o:
+        with TempOwn(file_path):
             with open(file_path) as f:
                 contents = f.readlines()
             if len(contents) and not contents[-1].endswith('\n'):
@@ -1089,7 +1090,7 @@ class APTSource2:
                     changed = True
                     break
         if changed:
-            with TempOwn(file_path) as o:
+            with TempOwn(file_path):
                 with open(file_path, 'w') as f:
                     f.writelines(contents)
     @classmethod
@@ -1177,12 +1178,12 @@ class APTSource2:
                     contents[i] = ''
                     changed = True
             if changed:
-                with TempOwn(file) as o:
+                with TempOwn(file):
                     with open(file, 'w') as f:
                         f.writelines(contents)
     @classmethod
     def add_official_url(cls, url):
-        with TempOwn('/etc/apt/sources.list') as o:
+        with TempOwn('/etc/apt/sources.list'):
             with open('/etc/apt/sources.list') as f:
                 contents = f.readlines()
             if len(contents) and not contents[-1].endswith('\n'):
@@ -1286,9 +1287,7 @@ class firefox:
     @classmethod
     def install_extension_archive(cls, file_path):
         cls.is_extension_archive(file_path)
-        print '\x1b[1;33m', _('Run command:'), 'cp %s %s' % (file_path, cls.extensions_dir), '\x1b[m'
-        import shutil
-        shutil.copy(file_path, cls.extensions_dir)
+        run('cp "%s" "%s"' % (file_path, cls.extensions_dir))
     @classmethod
     def extension_archive_exists(cls, file_path):
         cls.is_extension_archive(file_path)
@@ -1595,7 +1594,7 @@ class ETCEnvironment:
             List = self.values[key]
             self.values[key] = [e for e in List if not e in values]
     def save(self):
-        with TempOwn('/etc/environment') as o:
+        with TempOwn('/etc/environment'):
             f = open('/etc/environment', 'w')
             for key in self.keys:
                 if not self.values[key]: continue
@@ -1624,7 +1623,7 @@ class Chdir:
         os.chdir(self.oldpath)
 
 def create_file(path, content):
-    with TempOwn(path) as o:
+    with TempOwn(path):
         with open(path, 'w') as f:
             f.write(content)
 
@@ -1729,7 +1728,7 @@ class FedoraReposFile:
                 changed = True
 
         if not changed: return
-        with TempOwn(self.path) as o:
+        with TempOwn(self.path):
             with open(self.path, 'w') as f:
                 for section in self.sections:
                     section.write_to_stream(f)
@@ -1746,6 +1745,31 @@ class FedoraReposFile:
             obj = FedoraReposFile(path)
             ret.append(obj)
         return ret
+
+class TimeStat:
+    __open_stat_names = set()
+    __begin_time = {}
+    result = {}
+    @classmethod
+    def begin(cls, name):
+        assert isinstance(name, str) and name
+        assert name not in cls.__open_stat_names
+        cls.__open_stat_names.add(name)
+        import time
+        cls.__begin_time[name] = time.time()
+    @classmethod
+    def end(cls, name):
+        assert isinstance(name, str) and name
+        assert name in cls.__open_stat_names
+        import time
+        length = time.time() - cls.__begin_time[name]
+        cls.result[name] = length
+        cls.__open_stat_names.remove(name)
+    @classmethod
+    def clear(cls):
+        cls.__open_stat_names.clear()
+        cls.__begin_time.clear()
+        cls.result.clear()
 
 def get_ailurus_version():
     import os

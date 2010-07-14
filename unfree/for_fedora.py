@@ -3,6 +3,7 @@
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
 #
 # Ailurus is free software; you can redistribute it and/or modify
@@ -25,6 +26,28 @@ from lib import *
 from libapp import *
 assert FEDORA
 
+worldofpadman = 'ftp://ftp.snt.utwente.nl/pub/games/worldofpadman/linux/worldofpadman.run'
+worldofpadman_patch = 'ftp://ftp.snt.utwente.nl/pub/games/worldofpadman/linux/wop_patch_1_2.run'
+realplayer = 'http://software-dl.real.com/079f1e1c74ca25924402/unix/RealPlayer11GOLD.rpm'
+eset_antivirus_32 = 'http://download.eset.com/special/eav_linux/ueav.i386.linux'
+eset_antivirus_64 = 'http://download.eset.com/special/eav_linux/ueav.x86_64.linux'
+google_earch = 'http://dl.google.com/earth/client/current/GoogleEarthLinux.bin'
+google_chrome_32 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_i386.rpm'
+google_chrome_64 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+alipay = 'http://blog.alipay.com/wp-content/2008/10/aliedit.tar.gz'
+amenace = 'http://www.viewizard.com/download/amenace12.tar.bz2'
+hittex = 'http://plutothesis.googlecode.com/files/PlutoThesis_UTF8_1.9.2.20090424.zip'
+eioffice = 'http://evermoresw.com.cn/EverMore/EIOPersonal/EIOffice_Personal_Lin.tar.gz'
+eioffice_clipart = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Clipart.tar.gz'
+eioffice_help = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_HelpFiles.tar.gz'
+eioffice_scienceeditor = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_ScienceEditorImages.tar.gz'
+eioffice_templates = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Templates.tar.gz'
+adobe_repos_rpm = 'http://linuxdownload.adobe.com/linux/i386/adobe-release-i386-1.0-1.noarch.rpm'
+rpmfusion_repos_free = 'http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm'
+rpmfusion_repos_nonfree = 'http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm'
+nvidia_32 = 'ftp://download.nvidia.com/XFree86/Linux-x86/195.36.24/NVIDIA-Linux-x86-195.36.24-pkg1.run'
+nvidia_64 = 'ftp://download.nvidia.com/XFree86/Linux-x86_64/195.36.24/NVIDIA-Linux-x86_64-195.36.24-pkg2.run'
+
 class _repo(I):
     this_is_a_repository = True
     category = 'repository'
@@ -45,7 +68,7 @@ class _repo(I):
             if lines[i].startswith('enabled='):
                 lines[i] = 'enabled=1\n'
                 if only_enable_first_appearance: break
-        with TempOwn(path) as o:
+        with TempOwn(path):
             with open(path, 'w') as f:
                 f.writelines(lines)
     @classmethod
@@ -55,7 +78,7 @@ class _repo(I):
         for i, line in enumerate(lines):
             if lines[i].startswith('enabled='):
                 lines[i] = 'enabled=0\n'
-        with TempOwn(path) as o:
+        with TempOwn(path):
             with open(path, 'w') as f:
                 f.writelines(lines)
 
@@ -91,7 +114,7 @@ class Repo_Skype(I):
         if _repo.exist(self.path):
             _repo.enable(self.path)
         else:
-            with TempOwn(self.path) as o:
+            with TempOwn(self.path):
                 with open(self.path, 'w') as f:
                     f.write('[skype]\n'
                         'name=Skype Repository\n'
@@ -171,7 +194,7 @@ class Repo_Google(I):
     def install(self):
         if _repo.exist(self.path): _repo.enable(self.path, False)
         else:
-            with TempOwn(self.path) as o:
+            with TempOwn(self.path):
                 with open(self.path, 'w') as f:
                     f.write('[Google]\n'
                         'name=Google - i386\n'
@@ -200,7 +223,7 @@ class Repo_Google_Chrome(I):
     def install(self):
         if _repo.exist(self.path): _repo.enable(self.path)
         else:
-            with TempOwn(self.path) as o:
+            with TempOwn(self.path):
                 if is32(): arch = 'i386'
                 else: arch = 'x86_64'
                 
@@ -229,7 +252,7 @@ class Repo_VirtualBox(I):
     def install(self):
         if _repo.exist(self.path): _repo.enable(self.path)
         else:
-            with TempOwn(self.path) as o:
+            with TempOwn(self.path):
                 with open(self.path, 'w') as f:
                     f.write('[virtualbox]\n'
                         'name=Fedora $releasever - $basearch - VirtualBox\n'
@@ -361,7 +384,7 @@ class Repo_Chromium(I):
         if _repo.exist(self.path):
             _repo.enable(self.path)
         else:
-            with TempOwn(self.path) as o:
+            with TempOwn(self.path):
                 with open(self.path, 'w') as f:
                     f.write('[chromium]\n'
                             'name=Chromium Test Packages\n'
@@ -386,7 +409,7 @@ class ESETNOD32(I):
         run_as_root(f)
         if not is32():
             # Fix bug because /usr/lib/libesets_pac.so cannot run on x86_64
-            with TempOwn('/etc/ld.so.preload') as o:
+            with TempOwn('/etc/ld.so.preload'):
                 with open('/etc/ld.so.preload') as f:
                     content = f.read()
                 with open('/etc/ld.so.preload', 'w') as f:

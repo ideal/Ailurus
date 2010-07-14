@@ -1,3 +1,33 @@
+2010-07-10 CHEN Yangyang <skabyy@gmail.com>
+
+    * Finish a simple version of AilurusServer and upload it to google appengine.
+    * Add support/clientlib.py to communicate with AilurusServer.
+    * Add interfaces to upload skills and suggestions.
+    * Delay sending message if the server can not be connected
+
+2010-07-10 Homer Xing <homer.xing@gmail.com>
+
+    * Install repository signing key from local directory.
+      Therefore we can enable repository even if the key server is offline.
+    * Make the install_software_pane more pretty, by splitting middle toolbar 
+      into pane1 and pane2.
+    * Display total number of available software items at the bottom of 
+      install_software_pane.
+    * Stat source code loading time. Display stat data by "others->stat data".
+      Therefore developers can do more optimization.
+
+2010-07-9 Homer Xing <homer.xing@gmail.com>
+
+    * Remove excessive icons.
+    * Delete unused variables in "with" statements.
+    * List excessive icons in ``appicons'' directory.
+      Print the software items which require an icon.
+      Therefore developers can remove excessive icons.
+    * Move software icons into "appicons" directory.
+    * Remove mplayer-vod & comicview, since they are only useful for SJTU people.
+    * Refresh icons immediately after downloading icons.
+    * Improve server list generation code. Do not add repeated server. Add two comments.
+
 2010-06-29 Ray Chen <chenrano2002@gmail.com>
 
     * Fix Issue 729: load panel failed when there is no selinx on Fedora

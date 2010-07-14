@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 
 import sys, os, urllib, gtk, thread, time
 from lib import *
 from libu import *
 
-icons_pack_version = 2
+icons_pack_version = 3
 
 class DownloadIconsWindow(gtk.Window):
     url = 'http://ailurus.googlecode.com/files/appicons_v%s.tar.gz' % icons_pack_version
@@ -78,7 +77,7 @@ class DownloadIconsWindow(gtk.Window):
                 exception_happened(*sys.exc_info())
                 gtk.main()
             else:
-                dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_OK, message_format=_('Icons are successfully installed. You will see extra icons at the next time when Ailurus starts up.'))
+                dialog = gtk.MessageDialog(buttons=gtk.BUTTONS_OK, message_format=_('Icons are successfully installed.'))
                 dialog.run()
                 dialog.destroy()
                 sys.exit()

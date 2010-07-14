@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -69,13 +68,13 @@ def __python():
  
 def __gtk():
      import gtk
-     try: return [row(_('GTK version:'), '.'.join(map(str, gtk.gtk_version)), D+'umut_icons/gtk.png')]
+     try: return [row(_('GTK version:'), '.'.join(map(str, gtk.gtk_version)), D+'appicons/gtk.png')]
      except: print_traceback()
      return []
  
 def __pygtk():
      import gtk
-     try: return [row(_('PyGTK version:'), '.'.join(map(str, gtk.pygtk_version)), D+'umut_icons/gtk.png' )]
+     try: return [row(_('PyGTK version:'), '.'.join(map(str, gtk.pygtk_version)), D+'appicons/gtk.png' )]
      except: print_traceback()
     
 def __uptime():

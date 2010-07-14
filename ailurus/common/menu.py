@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -203,6 +202,64 @@ def show_contribution_to_ailurus():
     dialog.run()
     dialog.destroy()
 
+def refresh_static_store(store):
+    store.clear()
+    for key, value in TimeStat.result.items():
+        store.append([key, '%.3f s' % value])
+
+def copy_text_to_clipboard(store):
+    assert isinstance(store, gtk.ListStore)
+
+    import StringIO
+    text = StringIO.StringIO()
+    for row in store:
+        key = row[0]
+        value = row[1]
+        print >>text, key
+        print >>text, '\t', value
+    clipboard = gtk.clipboard_get()
+    clipboard.set_text(text.getvalue())
+
+def show_statistics():
+    store = gtk.ListStore(str, str)
+    refresh_static_store(store)
+    render_1 = gtk.CellRendererText()
+    render_2 = gtk.CellRendererText()
+    column = gtk.TreeViewColumn()
+    column.set_title(_('name'))
+    column.pack_start(render_1, False)
+    column.add_attribute(render_1, 'text', 0)
+    column.set_sort_column_id(0)
+    column.set_sort_order(gtk.SORT_ASCENDING)
+    column2 = gtk.TreeViewColumn()
+    column2.set_title(_('value'))
+    column2.pack_start(render_2)
+    column2.add_attribute(render_2, 'text', 1)
+    column2.set_sort_column_id(1)
+    view = gtk.TreeView(gtk.TreeModelSort(store))
+    view.append_column(column)
+    view.append_column(column2)
+    view.set_rules_hint(True)
+    button_refresh = gtk.Button(stock=gtk.STOCK_REFRESH)
+    button_close = gtk.Button(stock=gtk.STOCK_CLOSE)
+    button_copy = gtk.Button(_('Copy text to clipboard'))
+    button_box = gtk.HBox(False)
+    button_box.pack_end(button_close, False)
+    button_box.pack_end(button_refresh, False)
+    button_box.pack_end(button_copy, False)
+    vbox = gtk.VBox(False, 5)
+    vbox.pack_start(view)
+    vbox.pack_start(button_box, False)
+    vbox.set_border_width(3)
+    window = gtk.Window()
+    window.set_title( _('Statistical data') )
+    window.set_position(gtk.WIN_POS_CENTER)
+    window.add(vbox)
+    window.show_all()
+    button_copy.connect('clicked', lambda w: copy_text_to_clipboard(store))
+    button_refresh.connect('clicked', lambda w: refresh_static_store(store))
+    button_close.connect('clicked', lambda w: window.destroy())
+
 def __others():
     help_contribute = gtk.MenuItem(_('Contributing to Ailurus'))
     help_contribute.connect('activate', lambda w: show_contribution_to_ailurus())
@@ -218,7 +275,13 @@ def __others():
         thread.start_new_thread(check_update, ())
     help_update.connect('activate', callback)
 
-    help_report_bug = image_file_menuitem(_('Propose suggestion and report bugs'), D+'umut_icons/m_propose_suggestion.png', 16) 
+    help_propose_suggestion = image_file_menuitem(_('Propose suggestion'), D+'umut_icons/m_propose_suggestion.png', 16)
+    def propose_suggestion(*w):
+        from support.clientlib import SuggestionsSubmit
+        SuggestionsSubmit()
+    help_propose_suggestion.connect('activate', propose_suggestion)
+
+    help_report_bug = image_file_menuitem(_('Report bugs'), D+'umut_icons/m_propose_suggestion.png', 16)
     help_report_bug.connect('activate', 
         lambda w: report_bug() )
     
@@ -235,7 +298,11 @@ def __others():
     changelog = gtk.MenuItem( _('Read changelog') )
     changelog.connect('activate', lambda *w: show_changelog())
     
-    return [ changelog, help_contribute, help_blog, help_update, help_report_bug, help_translate, special_thank, about ] 
+    statistics = gtk.MenuItem( _('Statistical data') )
+    statistics.connect('activate', lambda *w: show_statistics())
+    
+    return [ changelog, help_contribute, help_blog, help_update, 
+             help_propose_suggestion, help_report_bug, help_translate, special_thank, about, statistics, ]
    
 def get_study_linux_menu():
     return __study_linux()

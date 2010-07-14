@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -574,7 +573,7 @@ deb-src %(fastest)s %(version)s-updates main restricted universe multiverse
     
     def __callback__merge_sourceslist(self, *w):
         lines = APTSource2.all_lines()
-        with TempOwn('/etc/apt/sources.list') as o:
+        with TempOwn('/etc/apt/sources.list'):
             with open('/etc/apt/sources.list', 'w') as f:
                 f.writelines(lines)
         run_as_root('rm /etc/apt/sources.list.d/* -rf')

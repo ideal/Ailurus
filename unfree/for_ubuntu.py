@@ -3,6 +3,7 @@
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
 #
 # Ailurus is free software; you can redistribute it and/or modify
@@ -25,6 +26,28 @@ from lib import *
 from libapp import *
 assert UBUNTU or UBUNTU_DERIV
 from ubuntu.third_party_repos import _repo
+
+worldofpadman = 'ftp://ftp.snt.utwente.nl/pub/games/worldofpadman/linux/worldofpadman.run'
+worldofpadman_patch = 'ftp://ftp.snt.utwente.nl/pub/games/worldofpadman/linux/wop_patch_1_2.run'
+realplayer = 'http://software-dl.real.com/079f1e1c74ca25924402/unix/RealPlayer11GOLD.rpm'
+eset_antivirus_32 = 'http://download.eset.com/special/eav_linux/ueav.i386.linux'
+eset_antivirus_64 = 'http://download.eset.com/special/eav_linux/ueav.x86_64.linux'
+google_earch = 'http://dl.google.com/earth/client/current/GoogleEarthLinux.bin'
+google_chrome_32 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_i386.rpm'
+google_chrome_64 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+alipay = 'http://blog.alipay.com/wp-content/2008/10/aliedit.tar.gz'
+amenace = 'http://www.viewizard.com/download/amenace12.tar.bz2'
+hittex = 'http://plutothesis.googlecode.com/files/PlutoThesis_UTF8_1.9.2.20090424.zip'
+eioffice = 'http://evermoresw.com.cn/EverMore/EIOPersonal/EIOffice_Personal_Lin.tar.gz'
+eioffice_clipart = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Clipart.tar.gz'
+eioffice_help = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_HelpFiles.tar.gz'
+eioffice_scienceeditor = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_ScienceEditorImages.tar.gz'
+eioffice_templates = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Templates.tar.gz'
+adobe_repos_rpm = 'http://linuxdownload.adobe.com/linux/i386/adobe-release-i386-1.0-1.noarch.rpm'
+rpmfusion_repos_free = 'http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm'
+rpmfusion_repos_nonfree = 'http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm'
+nvidia_32 = 'ftp://download.nvidia.com/XFree86/Linux-x86/195.36.24/NVIDIA-Linux-x86-195.36.24-pkg1.run'
+nvidia_64 = 'ftp://download.nvidia.com/XFree86/Linux-x86_64/195.36.24/NVIDIA-Linux-x86_64-195.36.24-pkg2.run'
 
 class Alice(_path_lists):
     __doc__ = _('Alice: A new way to learn programming')
@@ -49,7 +72,7 @@ class Alice(_path_lists):
         if not os.path.exists('/opt'):
             run_as_root('mkdir /opt')
         own_by_user('/opt')
-        with Chdir('/opt') as o:
+        with Chdir('/opt'):
             run('tar jxf '+f)
             assert os.path.exists(self.dir)
             create_file(self.shortcut, '''[Desktop Entry]
@@ -77,7 +100,7 @@ class AliPayFirefoxPlugin(I):
         import os
         if not os.path.exists(path):
             run('mkdir -p %s'%path)
-        with Chdir(path) as o:
+        with Chdir(path):
             run('tar zxf %s'%file)
     def installed(self):
         import os
@@ -111,7 +134,7 @@ class AstroMenace(_path_lists):
         import os
         if not os.path.exists('/opt'): run_as_root('mkdir /opt')
         run_as_root('chown $USER:$USER /opt')
-        with Chdir('/opt') as o:
+        with Chdir('/opt'):
             run('tar xf %s'%f)
             create_file('/usr/share/applications/astromenace.desktop', 
 '''[Desktop Entry]
@@ -255,7 +278,7 @@ class EIOffice(I):
     def visible(self): # EIOffice website is offline :(
         return False
     def install(self):
-        with Chdir('/tmp') as o:
+        with Chdir('/tmp'):
             f = R(urls.eioffice).download()
             run('tar xf %s' % f)
             run('chmod a+x EIOffice_Personal_Lin/setup')
@@ -299,7 +322,7 @@ class ESETNOD32(I):
         run_as_root(f)
         if not is32():
             # Fix bug because /usr/lib/libesets_pac.so cannot run on x86_64
-            with TempOwn('/etc/ld.so.preload') as o:
+            with TempOwn('/etc/ld.so.preload'):
                 with open('/etc/ld.so.preload') as f:
                     content = f.read()
                 with open('/etc/ld.so.preload', 'w') as f:

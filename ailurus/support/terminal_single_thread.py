@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +69,9 @@ class Terminal:
         if pid==-1: raise CommandFailError(string)
         try:
             ret = os.waitpid(pid, 0)[1]
-            if ret: raise CommandFailError(string, ret)
+            if ret!=0:
+                if ret!=1: # ignore SIGHUP. not a good solution.
+                    raise CommandFailError(string, ret)
         except OSError: pass #no such process
     
     def __init__(self):

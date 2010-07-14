@@ -7,7 +7,7 @@
 # published by the Free Software Foundation
 
 import sys, os
-code_path = os.path.dirname(os.path.abspath(__file__))+'../ailurus/'
+code_path = os.path.dirname(os.path.abspath(__file__))+'/../ailurus/'
 sys.path.insert(0, code_path)
 from download_icons import icons_pack_version as VERSION
 icons_path = os.path.dirname(os.path.abspath(__file__))+'/../ailurus/icons/appicons/'

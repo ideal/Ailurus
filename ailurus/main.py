@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -283,7 +282,9 @@ class PaneLoader:
         if self.pane_object is None:
             if self.content_function: arg = [self.content_function()] # has argument
             else: arg = [] # no argument
+            TimeStat.begin(self.pane_class.__name__)
             self.pane_object = self.pane_class(self.main_view, *arg)
+            TimeStat.end(self.pane_class.__name__)
         return self.pane_object
     def need_to_load(self):
         return self.pane_object is None
@@ -490,6 +491,7 @@ class MainView:
         if UBUNTU or UBUNTU_DERIV:
             from ubuntu.fastest_mirror_pane import UbuntuFastestMirrorPane
             from ubuntu.apt_recovery_pane import UbuntuAPTRecoveryPane
+            from ubuntu.repos_config_pane import ReposConfigPane
         if FEDORA:
             from fedora.fastest_mirror_pane import FedoraFastestMirrorPane
             from fedora.rpm_recovery_pane import FedoraRPMRecoveryPane
@@ -499,6 +501,7 @@ class MainView:
         if UBUNTU or UBUNTU_DERIV:
             self.register(UbuntuAPTRecoveryPane)
             self.register(UbuntuFastestMirrorPane)
+            self.register(ReposConfigPane)
         if FEDORA:
             self.register(FedoraRPMRecoveryPane)
             self.register(FedoraFastestMirrorPane)
@@ -517,15 +520,18 @@ class MainView:
             import thread
             thread.start_new_thread(check_update, (True, )) # "True" means "silent"
 
+TimeStat.begin(_('start up'))
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 change_task_name()
 set_default_window_icon()
 check_required_packages()
 check_dbus_daemon_status()
+from support.clientlib import try_send_delayed_data
+try_send_delayed_data()
 
 while gtk.events_pending(): gtk.main_iteration()
 main_view = MainView()
-#splash.destroy()
+TimeStat.end(_('start up'))
 
 gtk.gdk.threads_init()
 gtk.gdk.threads_enter()

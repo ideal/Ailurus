@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 #
 # Ailurus - make Linux easier to use
 #
+# Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
-# Copyright (C) 2009-2010, Ailurus Developers Team
 #
 # Ailurus is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -136,8 +135,9 @@ def show_about_dialog():
           'M. Umut Pulat    http://12m3.deviantart.com/', 
           'Andrea Soragna   http://sora-meliae.deviantart.com/',
           'Paul Davey       http://mattahan.deviantart.com/',] )
-    about.set_copyright( _(u"Copyright © 2007-2010,\nTrusted Digital Technology Laboratory,\nShanghai Jiao Tong University, China.") + '\n'
-                         + _(u"Copyright © 2009-2010, Ailurus Developers Team") )
+    about.set_copyright(_(u"Copyright ©") + ' 2009-2010, ' + _('Ailurus developers and Ailurus contributors') + '\n' + 
+                        _(u"Copyright ©") + ' 2007-2010, ' + 
+                        _('Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.'))
     about.set_wrap_license(False)
     about.set_license('''
 Ailurus is free software; you can redistribute it and/or modify
