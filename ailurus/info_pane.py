@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -24,9 +24,14 @@ import gtk, sys, os
 from lib import *
 from libu import *
 
+missing_files = [] # used only in get_information_pixbuf. do not continuously display error messages.
+
 def get_information_pixbuf(path, width, height):
     if not os.path.exists(path):
-        print path, 'is missing'
+        global missing_files
+        if path not in missing_files:
+            print path, 'is missing'
+            missing_files.append(path)
         path = D+'sora_icons/default_information_icon.png'
     return get_pixbuf(path, width, height)
 
@@ -47,8 +52,8 @@ class InfoPane(gtk.VBox):
             while child:
                 value1 = self.treestore.get_value(child, 1)
                 value2 = self.treestore.get_value(child, 2)
-                print >>f, '\t', value1
-                print >>f, '\t\t', value2
+                print >>f, '  ', value1
+                print >>f, '    ', value2
                 child = self.treestore.iter_next(child)
                 
             root = self.treestore.iter_next(root)
@@ -57,7 +62,16 @@ class InfoPane(gtk.VBox):
 
     def __init__(self, main_view, infos):
         assert isinstance(infos, tuple) and len(infos) == 2
-        hardware_subtree_functions, os_subtree_functions = infos
+        assert isinstance(infos[0], list)
+        assert isinstance(infos[1], list)
+        hardware_functions, os_functions = infos
+        self.hardware_functions = hardware_functions
+        self.os_functions = os_functions
+        for func in hardware_functions:
+            func.result = func()
+        for func in os_functions:
+            func.result = func()
+        
         self.hardware_subtree_text = _('Hardware Information')
         self.hardware_subtree_icon = get_pixbuf(D + 'sora_icons/m_hardware.png', 24, 24)
         self.os_subtree_text = _('Linux Information')
@@ -93,35 +107,38 @@ class InfoPane(gtk.VBox):
         self.pack_start(scrollwindow)
         self.pack_start(align_button, False)
         
-        self.function2trees = {} # map function to the lines which appear in treeview
-        
-        parent = self.treestore.append(None, [self.hardware_subtree_icon, self.hardware_subtree_text, None])
-        self.__build_subtree(parent, hardware_subtree_functions)
-        parent = self.treestore.append(None, [self.os_subtree_icon, self.os_subtree_text, None])
-        self.__build_subtree(parent, os_subtree_functions)
-
-        self.treeview.expand_all()
+        self.refresh()
 
         import gobject
         gobject.timeout_add(5000, self.refresh)
     
-    def __build_subtree(self, tree, functions):
-        for function in functions:
-            rows = function() # some function may returns many lines
-            trees = self.function2trees[function] = []
-            for row in rows:
-                pixbuf = get_information_pixbuf(row[2], 24, 24)
-                t = self.treestore.append(tree, [pixbuf, row[0], row[1]])
-                trees.append(t)
-        
     def refresh(self):
-        for function in self.function2trees.keys():
-            if hasattr(function, 'please_refresh_me'):
-                rows = function()
-                if rows: # If function() fail, rows == [].
-                    index = 0
-                    for tree in self.function2trees[function]:
-                        row = rows[index]
-                        self.treestore.set_value(tree, 2, row[1])
-                        index += 1
+        for func in self.hardware_functions:
+            if hasattr(func, 'please_refresh_me'):
+                func.result = func()
+                if func.result is None:
+                    func.result = []
+
+        for func in self.os_functions:
+            if hasattr(func, 'please_refresh_me'):
+                func.result = func()
+                if func.result is None:
+                    func.result = []
+
+        self.treestore.clear()
+        
+        subtree_root = self.treestore.append(None, [self.hardware_subtree_icon, self.hardware_subtree_text, None])
+        for func in self.hardware_functions:
+            for row in func.result:
+                pixbuf = get_information_pixbuf(row[2], 24, 24)
+                self.treestore.append(subtree_root, [pixbuf, row[0], row[1]])
+                
+        subtree_root = self.treestore.append(None, [self.os_subtree_icon, self.os_subtree_text, None])
+        for func in self.os_functions:
+            for row in func.result:
+                pixbuf = get_information_pixbuf(row[2], 24, 24)
+                self.treestore.append(subtree_root, [pixbuf, row[0], row[1]])
+
+        self.treeview.expand_all()
+
         return True

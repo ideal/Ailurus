@@ -9,15 +9,15 @@ Homepage: http://ailurus.googlecode.com/
 
 Package: ailurus
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome | polkit-kde-1, python-gnomekeyring, xterm
-Description: make Linux easier to use
- Ailurus is an application which aims at making Linux easier to use.
+Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome | polkit-kde-1, python-gnomekeyring
+Description: a simple application installer and GNOME tweaker
+ Ailurus is simple application installer and GNOME tweaker, which aims at making Linux easier to use.
  .
  Features:
   * Help users learn some Linux skills
   * Install some nice applications
   * Enable some third party repositories
   * Display basic hardware information
-  * Clean APT/YUM cache
-  * Backup and recover APT/YUM status
+  * Clean APT cache
+  * Backup and recover APT status
   * Change GNOME settings 

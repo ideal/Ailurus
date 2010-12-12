@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -105,4 +105,11 @@ apt-cache show PACKAGE_NAME
 
 """),
 
+_('Backup source list:') + '\n' +
+'cd /etc/apt/\n'
+'tar czf $HOME/sources.backup.tar.gz sources.list sources.list.d/\n'
+'\n' +
+_('Restore source list:') + '\n' +
+'cd /etc/apt/\n'
+'sudo tar xzf $HOME/sources.backup.tar.gz',
 ]

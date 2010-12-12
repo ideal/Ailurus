@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -25,7 +25,7 @@ from lib import *
 
 class Colorful_BASH_prompt_symbols(C):
     __doc__ = _('Use colorful Bash prompt symbols')
-    detail = (_('Add this line into ~/.bashrc:') + '\n' + 
+    detail = (_('Add this line into $HOME/.bashrc:') + '\n' + 
               r"PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '")
     bashrc = os.path.expanduser('~/.bashrc')
     line = r"PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '"
@@ -110,27 +110,28 @@ class Fix_error_in_fontconfig_properties(C):
             with open(self.file, 'w') as f:
                 f.write(content)
 
-class Fix_error_in_netbeans_shortcut(C):
-    __doc__ = _('Fix errors in Netbeans shortcut. Otherwise, some unicode characters cannot be displayed.')
-    detail = _("""Add "export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on'" """)
-    type = C.MUST_FIX
-    file = '/usr/share/applications/netbeans.desktop'
-    def exists(self):
-        try:
-            with open(self.file) as f:
-                content = f.read()
-            return '\nExec=/usr/bin/netbeans\n' in content
-        except IOError:
-            return False
-    def cure(self):
-        with TempOwn(self.file):
-            with open(self.file) as f:
-                lines = f.readlines()
-            for i, line in enumerate(lines):
-                if line.startswith('Exec='):
-                    lines[i] = """Exec=sh -c "_JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on' /usr/bin/netbeans" \n"""
-            with open(self.file, 'w') as f:
-                f.writelines(lines)
+# Not need. Because Java font bug has been fixed in Ubuntu Lucid.
+#class Fix_error_in_netbeans_shortcut(C):
+#    __doc__ = _('Fix errors in Netbeans shortcut. Otherwise, some unicode characters cannot be displayed.')
+#    detail = _("""Add "export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on'" """)
+#    type = C.MUST_FIX
+#    file = '/usr/share/applications/netbeans.desktop'
+#    def exists(self):
+#        try:
+#            with open(self.file) as f:
+#                content = f.read()
+#            return '\nExec=/usr/bin/netbeans\n' in content
+#        except IOError:
+#            return False
+#    def cure(self):
+#        with TempOwn(self.file):
+#            with open(self.file) as f:
+#                lines = f.readlines()
+#            for i, line in enumerate(lines):
+#                if line.startswith('Exec='):
+#                    lines[i] = """Exec=sh -c "_JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on' /usr/bin/netbeans" \n"""
+#            with open(self.file, 'w') as f:
+#                f.writelines(lines)
 
 class Google_chrome_is_upgradable(C):
     __doc__ = _('Google Chrome can be upgraded.')
@@ -212,3 +213,11 @@ class Sources_list_is_using_wrong_code_name(C):
                     content = content.replace(c, VERSION)
                 with open(file, 'w') as f:
                     f.write(content)
+
+class Remove_ubuntu_docs_package(C):
+    __doc__ = _('Remove ubuntu-docs package. Free 270M disk space.')
+    detail = _('Command:') + ' apt-get remove ubuntu-docs'
+    def exists(self):
+        return APT.installed('ubuntu-docs')
+    def cure(self):
+        APT.remove('ubuntu-docs')

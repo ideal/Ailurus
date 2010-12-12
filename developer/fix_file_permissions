@@ -8,7 +8,4 @@ chmod 755 bin/ailurus \
           setup.py \
           support/ailurus-daemon \
           support/show-a-linux-skill-bubble \
-          support/ubuntu-native-64bit-flash-installer.sh \
-          support/enable_sudo \
-          support/disable_sudo \
           uninstall

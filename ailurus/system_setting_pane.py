@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -23,7 +23,7 @@ from __future__ import with_statement
 import gtk
 from lib import *
 from libu import *
-from libsetting import Setting
+from libsetting import Set
 
 class SystemSettingPane(gtk.VBox):
     icon = D+'sora_icons/m_linux_setting.png'
@@ -35,39 +35,13 @@ class SystemSettingPane(gtk.VBox):
         
         existing_categories = []
         for i in self.setting_items:
-            existing_categories.extend(i.category)
+            existing_categories += i.category_list()
         existing_categories = set(existing_categories)
         
-        import gobject
         self.left_store = left_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str) #pixbuf, text, category
-        
-        for iconpath, text, category in [
-              (D+'sora_icons/s_nautilus.png', _('Nautilus'), 'nautilus', ), 
-              (D+'sora_icons/s_desktop.png', _('Desktop'), 'desktop', ), 
-              (D+'umut_icons/s_window.png', _('Window effect'), 'window', ), 
-              (D+'umut_icons/s_menu.png', _('Menu'), 'menu', ), 
-              (D+'umut_icons/s_icon.png', _('Icon'), 'icon', ), 
-              (D+'umut_icons/s_font.png', _('Font'), 'font', ), 
-              (D+'umut_icons/s_session.png', _('GNOME Session'), 'session', ), 
-              (D+'umut_icons/s_panel.png', _('GNOME Panel'), 'panel', ),
-              (D+'umut_icons/s_memory.png', _('Memory'), 'memory', ), 
-              (D+'umut_icons/s_terminal.png', _('Terminal'), 'terminal', ),
-              (D+'umut_icons/s_sound.png', _('Sound'), 'sound', ), 
-              (D+'umut_icons/s_power.png', _('Power management'), 'power', ),
-              (D+'umut_icons/s_network.png', _('Network'), 'network', ),
-              (D+'umut_icons/s_update.png', _('Update'), 'update', ),
-              (D+'umut_icons/s_restriction.png', _('Restriction'), 'restriction', ),
-              (D+'umut_icons/s_shortcutkey.png', _('Shortcut key'), 'shortcut', ),
-              (D+'sora_icons/s_firefox.png', _('Configure Firefox'), 'firefox', ),
-              (D+'umut_icons/s_host_name.png', _('Host name'), 'host_name', ),
-              (D+'umut_icons/s_login_window.png', _('Login window'), 'login_window', ),
-              (D+'umut_icons/s_compression.png', _('Compression'), 'compression', ),
-              (D+'umut_icons/s_gedit.png', _('GEdit'), 'gedit', ),
-              (D+'umut_icons/s_reset_gnome.png', _('Reset GNOME'), 'reset_gnome', ),
-              (D+'umut_icons/s_screensaver.png', _('Screensaver'), 'screensaver', ),
-                ]:
+        for iconpath, text, category in Set.array:
             if category in existing_categories:
-                pixbuf = icon(iconpath) 
+                pixbuf = icon(iconpath)
                 left_store.append([pixbuf, text, category])
                 
         left_store_sort = gtk.TreeModelSort(left_store)
@@ -80,6 +54,7 @@ class SystemSettingPane(gtk.VBox):
         column.pack_start(render_text, False)
         column.add_attribute(render_text, 'text', 1)
         treeview = gtk.TreeView(left_store_sort)
+        treeview.set_rules_hint(True)
         treeview.append_column(column)
         treeview.set_headers_visible(False)
         treeview.get_selection().set_mode(gtk.SELECTION_SINGLE)
@@ -95,13 +70,14 @@ class SystemSettingPane(gtk.VBox):
     def __left_changed(self, selection, treeview):
         model, iter = selection.get_selected()
         if iter == None: return
+        
         for c in self.content_box.get_children():
             self.content_box.remove(c)
             
         display = model.get_value(iter, 2)
         for item in self.setting_items:
-            if display == 'all' or display in item.category:
-                self.content_box.pack_start(item, False)
+            if item.contain(display):
+                self.content_box.pack_start(item.get_content(), False)
         self.content_box.show_all()
     
     def __right_pane(self):
@@ -121,7 +97,7 @@ class SystemSettingPane(gtk.VBox):
     
     def __init__(self, main_view, setting_items):
         for i in setting_items:
-            assert isinstance(i, Setting)
+            assert issubclass(i, Set)
         
         self.setting_items = setting_items
         

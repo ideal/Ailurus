@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -46,24 +46,22 @@ class WorldofPadman_Ubuntu(I):
         run_as_root('rm /usr/local/games/WoP -rf')
         run_as_root('rm /usr/local/bin/wop')
 
-class PBC(I):
+class PBC(I): # support x86_64 only.
     __doc__ = _('PBC (Pairing-Based Cryptography) library')
     detail = _('Install Pairing-Based Cryptography library, powered by Stanford University.')
     download_url = 'http://crypto.stanford.edu/pbc/'
     category = 'library'
     license = GPL
     def install(self):
-        if is32(): fdev = R(urls.pbcdev32).download()
-        else:      fdev = R(urls.pbcdev64).download()
-        if is32(): f = R(urls.pbc32).download()
-        else:      f = R(urls.pbc64).download()
+        fdev = R(urls.pbcdev64).download()
+        f = R(urls.pbc64).download()
         APT.install_local(f, fdev)
-        
     def installed(self):
         return APT.installed('libpbc0') and APT.installed('libpbc-dev')
-    
     def remove(self):
         APT.remove('libpbc0', 'libpbc-dev')
+    def visible(self):
+        return not is32()
     
 class GNOMEArtNextGen(I):
     __doc__ = _('GNOMEArtNG: Choose 100+ GNOME themes')
@@ -98,7 +96,7 @@ class GNOMEArtNextGen(I):
         return APT.installed('gnomeartng')
     def remove(self):
         APT.remove('gnomeartng')
-        run('rm -rf ~/.gnome2/gnome-art-ng/')
+        run('rm -rf $HOME/.gnome2/gnome-art-ng/')
     def visible(self):
         return VERSION in ['hardy', 'intrepid', 'jaunty', 'karmic']
 
@@ -111,34 +109,37 @@ class DisableGetty(I):
         with Chdir('/etc/event.d/'):
             for i in range(2,7):
                 file_name = 'tty%s' % i
-                with open(file_name) as f:
-                    for line in f:
-                        if line.startswith('exec'): return False
+                if os.path.exists(file_name):
+                    with open(file_name) as f:
+                        for line in f:
+                            if line.startswith('exec'): return False
         return True
     def install(self):
         with Chdir('/etc/event.d/'):
             for i in range(2,7):
                 file_name = 'tty%s'%i
-                with TempOwn(file_name):
-                    with open(file_name) as f:
-                        contents = f.readlines()
-                    for j, line in enumerate(contents):
-                        if line.startswith('exec'):
-                            contents[j]='#' + line
-                    with open(file_name, 'w') as f:
-                        f.writelines(contents)
+                if os.path.exists(file_name):
+                    with TempOwn(file_name):
+                        with open(file_name) as f:
+                            contents = f.readlines()
+                        for j, line in enumerate(contents):
+                            if line.startswith('exec'):
+                                contents[j]='#' + line
+                        with open(file_name, 'w') as f:
+                            f.writelines(contents)
     def remove(self):
         with Chdir('/etc/event.d/'):
             for i in range(2,7):
                 file_name = 'tty%s'%i
-                with TempOwn(file_name):
-                    with open(file_name) as f:
-                        contents = f.readlines()
-                    for j, line in enumerate(contents):
-                        if line.startswith('#exec'):
-                            contents[j]='exec /sbin/getty 38400 tty%s\n' % i
-                    with open(file_name, 'w') as f:
-                        f.writelines(contents)
+                if os.path.exists(file_name):
+                    with TempOwn(file_name):
+                        with open(file_name) as f:
+                            contents = f.readlines()
+                        for j, line in enumerate(contents):
+                            if line.startswith('#exec'):
+                                contents[j]='exec /sbin/getty 38400 tty%s\n' % i
+                        with open(file_name, 'w') as f:
+                            f.writelines(contents)
 
 class DisableGettyKarmic(I):
     __doc__ = _('Deactivate Getty ( Ctrl+Alt+F2 ... F6 ), Ctrl+Alt+F1 is still activated')
@@ -149,9 +150,10 @@ class DisableGettyKarmic(I):
         with Chdir('/etc/init/'):
             for i in range(2,7):
                 file_name = 'tty%s.conf' % i
-                with open(file_name) as f:
-                    for line in f:
-                        if line.startswith('exec'): return False
+                if os.path.exists(file_name):
+                    with open(file_name) as f:
+                        for line in f:
+                            if line.startswith('exec'): return False
         return True
     def install(self):
         with Chdir('/etc/init/'):
@@ -194,3 +196,20 @@ class Remastersys(_apt_install):
     def install(self):
         f = R(urls.remastersys).download()
         APT.install_local(f)
+
+class Radioget(I):
+    __doc__ = _('SHA-DA network radio: Listen to and watch radio and TV programs in China')
+    dowload_url = 'http://radioget.googlecode.com/'
+    category = 'internet'
+    license = GPL
+    Chinese = True
+    def visible(self):
+        return is32()
+    def install(self):
+        f = R('http://radioget.googlecode.com/files/radioget-0.2.4-i386.deb').download()
+        APT.install_local(f)
+    def installed(self):
+        return APT.installed('radioget')
+    def remove(self):
+        APT.remove('radioget')  
+    

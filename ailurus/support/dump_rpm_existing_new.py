@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -32,7 +32,7 @@ if is32(): fedora_arch = 'i386'
 else: fedora_arch = 'x86_64'
 
 all_enabled_sections = []
-repo_objs = FedoraReposFile.all_repo_objects()
+repo_objs = FedoraReposFile.all_repo_objs()
 for repo in repo_objs:
     for section in repo.sections:
         assert isinstance(section, FedoraReposSection)

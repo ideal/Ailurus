@@ -1,3 +1,184 @@
+2010-1-2 MA Yue <velly.empire@gmail.com>
+
+    * Fix a bug in window titlebar setting
+
+2010-10-31 MA Yue <velly.empire@gmail.com>
+
+    * Correct Bioclipse installation
+    * Correct RadioGet installation
+    * Fix a bug in ImageChooser
+    * Add Brasero
+    * Add OpenFetion
+
+2010-10-29 Homer Xing <homer.xing@gmail.com>
+
+	* Dynamic loading setting function. Faster now 
+
+2010-10-23 Homer Xing <homer.xing@gmail.com>
+
+    * Add Fedora repository template
+    * Put section name in a separate text entry
+    * New feature: remove unused Linux kernel for Fedora
+
+2010-10-15 Homer Xing <homer.xing@gmail.com>
+
+    * Append custom repository. Remove chosen repository.
+    * Use radio buttons in clean up pane.
+
+2010-10-10 Homer Xing <homer.xing@gmail.com>
+
+    * Support multiple snapshots in one day
+
+2010-10-09 Homer Xing <homer.xing@gmail.com>
+
+    * Support Fedora repositories editing
+
+2010-10-08 Homer Xing <homer.xing@gmail.com>
+
+	* If user reply "yes" to "no warranty" dialog, do not display that dialog any more.
+	* No error message from info pane
+	* Hide motherboard vendor if it is empty
+	* Clean Nautilus thumbnail image cache in setting pane
+	* Use custom window titlebar layout in setting pane
+	* Directly display login icon path & "start-here" icon path
+
+2010-10-03 Homer Xing <homer.xing@gmail.com>
+
+    * Fix issue 1026. If source config is wrong, then exit program. Otherwise, "if not package_name in cls.apt_cache" raises exception.
+    * Fix issue 1027. No message dialog after icons pack completely downloaded.
+    * Fix issue 1089. Dict <-> String have wrong conversation.
+
+2010-09-23 Homer Xing <homer.xing@gmail.com>
+
+    * Fix bug 635716 - window_manager_name: AttributeError: 'str' object has no attribute 'property_get'
+    * Fix bug 632969 - AssertionError: line.endswith('\n') @ FedoraReposSection
+	* Fix broken url for:
+		Bioclipse, PBC, RouteConverter
+	* Use new version:
+		Electric, Nscript, Pydev, Geogebra, SweetHome
+
+2010-07-28 Homer Xing <homer.xing@gmail.com>
+
+    * Fix bug about SweetHome3D installing path, issue 1020.
+    * Fix bug about RemasterSys installing, issue 1023.
+    * Fix bug about a lot of third party repositories, issue 1022.
+    * Fix issue about gnomekeyring.cancellederror, issue 999.
+    * Fix bug about creating imagemagick icon, issue 1025.
+
+2010-07-27 CHEN Yangyang <skabyy@gmail.com>
+
+    * Optimize the repository configure pane
+    * Add "add third party repository area" to repository configure pane
+    * Fix some bugs
+
+2010-07-27 HAN Haofu <gtxx3600@gmail.com>
+
+	* Allow user to add new package-entry
+	* Allow user to modify package-detail
+	* Allow user to change package-icon
+	* Allow user to add/remove package to/from Favourite
+
+2010-07-27 Homer Xing <homer.xing@gmail.com>
+
+    * Terminal window grabs focus.
+    * Add KDevelop, an IDE similar to Visual Studio.
+    * Add Kile, a LaTeX editor.
+    * Add LyX, "what you see is what you mean" LaTeX editor.
+    * Add Pdftk, a command line tool which can split, merge, encrypt and uncompress PDF files.
+    * Add PDFedit, add marks and annotations on PDF files.
+    * Add GoldenDict, one of the best dictionary applications.
+    * Add Artha, looking up synonyms and antonyms.
+    * Add MyTourbook, excellent route planner, and GPS log analyser software.
+    * Do not store downloaded files in /var/cache/ailurus/ any more.
+    * Add RouteConverter, converts between different GPS track formats.
+    * Add Backintime, incremental backup tool supporting schedule.
+    * Add Geogebra, learning algebra and geometry.
+    * Add Celestia, 3D astronomy simulator.
+    * Add Kstars, planetarium software.
+    * Add Handbrake, video transformer.
+
+2010-07-26 Homer Xing <homer.xing@gmail.com>
+
+    * Use a proxy server if http_proxy environment variable is set
+
+2010-07-25 Homer Xing <homer.xing@gmail.com>
+
+    * Improve behaviour of agreement dialog.
+      When the user select "I agree." and press "No", then still show dialog next time.
+    * Add qcad-doc in qcad item
+    * Do not repeatly display error messages on same file from get_information_pixbuf()
+    * Synchronize online data in main process.
+    * Show software status as tick or cross.
+    * Change sort order of software items. Installed items are at bottom.
+    * Support for saving and loading installed software items.
+    * Display less indent in "print computer information" dialog.
+    * Improve the introduction text of /apps/update-notifier/auto_launch
+    * Support for disabling GNOME login sound
+    * Improve the introduction text of /apps/gdm/simple-greeter/disable_user_list
+    * Suggest to remove ubuntu-docs package to free 270M disk space.
+    * Improve code. Do not use string replacement for $version. Use VERSION inline.
+
+2010-07-23 Homer Xing <homer.xing@gmail.com>
+
+    * Prompt to do synchronization if new icon pack is available.
+    * Add Gajim and PSI, two GTalk clients. Issue 979.
+
+2010-07-23 MA Yue <velly.empire@gmail.com>
+
+    * Add 31 applications icons
+
+2010-07-22 Homer Xing <homer.xing@gmail.com>
+
+    * Fix issue 986. for row in func.result: 'NoneType' object is not iterable
+    * Add wxmaxima, a Computer Algebra System.
+    * Add scilab, one of several open source alternatives to MATLAB.
+    * Add rkward, A graphic user interface to the R programming language.
+    * Add qBittorrent, featureful open source equivalent to utorrent.
+    * Add DeaDBeeF, ultimate music player.
+    * Add Fatrat, a feature rich download manager.
+    * Add Mobloquer, protect internet privacy.
+    * Add JabRef, bibliography reference manager.
+    * Fix depencency error (if any) before installing.
+    * Fix issue 692, broken link error.
+
+2010-07-21 Homer Xing <homer.xing@gmail.com>
+
+    * Add a new tip: view the IP address outside the local network
+    * Do not raise error if any software item raise error from installed()
+    * Do not raise error if tty conf file does not exist.
+    * Fix bug about space in path
+    * Show agreement at start up. Issue 900.
+    * Re-write InfoPane to get rid of "rows[index]" bug. Issue 689.
+    * Fix trailing \n missing error. Issue 949.
+
+2010-07-20 Homer Xing <homer.xing@gmail.com>
+
+    * Raise CannotDownloadError from download(), rather than raise CommandFailError.
+    * Raise CannotDownloadError from R.download().
+    * Let class I be able to detect CannotDownloadError.
+    * Remove InstallRemovePane.app_objs. Use AppObjs.appobjs directly.
+    * Rewrite InstallRemovePane.show_error. Do not treat CannotDownloadError as bug.
+    * Do not treat CannotDownloadError as bug in APT.install().
+    * Do not use xterm. Detect return value of run_as_root_in_terminal().
+    * Completely remove app_obj.sane attribute.
+    * Do not treat UserCancelInstallation as bug.
+
+2010-07-19 Homer Xing <homer.xing@gmail.com>
+
+    * Also install qcad-data when install qcad.
+    * Update url of sweethome
+    * User can disable confirm dialog which appears before installing
+    * Re-write the introduction of texlive
+    * Can refresh installing state of software items
+    * Config.get_login_window_background() return None rather than raise exception
+    * Ignore FetchFailedException in apt_update()
+    * Download icon pack using proxy server
+    * Prompt syntax error in source configuration
+
+2010-07-10 CHEN Yangyang <skabyy@gmail.com>
+
+    * Add a feature to delay sending while the server can not be connected
+
 2010-07-10 CHEN Yangyang <skabyy@gmail.com>
 
     * Finish a simple version of AilurusServer and upload it to google appengine.
@@ -16,7 +197,7 @@
     * Stat source code loading time. Display stat data by "others->stat data".
       Therefore developers can do more optimization.
 
-2010-07-9 Homer Xing <homer.xing@gmail.com>
+2010-07-09 Homer Xing <homer.xing@gmail.com>
 
     * Remove excessive icons.
     * Delete unused variables in "with" statements.

@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -25,14 +25,14 @@ from lib import *
 
 def get():
     return [
-_('''~/.thumbnails/ directory is a cache dir GNOME makes when you browse through your folders in nautilus. 
+_('''$HOME/.thumbnails/ directory is a cache dir GNOME makes when you browse through your folders in nautilus. 
 It contains thumbnail pictures of picture files you've previously looked at.
 
 You can get its total size by 
-du -bs ~/.thumbnails/
+du -bs $HOME/.thumbnails/
 
 You can delete the files in the .thumbnails directory that haven't been accessed for seven days, to free disk space.
-find ~/.thumbnails/ -type f -atime +7 -exec rm {} \;
+find $HOME/.thumbnails/ -type f -atime +7 -exec rm {} \;
 '''),
 
 _("""Capture screen after 10 seconds

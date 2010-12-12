@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -79,7 +79,7 @@ WORKS = [
             [_('Multi-media codec'), 'Multimedia_Codecs', True],
             [_('Decompression software'), 'Enhance_Decompression_Capability', True],
             [_('Stardict'), 'Stardict', True],
-            [_(u'Moonlight: an open source implementation of Microsoft® Silverlight'), 'Moonlight', True],
+            [_('Moonlight: an open source implementation of Microsoft Silverlight'), 'Moonlight', True],
             [_('Flash plugin for web browser') + ' (GNU Gnash)', 'Gnash', False],
             [_('Flash plugin for web browser') + ' (Adobe)', 'Adobe_Flash_plugin', True],
 # Some people say that this operation has side effect.

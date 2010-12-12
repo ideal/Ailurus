@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -53,7 +53,6 @@ class Aptana(I):
     download_url = 'http://www.aptana.org/studio/plugin'
     how_to_install = 'http://download.aptana.org/tools/studio/plugin/install/studio'
     category = 'eclipse_extension'
-    sane = False # FIXME: don't know how to remove
     license = DUAL_LICENSE(APL, GPL)
     def installed(self):
         import glob
@@ -78,7 +77,6 @@ class RadRails(I):
     how_to_install = 'http://download.aptana.com/tools/radrails/plugin/install/radrails-bundle'
     category = 'eclipse_extension'
     license = DUAL_LICENSE(APL, GPL)
-    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/com.aptana.radrails.*')
@@ -101,7 +99,6 @@ class PDT(I):
     download_url = 'http://www.eclipse.org/pdt/downloads/'
     category = 'eclipse_extension'
     license = EPL + ' http://www.eclipse.org/legal/'
-    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/org.eclipse.php.*')
@@ -130,7 +127,6 @@ class Subversive(I):
     how_to_install = 'http://download.eclipse.org/technology/subversive/0.7/update-site/'
     category = 'eclipse_extension'
     license = EPL
-    sane = False # FIXME: don't know how to remove
     def installed(self):
         import glob
         List = glob.glob('/usr/lib/eclipse/plugins/org.eclipse.team.svn.*')

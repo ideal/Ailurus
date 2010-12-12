@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Ailurus
-_Comment=makes Linux easier to use
+_Comment=a simple application installer and GNOME tweaker
 Exec=ailurus
 Icon=ailurus
 Terminal=false

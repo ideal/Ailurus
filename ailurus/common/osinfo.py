@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -23,6 +23,9 @@ from __future__ import with_statement
 import sys, os
 from lib import *
 
+def __default_shell():
+    return [row(_('Default shell:'), os.environ['SHELL'], D+'sora_icons/default_information_icon.png')]
+
 def __host_name():
     __host_name.please_refresh_me = True
     try: return [row(_('Host name:'), get_output('hostname'), D+'umut_icons/i_host.png' )]
@@ -43,8 +46,9 @@ def __xorg():
         for line in get_output('Xorg -version').split('\n'):
             if line.startswith('X.Org X Server'):
                 return [row(_('X server version:'), line.strip(), D+'umut_icons/i_X.png')]
-    except: print_traceback()
-    return []
+    except:
+        print_traceback()
+        return []
 
 def __gcc():
     try:
@@ -62,20 +66,27 @@ def __java():
     return []
 
 def __python():
-     try: return [row(_('Python version:'), sys.version.split()[0], D+'appicons/python.png' )]
-     except: print_traceback()
-     return []
+     try: 
+         return [row(_('Python version:'), sys.version.split()[0], D+'sora_icons/default_information_icon.png' )]
+     except: 
+         print_traceback()
+         return []
  
 def __gtk():
-     import gtk
-     try: return [row(_('GTK version:'), '.'.join(map(str, gtk.gtk_version)), D+'appicons/gtk.png')]
-     except: print_traceback()
-     return []
+     try:
+         import gtk
+         return [row(_('GTK version:'), '.'.join(map(str, gtk.gtk_version)), D+'sora_icons/default_information_icon.png')]
+     except:
+         print_traceback()
+         return []
  
 def __pygtk():
-     import gtk
-     try: return [row(_('PyGTK version:'), '.'.join(map(str, gtk.pygtk_version)), D+'appicons/gtk.png' )]
-     except: print_traceback()
+     try: 
+         import gtk
+         return [row(_('PyGTK version:'), '.'.join(map(str, gtk.pygtk_version)), D+'sora_icons/default_information_icon.png' )]
+     except: 
+         print_traceback()
+         return []
     
 def __uptime():
     __uptime.please_refresh_me = True
@@ -97,16 +108,18 @@ def __uptime():
         if minutes:
             print >>text, minutes, ngettext('minute', 'minutes', minutes),
         return [row(_('Uptime:'), text.getvalue(), D+'umut_icons/i_uptime.png' )]
-    except: print_traceback()
-    return []
+    except:
+        print_traceback()
+        return []
 
 def __user():
     try: 
         import os
         string = '%s (UID: %s, GID: %s)'%(os.environ['USER'], os.getuid(), os.getgid() )
         return [row(_('Current user:'), string, D+'umut_icons/i_userinfo.png')]
-    except: print_traceback()
-    return []
+    except: 
+        print_traceback()
+        return []
 
 def __opengl():
     ret = []
@@ -152,10 +165,12 @@ def __os_version():
             name = platform.system()
             version = platform.release()
         return [row(_('%s version:') % name, version, D+'umut_icons/tux.png' )]
-    except: print_traceback()    
+    except:
+        print_traceback()
+        return [] 
 
 def get():
-    return [ __host_name, __user, __uptime, __kernel, __xorg,
+    return [ __host_name, __user, __uptime, __kernel, __default_shell, __xorg,
              __opengl, __gcc, __java, __python, __gtk, __pygtk,  __firefox, __os_version ]
 
 if __name__ == '__main__':

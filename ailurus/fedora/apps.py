@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -70,7 +70,18 @@ class Disable_Sudo(I):
     def installed(self):
         return False
     def install(self):
-        run_as_root_in_terminal(D+'../support/disable_sudo.py')
+        with TempOwn('/etc/sudoers'):
+            with open('/etc/sudoers') as f:
+                contents = f.readlines()
+
+            string = '%s ALL=(ALL) ALL\n' % os.environ['USER']
+            for i,line in enumerate(contents):
+                if line == string: contents[i] = ''
+        
+            run('chmod +w /etc/sudoers')
+            with open('/etc/sudoers', 'w') as f:
+                f.writelines(contents)
+            run('chmod -w /etc/sudoers')
     def remove(self):
         pass
 
@@ -83,6 +94,19 @@ class Enable_Sudo(I):
     def installed(self):
         return False
     def install(self):
-        run_as_root_in_terminal(D+'../support/enable_sudo.py')
+        with TempOwn('/etc/sudoers'):
+            with open('/etc/sudoers') as f:
+                content = f.read()
+
+            string = '%s ALL=(ALL) ALL\n' % os.environ['USER']
+            if string in content: return
+            if not content.endswith('\n'):
+                content += '\n'
+            content += string
+            
+            run('chmod +w /etc/sudoers')
+            with open('/etc/sudoers', 'w') as f:
+                f.write(content)
+            run('chmod -w /etc/sudoers')
     def remove(self):
         pass

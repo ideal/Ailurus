@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -36,10 +36,6 @@ class _repo(I):
         for i,a in enumerate(self.apt_conf):
             is_string_not_empty(a)
             if a.endswith('\n'): raise ValueError(a)
-            if '$' in a: #variable substitution
-                assert '$version' in a
-                self.apt_conf[i] = a.replace('$version', VERSION )
-                assert '$' not in self.apt_conf[i], self.apt_conf[i]
         assert isinstance(self.apt_content, str)
         
         if hasattr(self, 'key_url'):
@@ -141,22 +137,19 @@ class Repo_Firefox_3_6(_launchpad):
     def visible(self):
         return VERSION in ['hardy', 'intrepid', 'jaunty', 'karmic']
 
-# Cannot install PlayOnLinux. Because its repository content cannot be verified.
-# There is no public GPG key.
-# 
-#class Repo_PlayOnLinux(_repo):
-#    __doc__ = _('PlayOnLinux (stable)')
-#    license = LGPL
-#    def __init__(self):
-#        self.detail = _('PlayOnLinux is a front-end for wine. '
-#            'It helps to install Windows Games and softwares on Linux.')
-#        self.apt_content = 'playonlinux'
-#        self.web_page = 'http://www.playonlinux.com/en/download.html'
-#        self.apt_file = '/etc/apt/sources.list.d/playonlinux.list'
-#        self.apt_conf = [ 'deb http://deb.playonlinux.com/ $version main' ]
-#        self.key_url = '' #no key
-#        self.key_id = '' #no key
-#        _repo.__init__(self)
+class Repo_PlayOnLinux(_repo):
+    __doc__ = _('PlayOnLinux (stable)')
+    license = LGPL
+    def __init__(self):
+        self.detail = _('PlayOnLinux is a front-end for wine. '
+            'It helps to install Windows Games and softwares on Linux.')
+        self.apt_content = 'playonlinux'
+        self.web_page = 'http://www.playonlinux.com/en/download.html'
+        self.apt_file = '/etc/apt/sources.list.d/playonlinux.list'
+        self.apt_conf = [ 'deb http://deb.playonlinux.com/ '+VERSION+' main' ]
+        self.key_url = '' #no key
+        self.key_id = '' #no key
+        _repo.__init__(self)
 
 class Repo_WINE(_launchpad):
     __doc__ = _('WINE (beta version)')
@@ -232,7 +225,7 @@ class Repo_Medibuntu(_repo):
     apt_content = ''
     web_page = 'http://packages.medibuntu.org/'
     apt_file = '/etc/apt/sources.list.d/medibuntu.list'
-    apt_conf = [ 'deb http://packages.medibuntu.org/ $version free non-free' ]
+    apt_conf = [ 'deb http://packages.medibuntu.org/ '+VERSION+' free non-free' ]
     key_url = 'http://packages.medibuntu.org/medibuntu-key.gpg'
     key_id = '0C5A2783'
 
@@ -295,7 +288,7 @@ class Repo_Canonical_Partner(_repo):
     apt_content = 'acroread uex symphony accountz-baz'
     web_page = 'http://archive.canonical.com/ubuntu/dists/'
     apt_file = '/etc/apt/sources.list.d/partners-of-canonical.list'
-    apt_conf = [ 'deb http://archive.canonical.com/ubuntu $version partner ' ]
+    apt_conf = [ 'deb http://archive.canonical.com/ubuntu '+VERSION+' partner ' ]
     key_url = ''
     key_id = ''
 
@@ -306,7 +299,7 @@ class Repo_RSSOwl(_repo):
     apt_content = 'rssowl'
     web_page = 'http://packages.rssowl.org/README'
     apt_file = '/etc/apt/sources.list.d/rssowl.list'
-    apt_conf = [ 'deb http://packages.rssowl.org/ubuntu $version main' ]
+    apt_conf = [ 'deb http://packages.rssowl.org/ubuntu '+VERSION+' main' ]
     key_url = 'http://packages.rssowl.org/project/rene.moser.pubkey'
     key_id = 'E53168C7'
 
@@ -342,7 +335,7 @@ class Repo_Audacious(_launchpad):
 #        self.apt_content = 'tor privoxy vidalia'
 #        self.web_page = 'http://deb.torproject.org/'
 #        self.apt_file = '/etc/apt/sources.list.d/tor.list'
-#        self.apt_conf = [ 'deb http://deb.torproject.org/torproject.org $version main' ]
+#        self.apt_conf = [ 'deb http://deb.torproject.org/torproject.org '+VERSION+' main' ]
 #        self.key_url = ''
 #        self.key_id = '886DDD89'
 #        _repo.__init__(self)
@@ -354,7 +347,7 @@ class Repo_RedNoteBook(_repo):
     apt_content = 'rednotebook'
     web_page = 'http://robin.powdarrmonkey.net/ubuntu/'
     apt_file = '/etc/apt/sources.list.d/rednotebook.list'
-    apt_conf = [ 'deb http://robin.powdarrmonkey.net/ubuntu $version/' ]
+    apt_conf = [ 'deb http://robin.powdarrmonkey.net/ubuntu '+VERSION+'/' ]
     key_url = 'http://robin.powdarrmonkey.net/ubuntu/repository.key'
     key_id = 'FF95D333'
 

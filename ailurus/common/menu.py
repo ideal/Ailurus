@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -129,7 +129,7 @@ def left_label(text):
     return box
 
 def url_button(url):
-    import gtk
+    import gtk, pango
     def func(w, url): open_web_page(url)
     def enter(w, e): 
         try: w.get_window().set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
@@ -217,8 +217,7 @@ def copy_text_to_clipboard(store):
         value = row[1]
         print >>text, key
         print >>text, '\t', value
-    clipboard = gtk.clipboard_get()
-    clipboard.set_text(text.getvalue())
+    copy_to_clipboard(text.getvalue())
 
 def show_statistics():
     store = gtk.ListStore(str, str)
@@ -277,11 +276,11 @@ def __others():
 
     help_propose_suggestion = image_file_menuitem(_('Propose suggestion'), D+'umut_icons/m_propose_suggestion.png', 16)
     def propose_suggestion(*w):
-        from support.clientlib import SuggestionsSubmit
-        SuggestionsSubmit()
+        from support.gae import ProposeSuggestionWindow
+        ProposeSuggestionWindow()
     help_propose_suggestion.connect('activate', propose_suggestion)
 
-    help_report_bug = image_file_menuitem(_('Report bugs'), D+'umut_icons/m_propose_suggestion.png', 16)
+    help_report_bug = image_file_menuitem(_('Report bugs'), D+'umut_icons/bug.png', 16)
     help_report_bug.connect('activate', 
         lambda w: report_bug() )
     
@@ -295,14 +294,17 @@ def __others():
     about = gtk.MenuItem( _('About') )
     about.connect('activate', lambda *w: show_about_dialog())
     
-    changelog = gtk.MenuItem( _('Read changelog') )
-    changelog.connect('activate', lambda *w: show_changelog())
+#    changelog = gtk.MenuItem( _('Read changelog') )
+#    changelog.connect('activate', lambda *w: show_changelog())
     
     statistics = gtk.MenuItem( _('Statistical data') )
     statistics.connect('activate', lambda *w: show_statistics())
     
-    return [ changelog, help_contribute, help_blog, help_update, 
-             help_propose_suggestion, help_report_bug, help_translate, special_thank, about, statistics, ]
+    return [ 
+#             changelog, 
+             help_contribute, help_blog, help_update, 
+             help_propose_suggestion, 
+             help_report_bug, help_translate, special_thank, about, statistics, ]
    
 def get_study_linux_menu():
     return __study_linux()

@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -120,9 +120,9 @@ def show_about_dialog():
           'Homer Xing <homer.xing@gmail.com>', 
           'CHEN Yangyang <skabyy@gmail.com>',
           'MA Yue <velly.empire@gmail.com>',
-          'QI Chengjie <starboy.qi@gmail.com>',
           'HAN Haofu <gtxx3600@gmail.com>',
           _('Contributors:'),
+          'QI Chengjie <starboy.qi@gmail.com>',
           'HUANG Wei <wei.kukey@gmail.com>',
           'SHANG Yuanchun <idealities@gmail.com>',
           'DU Yue <elyes.du@gmail.com>',
@@ -135,8 +135,8 @@ def show_about_dialog():
           'M. Umut Pulat    http://12m3.deviantart.com/', 
           'Andrea Soragna   http://sora-meliae.deviantart.com/',
           'Paul Davey       http://mattahan.deviantart.com/',] )
-    about.set_copyright(_(u"Copyright ©") + ' 2009-2010, ' + _('Ailurus developers and Ailurus contributors') + '\n' + 
-                        _(u"Copyright ©") + ' 2007-2010, ' + 
+    about.set_copyright(_(u"Copyright (C)") + ' 2009-2010, ' + _('Ailurus developers and Ailurus contributors') + '\n' + 
+                        _(u"Copyright (C)") + ' 2007-2010, ' + 
                         _('Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.'))
     about.set_wrap_license(False)
     about.set_license('''
@@ -174,32 +174,35 @@ def show_special_thank_dialog():
     import StringIO
     text = StringIO.StringIO()
     print >>text, _('We wish to express thankfulness to these projects:')
-    print >>text, '<b><big>Lazybuntu, UbuntuAssistant'
-    print >>text, 'GTweakUI, Easy Life, Ubuntu-tweak, CPU-G</big></b>'
+    print >>text, '<b>Lazybuntu, UbuntuAssistant'
+    print >>text, 'GTweakUI, Easy Life, Ubuntu-tweak, CPU-G</b>'
     print >>text
     print >>text, _('We sincerely thank these people:')
     print >>text
     print >>text, _('The people who provide inspiration:')
     print >>text, '<b>PCMan, Careone, novia, '
     print >>text, 'BAI Qingjie, Aron Xu, Federico Vera, '
-    print >>text, 'ZHU Jiandy, Maksim Lagoshin, '
+    print >>text, 'ZHU Jiandi, Maksim Lagoshin, '
     print >>text, 'Romeo-Adrian Cioaba, David Morre, '
-    print >>text, 'Liang Suilong, Lovenemesis, Chen Lei, '
+    print >>text, 'LIANG Suilong, Lovenemesis, CHEN Lei, '
     print >>text, 'DaringSoule, Ramesh Mandaleeka, JCOM, '
     print >>text, 'Michael McBride, CHEN Zhixue, hicks1gb, '
-    print >>text, 'Silber Cobra </b>'
+    print >>text, 'Silber Cobra, lopeztobal, zsarosi</b>'
     print >>text
     print >>text, _('The people who designs the logo:')
-    print >>text, '<b><big>SU Yun</big></b>'
+    print >>text, '<b>SU Yun</b>'
     print >>text
     print >>text, _('The people who maintain PPA repository:')
-    print >>text, '<b><big>Aron Xu</big></b>'
+    print >>text, '<b>Aron Xu</b>'
+    print >>text
+    print >>text, _('The people who maintain Fedora package:')
+    print >>text, '<b>LIANG Suilong</b>'
     print >>text
     print >>text, _('The people who maintain ArchLinux package:')
-    print >>text, '<b><big>kiefer</big></b>'
+    print >>text, '<b>Jorge Madrid (kiefer)</b>'
     print >>text
     print >>text, _('The people who provide a lot of Linux skills:')
-    print >>text, '<b><big>Oneleaf</big></b>'
+    print >>text, '<b>Oneleaf</b>'
     print >>text
     print >>text, _('The people who help translate Ailurus')
     print >>text 
@@ -227,6 +230,8 @@ def show_special_thank_dialog():
     dialog.destroy()
 
 def show_changelog():
+    # Not used, since ChangeLog should not be put in '/usr/share/ailurus/'
+    # Shall we download ChangeLog from github?
     with open('/usr/share/ailurus/ChangeLog') as f:
         lines = f.readlines()
     import gtk, pango, re

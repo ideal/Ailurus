@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -160,15 +160,13 @@ class OSD_Lyrics(_apt_install):
     ppa = 'osd-lyrics'
     pkgs = 'osdlyrics'
 
-# Cannot install playonlinux because there is no public gpg key.
-# Its repository content cannot be verified.
-#  
-#class PlayOnLinux(_apt_install):
-#    __doc__ = _('PlayOnLinux: A graphical front-end for wine')
-#    license = LGPL
-#    category = 'simulator'
-#    deb = 'deb http://deb.playonlinux.com/ %s main' % VERSION
-#    pkgs = 'playonlinux'
+# Yeah, we can install playonlinux now!
+class PlayOnLinux(_apt_install):
+    __doc__ = _('PlayOnLinux: A graphical front-end for wine')
+    license = LGPL
+    category = 'simulator'
+    deb = 'deb http://deb.playonlinux.com/ %s main' % VERSION
+    pkgs = 'playonlinux'
 
 class RSSOwl(_apt_install):
     __doc__ = _('RSSOwl: RSS feed reader')
@@ -191,7 +189,7 @@ class XBMC(_apt_install):
     category = 'player'
     license = GPL
     ppa = 'team-xbmc'
-    pkgs = 'xbmc'
+    pkgs = 'xbmc xbmc-standalone'
 
 class ElementaryTheme(_apt_install):
     __doc__ = _('Elementary: Beautiful theme which looks like Mac OS X')
@@ -221,3 +219,40 @@ class CairoDock(_apt_install):
 #    category = 'player'
 #    ppa = 'songbird-daily'
 #    pkgs = 'songbird'
+
+class DeaDBeeF(_apt_install):
+    'DeaDBeef'
+    detail = _('Till now the only music player that can correctly play files from .cue sheets')
+    category = 'player'
+    ppa = 'alexey-smirnov/deadbeef'
+    pkgs = 'deadbeef'
+
+class Mobloquer(_apt_install):
+    'Mobloquer'
+    detail = _('Protect your privacy. Block internet traffic based on IP address ranges.')
+    category = 'internet'
+    ppa = 'jre-phoenix'
+    pkgs = 'moblock mobloquer'
+
+class Backintime(_apt_install):
+    __doc__ = 'Back In Time'
+    detail = _('Incremental backup tool supporting schedule')
+    category = 'security'
+    ppa = 'bit-team/testing'
+    pkgs = 'backintime-gnome'
+
+class Handbrake(_apt_install):
+    'Handbrake'
+    detail = _('Convert video into other forms so they can be viewed on portable devices')
+    category = 'media_editor'
+    ppa = 'stebbins/handbrake-snapshots'
+    pkgs = 'handbrake-gtk'
+
+class OpenFetion(_apt_install):
+    'Openfetion'
+    detail = _('''An client for China Mobile's "Fetion" service''')
+    licese = GPL
+    category = 'chat'
+    ppa = 'happyaron/ppa'
+    pkgs = 'openfetion'
+    Chinese = True

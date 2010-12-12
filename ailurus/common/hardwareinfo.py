@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -23,6 +23,9 @@ from __future__ import with_statement
 import sys, os
 from lib import *
 
+def print_traceback(): # do not display error message
+    pass
+
 def __read(path):
     with open(path) as f:
         ret = f.read().rstrip()
@@ -32,21 +35,21 @@ def __bios():
     #The idea of this function is borrowd from cpu-g. Thanks!
     ret = []
     try:
-        string = __read('/sys/devices/virtual/dmi/id/bios_vendor')
+        string = __read('/sys/devices/virtual/dmi/id/bios_vendor').strip()
         assert string
         ret.append( row(_('BIOS vendor:'), string, D+'umut_icons/i_bios.png') )
     except:
         print_traceback()
 
     try:
-        string = __read('/sys/devices/virtual/dmi/id/bios_version')
+        string = __read('/sys/devices/virtual/dmi/id/bios_version').strip()
         assert string
         ret.append( row(_('BIOS version:'), string, D+'umut_icons/i_bios.png') )
     except:
         print_traceback()
         
     try:
-        string = __read('/sys/devices/virtual/dmi/id/bios_date')
+        string = __read('/sys/devices/virtual/dmi/id/bios_date').strip()
         assert string
         ret.append( row(_('BIOS release date:'), string, D+'umut_icons/i_bios.png') )
     except:
@@ -57,7 +60,7 @@ def __bios():
 def __motherboard():
     ret = []
     try:
-        string = __read('/sys/devices/virtual/dmi/id/board_name')
+        string = __read('/sys/devices/virtual/dmi/id/board_name').strip()
         assert string
         ret.append( row(_('Motherboard name:'), string, D+'umut_icons/i_motherboard.png') )
     except IOError: pass
@@ -65,7 +68,8 @@ def __motherboard():
         print_traceback()
         
     try:
-        string = __read('/sys/devices/virtual/dmi/id/board_vendor')
+        string = __read('/sys/devices/virtual/dmi/id/board_vendor').strip()
+        assert string
         ret.append( row(_('Motherboard vendor:'), string, D+'umut_icons/i_motherboard.png') )
     except IOError: pass
     except:
@@ -217,9 +221,8 @@ def __pci():
         print_traceback()
     return ret
 
-def __battery():
-    __battery.please_refresh_me = True
-    ret = []
+def __battery_state():
+    __battery_state.please_refresh_me = True
     try:
         with open('/proc/acpi/battery/BAT0/state') as f:
             for line in f:
@@ -230,20 +233,36 @@ def __battery():
                     elif v=='charging': v=_('charging')
                     elif v=='discharging': v=_('discharging')
                     else: raise RuntimeError(v)
-                    ret.append( row(_('Battery charging state:'), v, D+'umut_icons/i_battery.png') )
-                elif v[0] == 'remaining capacity':
-                    ret.append( row(_('Battery remaining capacity:'), v[1].strip(), D+'umut_icons/i_battery.png') )
-        
+                    return [row(_('Battery charging state:'), v, D+'umut_icons/i_battery.png')]
+    except:
+        print_traceback()
+        return []
+
+def __battery_remaining_capacity():
+    __battery_remaining_capacity.please_refresh_me = True
+    try:
+        with open('/proc/acpi/battery/BAT0/state') as f:
+            for line in f:
+                v = line.split(':')
+                if v[0] == 'remaining capacity':
+                    return [row(_('Battery remaining capacity:'), v[1].strip(), D+'umut_icons/i_battery.png')]
+    except:
+        print_traceback()
+        return []
+
+def __battery_capacity():
+    __battery_capacity.please_refresh_me = True
+    try:
         with open('/proc/acpi/battery/BAT0/info') as f:
             for line in f:
                 v = line.split(':')
                 if v[0] == 'last full capacity':
-                    ret.append( row(_('Battery full capacity:'), v[1].strip(), D+'umut_icons/i_battery.png') )
-    except IOError: pass
+                    return[row(_('Battery full capacity:'), v[1].strip(), D+'umut_icons/i_battery.png')]
     except:
         print_traceback()
-    return ret
+        return []
 
 def get():
     return [ __motherboard, __bios, __cpu, __cpu_temp,
-             __mem, __swap, __pci, __battery ]
+             __mem, __swap, __pci, __battery_state, 
+             __battery_remaining_capacity, __battery_capacity ]

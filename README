@@ -1,11 +1,12 @@
 ===== What is Ailurus? ====
-Ailurus is an application which makes Linux easier to use.
+Ailurus is a simple application installer and GNOME tweaker.
 
 ==== Ailurus supports ====
 Latest version of Ailurus supports:
-         Fedora              11 ~ 13
- Ubuntu,KUbuntu,XUbuntu    8.04 ~ 10.04
-          Mint                5 ~ 8
+         Fedora              11 ~ 14
+ Ubuntu,KUbuntu,XUbuntu    8.04 ~ 10.10
+          Mint                5 ~ 9
+        ArchLinux
 
 ==== Report bugs & Propose suggestion ====
 http://code.google.com/p/ailurus/issues/entry

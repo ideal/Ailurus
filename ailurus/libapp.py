@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -21,12 +21,109 @@
 
 from __future__ import with_statement
 from lib import *
+from libu import *
 import urls
 
 __all__ = ['_set_gconf', '_apt_install', '_path_lists', 
            '_ff_extension', '_download_one_file', '_rpm_install', 'N',
            'create_eclipse_icon', 'install_eclipse_extension_message',
-           'remove_eclipse_extesion_message', 'latest', 'urls']
+           'remove_eclipse_extesion_message', 'latest', 'urls', 'Category']
+
+class Category:
+    def __init__(self, text, icon_path, category, class_name):
+        '''category equals "category" attribute value of application class
+        class_name is used in left_treeview only'''
+        assert isinstance(text, (str, unicode)) and text
+        assert isinstance(icon_path, str) and icon_path
+        assert isinstance(category, str) and category
+        assert isinstance(class_name, str) and class_name
+        self.text, self.icon_path, self.category, self.class_name = text, icon_path, category, class_name
+        self.icon = get_pixbuf(icon_path, 24, 24)
+        self.visible = False
+    def to_list(self):
+        'Return a list. Add the list into gtk.Liststore'
+        return [self.text, self.icon, self.category, self.class_name]
+    @classmethod
+    def all_left_class(cls):
+        'return a list which consists of "text, class_name, icon_path"'
+        return [
+            (_('Science'), 'science', D+'umut_icons/p_science.png'),
+            (_('Develop'), 'develop', D+'sora_icons/p_develop.png'),
+            (_('Home'), 'home', D+'sora_icons/p_home.png'),
+            (_('Other'), 'other', D+'sora_icons/p_others.png'),
+            (_('All'), 'all', D+'sora_icons/p_all.png'),
+                ]
+    m_all = None
+    @classmethod
+    def all(cls):
+        if cls.m_all: return cls.m_all
+        cls.m_all = [
+            Category(_('All'), D+'sora_icons/p_all.png', 'all', 'all'),
+            # internet
+            Category(_('Favourite'), D+'sora_icons/p_favourite.png', 'favourite', 'home'),
+            Category(_('Browser'), D+'sora_icons/p_browser.png', 'browser', 'home'),
+            Category(_('Email'), D+'sora_icons/p_email.png', 'email', 'home'),
+            Category(_('File sharing'), D+'sora_icons/p_file_sharing.png', 'file_sharing', 'home'),
+            Category(_('Chat'), D+'umut_icons/p_chat.png', 'chat', 'home'),
+            Category(_('Firefox extension'), D+'umut_icons/p_firefox_extension.png', 'firefox_extension', 'home'),
+            Category(_('Flash'), D+'sora_icons/p_flash.png', 'flash', 'home'),
+            Category(_('Blog'), D+'sora_icons/p_blog.png', 'blog', 'home'),
+            Category(_('RSS'), D+'sora_icons/p_rss.png', 'rss', 'home'),
+            Category(_('Internet'), D+'sora_icons/p_internet.png', 'internet', 'home'),
+            Category(_('Image'), D+'sora_icons/p_image.png', 'image', 'home'),
+            # security
+            Category(_('Security'), D+'sora_icons/p_security.png', 'security', 'home'),
+            # multimedia
+            Category(_('Player'), D+'sora_icons/p_player.png', 'player', 'home'),
+            Category(_('CD burner'), D+'sora_icons/p_cd_burner.png', 'cd_burner', 'home'),
+            Category(_('Media editor'), D+'sora_icons/p_media_editor.png', 'media_editor', 'home'),
+            # appearance
+            Category(_('Panel'), D+'sora_icons/p_panel.png', 'panel', 'home'),
+            Category(_('Theme'), D+'sora_icons/p_theme.png', 'theme', 'home'),
+            Category(_('Screen widget'), D+'umut_icons/p_candy.png', 'candy', 'home'),
+            Category(_('Compiz setting'), D+'sora_icons/p_compiz_setting.png', 'compiz_setting', 'home'),
+            # science
+            Category(_('Math'), D+'umut_icons/p_math.png', 'math', 'science'),
+            Category(_('Statistics'), D+'umut_icons/p_statistics.png', 'statistics', 'science'),
+            Category(_('Electronics'), D+'umut_icons/p_electronics.png', 'electronics', 'science'),
+            Category(_('Mechanics'), D+'umut_icons/p_mechanics.png', 'mechanics', 'science'),
+            Category(_('Geography'), D+'sora_icons/p_geography.png', 'geography', 'science'),
+            Category(_('Biology'), D+'sora_icons/p_biology.png', 'biology', 'science'),
+            Category(_('LaTeX'), D+'umut_icons/p_latex.png', 'latex', 'science'),
+            # programming
+            Category(_('IDE'), D+'sora_icons/p_ide.png', 'ide', 'develop'),
+            Category(_('Version control'), D+'sora_icons/p_version_control.png', 'version_control', 'develop'),
+            Category(_('Library'), D+'sora_icons/p_library.png', 'library', 'develop'),
+            Category(_('Embedded system'), D+'umut_icons/p_embedded_system.png', 'embedded_system', 'develop'),
+            Category(_('Text editor'), D+'umut_icons/p_text_editor.png', 'text_editor', 'develop'),
+            Category(_('Eclipse extension'), D+'sora_icons/p_eclipse_extension.png', 'eclipse_extension', 'develop'),
+            Category(_('Programming tool'), D+'sora_icons/p_saber.png', 'saber', 'develop'),
+            # business
+            Category(_('Business'), D+'sora_icons/p_business.png', 'business', 'home'),
+            # design
+            Category(_('Design'), D+'sora_icons/p_design.png', 'design', 'develop'),
+            Category(_('Drawing'), D+'umut_icons/p_drawing.png', 'drawing', 'develop'),
+            Category(_('Typesetting'), D+'umut_icons/p_typesetting.png', 'typesetting', 'develop'),
+            # gnome_dedicated
+            Category(_('GNOME dedicated'), D+'sora_icons/p_gnome_dedicated.png', 'gnome_dedicated', 'other'),
+            # nautilus
+            Category(_('Nautilus extension'), D+'sora_icons/p_nautilus_extension.png', 'nautilus_extension', 'other'),
+            # simulator
+            Category(_('Simulator'), D+'sora_icons/p_simulator.png', 'simulator', 'other'),
+            # education
+            Category(_('Education'), D+'umut_icons/p_education.png', 'education', 'home'),
+            # game
+            Category(_('Game'), D+'sora_icons/p_game.png', 'game', 'home'),
+            # antivirus
+            Category(_('Anti-virus'), D+'sora_icons/p_antivirus.png', 'antivirus', 'home'),
+            # others
+            Category(_('Others'), D+'sora_icons/p_others.png', 'others', 'other'),
+            # tasksel
+            Category(_('Establish a server'), D+'umut_icons/p_establish_a_server.png', 'establish_a_server', 'other'),
+            # repository
+            Category(_('Repository'), D+'sora_icons/p_repository.png', 'repository', 'other'),
+                 ]
+        return cls.m_all
 
 class _set_gconf(I):
     'Must subclass me and set "self.set" and "self.add"'
@@ -150,15 +247,6 @@ def is_package_names_string(string):
         if pkg[0]=='-':
             raise ValueError, pkg
 
-def debian_installation_command(package_names):
-    return 'apt-get install ' + package_names
-
-def fedora_installation_command(package_names):
-    return 'yum install ' + package_names
-
-def archlinux_installation_command(package_names):
-    return 'pacman -S ' + package_names
-
 def ppa_to_deb_conf(ppa_string):
     'return deb conf string from ppa string'
     ppa_owner = ppa_string.split("/")[0]
@@ -260,41 +348,31 @@ class N(I):
         if hasattr(self, 'pkgs'):
             is_package_names_string(self.pkgs)
     def install(self):
-        self.backend.install(*self.pkgs.split())
+        BACKEND.install(*self.pkgs.split())
     def installed(self):
         for p in self.pkgs.split():
-            if not self.backend.installed(p): return False
+            if not BACKEND.installed(p): return False
         return True
     def remove(self):
-        self.backend.remove(*self.pkgs.split())
+        BACKEND.remove(*self.pkgs.split())
     def get_reason(self, f):
         all_pkgs = self.pkgs.split()
         if len(all_pkgs) > 1:
-            not_installed = [p for p in all_pkgs if not self.backend.installed(p)]
+            not_installed = [p for p in all_pkgs if not BACKEND.installed(p)]
             if len(not_installed) != len(all_pkgs):
                 print >>f, _('Because the packages "%s" are not installed.')%' '.join(not_installed),
     def fill(self):
-        self.how_to_install = self.installation_command_backend(self.pkgs)
+        self.how_to_install = installation_command_backend(self.pkgs)
     def visible(self):
         if not hasattr(self, 'pkgs'): 
             #print self.__doc__, ' is hidden because no package name.'
             return False # It is not supported for this Linux distribution.
         # package names change from time to time. we hide an item if package_name does not exists. 
         for pkg in self.pkgs.split():
-            if not self.backend.exist(pkg):
+            if not BACKEND.exist(pkg):
                 print self.__doc__, ' is hidden because package name changed.'
                 return False
         return True
-
-    if FEDORA:
-        backend = RPM
-        installation_command_backend = staticmethod(fedora_installation_command)
-    elif UBUNTU or UBUNTU_DERIV:
-        backend = APT
-        installation_command_backend = staticmethod(debian_installation_command)
-    elif ARCHLINUX:
-        backend = PACMAN
-        installation_command_backend = staticmethod(archlinux_installation_command)
 
 class _path_lists(I):
     def self_check(self):
@@ -330,7 +408,6 @@ def latest(id): # used in all subclasses of _ff_extension, to construct download
 class _ff_extension(I):
     'Firefox Extension'
     category = 'firefox_extension'
-    sane = False # FIXME: we don't know how to remove Firefox extensions
     def self_check(self):
         assert self.name
         assert isinstance(self.name, unicode)

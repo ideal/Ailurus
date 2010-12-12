@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -30,7 +30,7 @@ try:
 except: # raise exception in python console because __file__ is not defined
     import os
     A = os.path.expanduser('~/workspace/Ailurus/ailurus/')
-    assert os.path.exists(A), 'Please put ailurus code in ~/workspace/Ailurus/'
+    assert os.path.exists(A), 'Please put ailurus code in $HOME/workspace/Ailurus/'
 D = A + '/icons/'
 
 def row(text, value, icon, tooltip = None): # only used in hardwareinfo.py and osinfo.py
@@ -39,7 +39,6 @@ def row(text, value, icon, tooltip = None): # only used in hardwareinfo.py and o
 class I:
     this_is_an_installer = True
     this_is_a_repository = False
-    sane = True # False means installed() == False after calling install()
     category = 'others'
     detail = ''
     how_to_install = ''
@@ -47,6 +46,7 @@ class I:
     cache_installed = showed_in_toggle = None # boolean
     logo_pixbuf = None # gtk.gdk.Pixbuf
     use_default_icon = None # boolean
+    installing_error = [] # list
     def self_check(self):
         'check errors in source code'
     def fill(self):
@@ -61,6 +61,33 @@ class I:
         'Add repository before installing me'
     def clean_temp_repository(self):
         'Remove repository after installing me'
+    def clean_installing_error(self):
+        self.installing_error = []
+    def has_installing_error(self):
+        return bool(self.installing_error)
+    def add_installing_error(self, error):
+        assert isinstance(error, tuple) and len(error) == 3
+        import types
+        assert isinstance(error[0], types.TypeType)
+        assert isinstance(error[1], types.ObjectType)
+        assert isinstance(error[2], types.ObjectType)
+        self.installing_error.append(error)
+    def print_installing_error(self, stream):
+        import traceback
+        print >>stream, self.__doc__
+        for exc in self.installing_error:
+            traceback.print_exception(exc[0], exc[1], exc[2], file=stream)
+        print >>stream
+    def fail_by_download_error(self):
+        for error in self.installing_error:
+            if error[0] == CannotDownloadError:
+                return True
+        return False
+    def fail_by_user_cancel(self):
+        for error in self.installing_error:
+            if error[0] == UserCancelInstallation:
+                return True
+        return False
     def visible(self):
         return True
 
@@ -78,15 +105,16 @@ class Config:
     import os
     config_dir = os.path.expanduser('~/.config/ailurus/')
     @classmethod
+    def check_permission(cls):
+        cls.make_config_dir()
+        f = open(cls.config_dir + 'this_file_can_be_safely_removed', 'w')
+        f.close()
+    @classmethod
     def make_config_dir(cls):
         import os
         dir = os.path.expanduser('~/.config/ailurus/')
         if not os.path.exists(dir): # make directory
-            try:    os.makedirs(dir)
-            except: pass # directory exists
-    @classmethod
-    def get_config_dir(cls):
-        return cls.config_dir
+            os.makedirs(dir)
     @classmethod
     def init(cls):
         assert not hasattr(cls, 'inited')
@@ -96,14 +124,17 @@ class Config:
         cls.parser = ConfigParser.RawConfigParser()
         # read configuration file if it exists
         cls.make_config_dir()
-        path = cls.get_config_dir() + 'conf'
+        path = cls.config_dir + 'conf'
         if os.path.exists(path):
             cls.parser.read(path)
     @classmethod
     def save(cls):
         cls.make_config_dir()
-        with open(cls.get_config_dir() + 'conf' , 'w') as f:
-            cls.parser.write(f)
+        try:
+            with open(cls.config_dir + 'conf' , 'w') as f:
+                cls.parser.write(f)
+        except:
+            print_traceback()
     @classmethod
     def set_string(cls, key, value):
         assert isinstance(key, str) and key
@@ -149,18 +180,36 @@ class Config:
         value = str(value)
         return value=='True' or value=='true'
     @classmethod
+    def get_custom_appobj_counter_value(cls):
+        try: return cls.get_int('custom_app_count')
+        except: return 0
+    @classmethod
+    def increase_customapp_counter_value(cls):
+        value = cls.get_custom_appobj_counter_value()
+        value += 1
+        cls.set_int('custom_app_count', value)
+    @classmethod
+    def set_do_query_before_install(cls, value):
+        cls.set_bool('do_query_before_install', value)
+    @classmethod
+    def get_do_query_before_install(cls):
+        try: return cls.get_bool('do_query_before_install')
+        except: return True
+    @classmethod
     def set_login_window_background(cls, value):
         'just a cache. value may be wrong. cache the gconf value "/desktop/gnome/background/picture_filename" of user "gdm".'
         cls.set_string('login_window_background', value)
     @classmethod
     def get_login_window_background(cls):
-        return cls.get_string('login_window_background') # please do not catch exception
+        try: return cls.get_string('login_window_background')
+        except: return None # please do not return ''. 
     @classmethod
-    def set_username_of_suggestion_window(cls, value):
-        cls.set_string('username_of_suggestion_window', value)
+    def set_contact(cls, value):
+        cls.set_string('contact', value)
     @classmethod
-    def get_username_of_suggestion_window(cls):
-        try: return cls.get_string('username_of_suggestion_window')
+    def get_contact(cls):
+        try:
+            return cls.get_string('contact')
         except:
             import os
             return os.environ['USER']
@@ -181,12 +230,12 @@ class Config:
         one_day = 3600 * 24
         return now - last_check_time > one_day * 14
     @classmethod
-    def set_synced(cls): # has synchronized latest application data?
-        cls.set_bool('synced', True)
+    def set_last_synced_data_version(cls, value):
+        cls.set_int('last_synced_data_version', value)
     @classmethod
-    def get_synced(cls):
-        try: return cls.get_bool('synced')
-        except: return False
+    def get_last_synced_data_version(cls):
+        try: return cls.get_int('last_synced_data_version')
+        except: return 0
     @classmethod
     def set_use_proxy(cls, value):
         cls.set_bool('use_proxy', value)
@@ -207,6 +256,13 @@ class Config:
     @classmethod
     def get_query_before_exit(cls):
         try:       return cls.get_bool('query_before_exit')
+        except:    return True
+    @classmethod
+    def set_show_agreement(cls, value):
+        cls.set_bool('show_agreement', value)
+    @classmethod
+    def get_show_agreement(cls):
+        try:       return cls.get_bool('show_agreement')
         except:    return True
     @classmethod
     def wget_set_timeout(cls, timeout):
@@ -323,6 +379,15 @@ class Config:
         import os
         return os.path.exists('/etc/arch-release')
     @classmethod
+    def is_Debian(cls):
+        import platform
+        return platform.dist()[0] == 'debian'
+    @classmethod
+    def get_Debian_version(cls):
+        'return "5.*"'
+        import platform
+        return platform.dist()[1]
+    @classmethod
     def is_GNOME(cls):
         if cls.is_XFCE(): return False
         try:
@@ -415,7 +480,7 @@ class ResponseTime:
     def load(cls):
         import os
         try:
-            path = Config.get_config_dir() + 'response_time_3'
+            path = Config.config_dir + 'response_time_3'
             if not os.path.exists(path): return
             with open(path) as f:
                 lines = f.readlines()
@@ -429,7 +494,7 @@ class ResponseTime:
     def save(cls):
         if not cls.changed: return
         try:
-            path = Config.get_config_dir() + 'response_time_3'
+            path = Config.config_dir + 'response_time_3'
             with open(path, 'w') as f:
                 for key, value in cls.map.items():
                     print >>f, key
@@ -480,20 +545,11 @@ def run(command, ignore_error=False):
         if task.returncode and ignore_error == False:
             raise CommandFailError(command, task.returncode)
 
-def pack(D):
-    assert isinstance(D, dict)
-    import StringIO
-    buf = StringIO.StringIO()
-    for k,v in D.items():
-        print >>buf, k
-        print >>buf, v
-    return buf.getvalue()
-
 def packed_env_string():
     import os
     env = dict( os.environ )
     env['PWD'] = os.getcwd()
-    return pack(env)
+    return repr(env)
 
 def daemon():
     import dbus
@@ -558,7 +614,7 @@ def get_output(cmd, ignore_error=False):
     
     import commands
     status, output=commands.getstatusoutput(cmd)
-    if status and not ignore_error: raise CommandFailError(cmd)
+    if status and not ignore_error: raise CommandFailError(cmd, output) # help to fix issue 1092
     return output
     
 class TempOwn:
@@ -691,16 +747,12 @@ def is_pkg_list(packages):
         if package[0]=='-': raise ValueError
         if ' ' in package: raise ValueError
 
-def run_as_root_in_terminal(command):
+def run_as_root_in_terminal(command, ignore_error=False):
     import dbus
     is_string_not_empty(command)
     print '\x1b[1;33m', _('Run command:'), command, '\x1b[m'
 
-    import tempfile
-    t = tempfile.NamedTemporaryFile('w')
-    t.write(command)
-    t.flush()
-    string = 'LANG=C xterm -T "Ailurus Terminal" -e bash %s' % t.name
+    string = 'python "%s/support/term.py" %s' % (A, command)
 
     authenticate()
     try:
@@ -708,7 +760,14 @@ def run_as_root_in_terminal(command):
     except dbus.exceptions.DBusException, e:
         if e.get_dbus_name() == 'cn.ailurus.AccessDeniedError': raise AccessDeniedError(*e.args)
         elif e.get_dbus_name() == 'cn.ailurus.CommandFailError':
-            if not ignore_error: raise CommandFailError(cmd)
+            if not ignore_error:
+                if os.path.exists('/tmp/ailurus_subprocess_dump'): 
+                    dump = open('/tmp/ailurus_subprocess_dump').read()
+                    open('/tmp/ailurus_subprocess_dump', 'w').write('')
+                else: dump = None
+                
+                if dump: raise CommandFailError(command, dump)
+                else: raise CommandFailError(command)
         else: raise
 
 class RPM:
@@ -726,33 +785,31 @@ class RPM:
         cls.__set2 = set()
         import subprocess, os
 
-        TimeStat.begin(_('scan installed packages'))
-        path = A+'/support/dump_rpm_installed.py'
-        task = subprocess.Popen(['python', path],
-            stdout=subprocess.PIPE,
-            )
-        for line in task.stdout:
-            cls.__set1.add(line.strip())
-        task.wait()
-        TimeStat.end(_('scan installed packages'))
+        with TimeStat(_('scan installed packages')):
+            path = A+'/support/dump_rpm_installed.py'
+            task = subprocess.Popen(['python', path],
+                stdout=subprocess.PIPE,
+                )
+            for line in task.stdout:
+                cls.__set1.add(line.strip())
+            task.wait()
         
-        TimeStat.begin(_('scan available packages'))
-        path = A+'/support/dump_rpm_existing_new.py'
-        task = subprocess.Popen(['python', path],
-            stdout=subprocess.PIPE,
-            )
-        for line in task.stdout:
-            cls.__set2.add(line.strip())
-        task.wait()
-        TimeStat.end(_('scan available packages'))
+        with TimeStat(_('scan available packages')):
+            path = A+'/support/dump_rpm_existing_new.py'
+            task = subprocess.Popen(['python', path],
+                stdout=subprocess.PIPE,
+                )
+            for line in task.stdout:
+                cls.__set2.add(line.strip())
+            task.wait()
     @classmethod
     def get_installed_pkgs_set(cls):
         cls.refresh_cache()
-        return cls.__set1
+        return set(cls.__set1)
     @classmethod
     def get_existing_pkgs_set(cls):
         cls.refresh_cache()
-        return cls.__set2
+        return set(cls.__set2)
     @classmethod
     def exist(cls, package_name):
         cls.refresh_cache()
@@ -764,39 +821,58 @@ class RPM:
         return package_name in cls.__set1
     @classmethod
     def install(cls, *package):
-        run_as_root_in_terminal('yum install %s -y' % ' '.join(package))
         cls.cache_changed()
+        run_as_root_in_terminal('yum install %s -y' % ' '.join(package))
     @classmethod
     def install_local(cls, path):
         assert isinstance(path, str)
         import os
         assert os.path.exists(path)
-        run_as_root_in_terminal('yum localinstall --nogpgcheck -y %s' % path)
         cls.cache_changed()
+        run_as_root_in_terminal('yum localinstall "%s" --nogpgcheck -y' % path)
     @classmethod
     def remove(cls, *package):
-        run_as_root_in_terminal('yum remove %s -y' % ' '.join(package))
         cls.cache_changed()
+        run_as_root_in_terminal('yum remove %s -y' % ' '.join(package))
     @classmethod
     def import_key(cls, path):
         assert isinstance(path, str)
         run_as_root_in_terminal('rpm --import %s' % path)
 
+class APTSourceSyntaxError(Exception):
+    pass
+
 class APT:
     fresh_cache = False
     apt_get_update_is_called = False
-    apt_cache = None
+    apt_cache = None # instance of apt.cache.Cache
     @classmethod
     def cache_changed(cls):
         cls.fresh_cache = False
     @classmethod
+    def get_pkg_summary(cls, name):
+        assert isinstance(name, str) and name
+        cls.refresh_cache()
+        return cls.apt_cache[name].summary
+    @classmethod
+    def has_broken_dependency(cls):
+        cls.refresh_cache()
+        try:
+            return bool(cls.apt_cache.broken_count)
+        except AttributeError: # ubuntu hardy
+            return False # not a good solution
+    @classmethod
     def refresh_cache(cls):
         if cls.fresh_cache: return
-        cls.fresh_cache = True
-        TimeStat.begin(_('scan packages'))
-        import apt
-        cls.apt_cache = apt.cache.Cache()
-        TimeStat.end(_('scan packages'))
+        with TimeStat(_('scan packages')):
+            import apt
+            try:
+                cls.apt_cache = apt.cache.Cache()
+                assert cls.apt_cache != None # TODO: how to cope with this error?
+            except SystemError, e: # syntax error in source config
+                raise APTSourceSyntaxError(*e.args)
+            else:
+                cls.fresh_cache = True
     @classmethod
     def get_installed_pkgs_set(cls):
         cls.refresh_cache()
@@ -817,53 +893,75 @@ class APT:
         cls.refresh_cache()
         ret = []
         for pkg in cls.apt_cache:
-            if hasattr(pkg, 'isAutoRemovable'): auto_removable = pkg.isAutoRemovable
+            if hasattr(pkg, 'is_auto_removable'): auto_removable = pkg.is_auto_removable
+            elif hasattr(pkg, 'isAutoRemovable'): auto_removable = pkg.isAutoRemovable # deprecated
             elif pkg.isInstalled and pkg._depcache.IsGarbage(pkg._pkg): auto_removable = True
-            else: auto_removable = True
+            else: auto_removable = False
             
             if auto_removable:
-                ret.append([pkg.name, long(pkg.installedSize), pkg.summary.replace('\n', ' ')])
+                if hasattr(pkg, 'versions'): # recommended
+                    version = pkg.versions[0]
+                    installed_size = version.installed_size
+                    summary = version.summary
+                else: # deprecated
+                    installed_size = pkg.installedSize
+                    summary = pkg.summary
+                ret.append([pkg.name, long(installed_size), summary.replace('\n', ' ')])
         return ret
     @classmethod
     def installed(cls, package_name):
         cls.refresh_cache()
         if not package_name in cls.apt_cache:
             return False
-        return cls.apt_cache[package_name].isInstalled
+        p = cls.apt_cache[package_name]
+        if hasattr(p, 'is_installed'):
+            return p.is_installed # recommended attribute 
+        else:
+            return p.isInstalled # deprecated attribute
     @classmethod
     def exist(cls, package_name):
         cls.refresh_cache()
         return package_name in cls.apt_cache
     @classmethod
     def install(cls, *packages):
+        import dbus
         is_pkg_list(packages)
         cls.apt_get_update()
-        print '\x1b[1;32m', _('Installing packages:'), ' '.join(packages), '\x1b[m'
-        daemon().apt_command('install', ','.join(packages),
-                             packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
         cls.cache_changed()
+        run_as_root_in_terminal('apt-get install %s' % ' '.join(packages))
+#        print '\x1b[1;32m', _('Installing packages:'), ' '.join(packages), '\x1b[m'
+#        try:
+#            daemon().apt_command('install', ','.join(packages),
+#                                 packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
+#        except dbus.exceptions.DBusException, e:
+#            if e.get_dbus_name() == 'cn.ailurus.CannotDownloadError':
+#                raise CannotDownloadError(*packages)
     @classmethod
     def remove(cls, *packages):
         is_pkg_list(packages)
-        print '\x1b[1;31m', _('Removing packages:'), ' '.join(packages), '\x1b[m'
-        daemon().apt_command('remove', ','.join(packages),
-                             packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
         cls.cache_changed()
+        run_as_root_in_terminal('apt-get remove %s' % ' '.join(packages))
+#        print '\x1b[1;31m', _('Removing packages:'), ' '.join(packages), '\x1b[m'
+#        daemon().apt_command('remove', ','.join(packages),
+#                             packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
     @classmethod
     def neet_to_run_apt_get_update(cls):
         cls.apt_get_update_is_called = False
     @classmethod
     def apt_get_update(cls):
         if cls.apt_get_update_is_called == False:
-            daemon().apt_command('update', '', packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
+            run_as_root_in_terminal('apt-get update', ignore_error = True)
+#            daemon().apt_command('update', '', packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
             cls.apt_get_update_is_called = True
             cls.cache_changed()
     @classmethod
     def install_local(cls, *packages):
-        for package in packages:
-            daemon().apt_command('install_local', package,
-                                 packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
         cls.cache_changed()
+        for package in packages:
+            run_as_root('gdebi-gtk "%s"' % package)
+#            run_as_root_in_terminal('dpkg -i "%s"' % package)
+#            daemon().apt_command('install_local', package,
+#                                 packed_env_string(), timeout=3600, dbus_interface='cn.ailurus.Interface')
     @classmethod
     def is_cache_lockable(cls):
         import dbus
@@ -886,35 +984,36 @@ class PACMAN:
         cls.fresh_cache = False
     @classmethod
     def refresh_cache(cls):
-        if getattr(cls, 'fresh_cache', False): return
+        if cls.fresh_cache: return
         cls.fresh_cache = True
         cls.__pkgs = set()
         cls.__allpkgs = set()
-        TimeStat.begin(_('scan installed packages'))
-        import subprocess, os
-        task = subprocess.Popen(['pacman', '-Q'],
-            stdout=subprocess.PIPE,
-            )
-        for line in task.stdout:
-            cls.__pkgs.add(line.split()[0])
-        task.wait()
-        TimeStat.end(_('scan installed packages'))
+        with TimeStat(_('scan installed packages')):
+            import subprocess, os
+            task = subprocess.Popen(['pacman', '-Q'],
+                stdout=subprocess.PIPE,
+                )
+            for line in task.stdout:
+                cls.__pkgs.add(line.split()[0])
+            task.wait()
         
-        TimeStat.begin(_('scan available packages'))
-        task = subprocess.Popen(['pacman', '-Sl'],
-            stdout=subprocess.PIPE,
-            )
-        for line in task.stdout:
-            cls.__allpkgs.add(line.split()[1])
-        task.wait()
-        TimeStat.end(_('scan available packages'))
+        with TimeStat(_('scan available packages')):
+            task = subprocess.Popen(['pacman', '-Sl'],
+                stdout=subprocess.PIPE,
+                )
+            for line in task.stdout:
+                cls.__allpkgs.add(line.split()[1])
+            task.wait()
+    @classmethod
+    def get_installed_pkgs_set(cls):
+        cls.refresh_cache()
+        return set(cls.__pkgs)
     @classmethod
     def get_existing_pkgs_set(cls):
         cls.refresh_cache()
-        return cls.__allpkgs
+        return set(cls.__allpkgs)
     @classmethod
     def installed(cls, package_name):
-        is_pkg_list([package_name])
         cls.refresh_cache()
         return package_name in cls.__pkgs
     @classmethod
@@ -926,23 +1025,21 @@ class PACMAN:
         is_pkg_list(packages)
         if not cls.pacman_sync_called:
             cls.pacman_sync()
-        print '\x1b[1;32m', _('Installing packages:'), ' '.join(packages), '\x1b[m'
-        run_as_root_in_terminal('pacman -S --noconfirm %s' % ' '.join(packages))
         cls.cache_changed()
+        run_as_root_in_terminal('pacman -S %s' % ' '.join(packages))
     @classmethod
     def install_local(cls, path):
         assert isinstance(path, str)
         import os
         assert os.path.exists(path)
-        run_as_root_in_terminal('pacman -U --noconfirm %s' % path)
         cls.cache_changed()
+        run_as_root_in_terminal('pacman -U "%s"' % path)
     @classmethod
     def remove(cls, *packages):
         is_pkg_list(packages)
-        print '\x1b[1;31m', _('Removing packages:'), ' '.join(packages), '\x1b[m'
         packages = [p for p in packages if PACMAN.installed(p)]
-        run_as_root_in_terminal('pacman -R --noconfirm %s' % ' '.join(packages))
         cls.cache_changed()
+        run_as_root_in_terminal('pacman -R %s' % ' '.join(packages))
     @classmethod
     def pacman_sync(cls):
         print '\x1b[1;36m', _('Run "pacman -Sy". Please wait for a few minutes.'), '\x1b[m'
@@ -1009,7 +1106,14 @@ class KillWhenExit:
                 print_traceback()
         cls.task_list = []
 
+class CannotDownloadError(Exception):
+    pass
+
+class UserCancelInstallation(Exception):
+    pass
+
 def download(url, filename):
+    import os
     is_string_not_empty(url)
     assert url[0]!='-'
     is_string_not_empty(filename)
@@ -1020,9 +1124,8 @@ def download(url, filename):
         run("wget --timeout=%(timeout)s --tries=%(tries)s '%(url)s' -O '%(filename)s'"
             %{'timeout':timeout, 'tries':tries, 'url':url, 'filename':filename} )
     except:
-        import os
         if os.path.exists(filename): os.unlink(filename)
-        raise
+        raise CannotDownloadError(url)
     
 def reset_dir():
     import os, sys
@@ -1228,7 +1331,31 @@ class PingThread(threading.Thread):
 def open_web_page(page):
     is_string_not_empty(page)
     notify( _('Opening web page'), page)
-    KillWhenExit.add('xdg-open %s'%page)
+    KillWhenExit.add('xdg-open "%s"'%page)
+
+def url_button(url, text=None): # put here because of open_web_page :(
+    if text == None: text = url
+    import gtk, pango
+    def func(w, url): open_web_page(url)
+    def enter(w, e): 
+        try: w.get_window().set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
+        except AttributeError: pass
+    def leave(w, e): 
+        try: w.get_window().set_cursor(gtk.gdk.Cursor(gtk.gdk.LEFT_PTR))
+        except AttributeError: pass
+    label = gtk.Label()
+    label.set_markup("<span color='blue'><u>%s</u></span>" % text)
+    font = pango.FontDescription('Georgia')
+    label.modify_font(font)
+    button = gtk.Button()
+    button.connect('clicked', func, url)
+    button.connect('enter-notify-event', enter)
+    button.connect('leave-notify-event', leave)
+    button.set_relief(gtk.RELIEF_NONE)
+    button.add(label)
+    align = gtk.Alignment(0, 0.5)
+    align.add(button)
+    return align
 
 def report_bug(*w):
     page = 'http://code.google.com/p/ailurus/issues/entry'
@@ -1238,7 +1365,7 @@ def report_bug(*w):
 import os
 class firefox:
     support = False # do not use this class if support is False
-    preference_dir = None # form: ~/.mozilla/firefox/5y7bqw54.default/
+    preference_dir = None # form: $HOME/.mozilla/firefox/5y7bqw54.default/
     extensions_dir = None # form: preference_dir + 'extensions/'
     prefs_js_path = None # form: preference_dir + 'prefs.js'
     pattern1 = None # regexp
@@ -1250,6 +1377,9 @@ class firefox:
     def init(cls):
         'may raise exception'
         ini_file = os.path.expanduser('~/.mozilla/firefox/profiles.ini')
+        if not os.path.exists(ini_file):
+            print '[x] Firefox profiles.ini missing'
+            return
         with open(ini_file) as f:
             lines = f.readlines()
         for i, line in enumerate(lines):
@@ -1481,18 +1611,19 @@ class R:
         for e in url_list:
             assert isinstance(e, str), e
             assert e.startswith('http://') or e.startswith('https://') or e.startswith('ftp://')
+        self.url = self.delete_duplicate(url_list)
+
         #check size
         if size!=None:
             assert size>0
             assert isinstance(size, int) or isinstance(size, long), size
+        self.size = size
         #check hash
         if hash:
             assert isinstance(hash, str), hash
             assert len(hash)==40, hash
-
-        self.url = self.delete_duplicate(url_list)
-        self.size = size
         self.hash = hash
+
         if filename:
             self.filename = filename
         else:
@@ -1512,13 +1643,6 @@ class R:
             except:
                 pass
         return False
-    @classmethod
-    def create_tmp_dir(cls):
-        dir = '/var/cache/ailurus/'
-        import os
-        if not os.path.exists(dir):
-            run_as_root('mkdir %s -p'%dir)
-        own_by_user(dir)
     def check(self, path):
         if self.size:
             import os
@@ -1533,21 +1657,20 @@ class R:
             print _('Good.')
     def download(self):
         self.sort()
-        dest = '/var/cache/ailurus/'+self.filename
+        dest = '/tmp/'+self.filename
         import os, sys
         assert isinstance(self.sorted_url, list)
         for i, url in enumerate(self.sorted_url):
             print '\x1b[1;36m', _('Using mirror %(i)s. There are a total of %(total)s mirrors.') % {'i' : i+1, 'total' : len(self.sorted_url)}, '\x1b[m'
             assert isinstance(url, str)
             try:
-                R.create_tmp_dir()
                 download(url, dest)
                 self.check(dest)
                 return dest
             except:
                 print_traceback()
         
-        raise CommandFailError(self.url)
+        raise CannotDownloadError(self.url)
 
 class ETCEnvironment:
     def __init__(self):
@@ -1651,125 +1774,206 @@ def window_manager_name():
             name = win.property_get("_NET_WM_NAME")[2]
         except TypeError, exc:
             pass
+        except AttributeError: #'str' object has no attribute 'property_get'
+            pass
     return name
 
 class FedoraReposSection:
-    def __init__(self, lines):
-        for line in lines: assert isinstance(line, str) and line.endswith('\n')
-        assert lines[0].startswith('['), lines
-        
-        self.name = lines[0].strip()[1:-1]
-        self.lines = lines
+    def _set(self, lines):
+        self.name = lines[0][1:-1]
 
-    def is_fedora_repos(self):
-        for line in self.lines:
-            if line.startswith('gpgkey=') and 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-$basearch' in line:
-                return True
+        self.dict = {}
+        for l in lines[1:]:
+            try:
+                k, v = l.split('=', 1)
+            except ValueError: # no '='
+                self.dict[l] = ''
+            else:
+                self.dict[k] = v
+        
+    def __init__(self, lines, parent):
+        assert isinstance(parent, FedoraReposFile)
+        self.parent = parent # for delete section
+        assert isinstance(lines, list) and lines[0].startswith('[')
+        for l in lines: assert not l.endswith('\n')
+        self._set(lines)
+    
+    def set_new_content_as(self, new_content):
+        assert isinstance(new_content, str)
+        lines = new_content.split('\n')
+        lines = [l for l in lines if l]
+        self._set(lines)
+    
+    def to_string(self):
+        import StringIO
+        stream = StringIO.StringIO()
+        print >>stream, '[%s]' % self.name
+        for k, v in self.dict.items():
+            print >>stream, '%s=%s' % (k, v)
+        return stream.getvalue()
+        
+    def write(self, stream):
+        stream.write(self.to_string())
+
+    def is_main_repos(self):
+        if 'gpgkey' in self.dict:
+            v = self.dict['gpgkey']
+            return v == 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-$basearch'
         return False
 
-    def part2_of(self, line):
-        for word in ['/releases/', '/development/', '/updates/']:
-            pos = line.find(word)
-            if pos != -1:
-                return line[pos:]
-        else:
-            raise CommandFailError('No /releases/, /development/ or /updates/ found.', self.lines)
-
-    def comment_line(self, i):
-        if not self.lines[i].startswith('#'):
-            self.lines[i] = '#' + self.lines[i] 
-
-    def uncomment_line(self, i):
-        if self.lines[i].startswith('#'):
-            self.lines[i] = self.lines[i][1:] 
-
-    def change_baseurl(self, new_url):
-        for i, line in enumerate(self.lines):
-            if 'mirrorlist=' in line:
-                self.comment_line(i)
-            elif 'baseurl=' in line:
-                self.uncomment_line(i)
-        for i, line in enumerate(self.lines):
-            if line.startswith('baseurl='):
-                self.lines[i] = 'baseurl=' + new_url + self.part2_of(line)
-
-    def write_to_stream(self, stream):
-        stream.writelines(self.lines)
-    
     def enabled(self):
-        return 'enabled=1\n' in self.lines
+        if 'enabled' in self.dict and self.dict['enabled']:
+            v = self.dict['enabled']
+            return v == '1' or v == 'True' or v == 'true'
+        else:
+            return False
+
+    def set_enabled(self, value):
+        if value: self.dict['enabled'] = '1'
+        else: self.dict['enabled'] = '0'
+        
+    def delete(self):
+        self.parent.delete_section(self)
 
 class FedoraReposFile:
     def __init__(self, path):
-        assert isinstance(path, str) and path.endswith('.repo')
-
+        assert isinstance(path, str)
         self.path = path
-
         self.sections = []
-        with open(path) as f:
-            contents = f.readlines()
-        while contents[0].startswith('#') or contents[0].strip() == '': # skip comments and blank lines at the beginning
-            del contents[0]
-        lines = []
-        for line in contents:
-            if line.startswith('[') and lines:
-                section = FedoraReposSection(lines)
-                self.sections.append(section)
-                lines = []
-            lines.append(line)
-        section = FedoraReposSection(lines)
-        self.sections.append(section)
+        if os.path.exists(path):
+            with open(path) as f:
+                contents = f.readlines()
+            contents = [l for l in contents if not l.startswith('#') and l.strip()!=''] # skip comments and blank lines at the beginning
+            contents = [l.strip() for l in contents] # strip \n
+            lines = []
+            for line in contents:
+                if line.startswith('[') and lines: # a new section starts
+                    section = FedoraReposSection(lines, parent=self)
+                    self.sections.append(section)
+                    lines = []
+                lines.append(line)
+            section = FedoraReposSection(lines, parent=self)
+            self.sections.append(section)
 
-    def change_baseurl(self, new_url):
-        changed = False
-        for section in self.sections:
-            if section.is_fedora_repos():
-                section.change_baseurl(new_url)
-                changed = True
-
-        if not changed: return
-        with TempOwn(self.path):
-            with open(self.path, 'w') as f:
-                for section in self.sections:
-                    section.write_to_stream(f)
+    def filename(self):
+        return os.path.basename(self.path)
 
     @classmethod
-    def all_repo_paths(cls):
+    def full_path(cls, filename):
+        assert isinstance(filename, str) and filename and not ' ' in filename
+        return '/etc/yum.repos.d/%s' % filename
+
+    @classmethod
+    def all_repo_objs(cls):
         import glob
-        return glob.glob('/etc/yum.repos.d/*.repo')
+        paths = glob.glob('/etc/yum.repos.d/*.repo')
+        return [FedoraReposFile(p) for p in paths]
+        
+    def write(self):
+        if self.sections:
+            with TempOwn(self.path):
+                with open(self.path, 'w') as f:
+                    for s in self.sections:
+                        s.write(f)
+        else: # no section. remove file
+            if os.path.exists(self.path):
+                run_as_root('rm -f "%s"' % self.path)
 
-    @classmethod
-    def all_repo_objects(cls):
-        ret = []
-        for path in cls.all_repo_paths():
-            obj = FedoraReposFile(path)
-            ret.append(obj)
-        return ret
+    def delete_section(self, section):
+        assert section.parent == self
+        assert section in self.sections
+        self.sections.remove(section)
+
+    def get_section(self, name):
+        assert isinstance(name, str)
+        for s in self.sections:
+            if s.name == name: return s
+        return None
+    
+    def has_section(self, name):
+        assert isinstance(name, str)
+        for s in self.sections:
+            if s.name == name: return True
+        return False
+
+    def append_section(self, section):
+        assert isinstance(section, FedoraReposSection)
+        assert not section in self.sections
+        self.sections.append(section)
 
 class TimeStat:
     __open_stat_names = set()
     __begin_time = {}
     result = {}
-    @classmethod
-    def begin(cls, name):
+    def __init__(self, name):
         assert isinstance(name, str) and name
-        assert name not in cls.__open_stat_names
-        cls.__open_stat_names.add(name)
+        assert name not in TimeStat.__open_stat_names, name
+        TimeStat.__open_stat_names.add(name)
         import time
-        cls.__begin_time[name] = time.time()
-    @classmethod
-    def end(cls, name):
+        TimeStat.__begin_time[name] = time.time()
+        self.name = name
+    def __enter__(self):
+        return None
+    def __exit__(self, type, value, traceback):
+        name = self.name
         assert isinstance(name, str) and name
-        assert name in cls.__open_stat_names
+        assert name in TimeStat.__open_stat_names
         import time
-        length = time.time() - cls.__begin_time[name]
-        cls.result[name] = length
-        cls.__open_stat_names.remove(name)
+        length = time.time() - TimeStat.__begin_time[name]
+        TimeStat.result[name] = length
+        TimeStat.__open_stat_names.remove(name)
     @classmethod
     def clear(cls):
         cls.__open_stat_names.clear()
         cls.__begin_time.clear()
         cls.result.clear()
+
+def add_linuxskill(linux_skill, how_to_contact_the_submitter=None):
+    assert isinstance(linux_skill, (str, unicode)) and linux_skill
+    assert how_to_contact_the_submitter is None or isinstance(how_to_contact_the_submitter, (str, unicode))
+
+    import httplib, urllib
+    params = {'linux_skill': linux_skill}
+    if how_to_contact_the_submitter:
+        params['how_to_contact_the_submitter'] = how_to_contact_the_submitter
+    params = urllib.urlencode(params)
+    headers = {'Content-type': 'application/x-www-form-urlencoded',
+               'Accept': 'text/plain'}
+    connection = httplib.HTTPConnection('we-like-ailurus.appspot.com')
+    connection.request('POST', '/add_linuxskill', params)
+    response = connection.getresponse()
+    assert response.status == 200, response.status
+    connection.close()
+
+def add_suggestion(suggestion, how_to_contact_the_submitter=None):
+    assert isinstance(suggestion, (str, unicode)) and suggestion
+    assert how_to_contact_the_submitter is None or isinstance(how_to_contact_the_submitter, (str, unicode))
+    
+    import httplib, urllib
+    params = {'suggestion': suggestion}
+    if how_to_contact_the_submitter:
+        params['how_to_contact_the_submitter'] = how_to_contact_the_submitter
+    params = urllib.urlencode(params)
+    headers = {'Content-type': 'application/x-www-form-urlencoded',
+               'Accept': 'text/plain'}
+    connection = httplib.HTTPConnection('we-like-ailurus.appspot.com')
+    connection.request('POST', '/add_suggestion', params)
+    response = connection.getresponse()
+    assert response.status == 200, response.status
+    connection.close()
+
+def debian_installation_command(package_names):
+    return 'apt-get install ' + package_names
+
+def fedora_installation_command(package_names):
+    return 'yum install ' + package_names
+
+def archlinux_installation_command(package_names):
+    return 'pacman -S ' + package_names
+
+def useBASH():
+    import os
+    return os.environ['SHELL'] == '/bin/bash'
 
 def get_ailurus_version():
     import os
@@ -1782,6 +1986,106 @@ def get_ailurus_release_date():
     path = A+'/version'
     info = os.stat(path)
     return time.strftime('%Y-%m-%d', time.gmtime(info.st_mtime))
+
+def now(): # return current time in seconds
+    import time
+    return long(time.time())
+
+def time_string(time):
+    import datetime
+    return datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M')
+
+class Snapshot:
+    def __init__(self, _dict):
+        assert isinstance(_dict, dict) and \
+               'time' in _dict and \
+               'comment' in _dict and \
+               'pkgs' in _dict
+        self.dict = _dict
+    
+    def remove(self):
+        os.unlink(self.path())
+    
+    @classmethod
+    def new_snapshot(cls):
+        dict = {}
+        dict['time'] = now()
+        dict['comment'] = ''
+        BACKEND.cache_changed() # if the system is changed outside ...
+        dict['pkgs'] = BACKEND.get_installed_pkgs_set() # set
+        s = Snapshot(dict)
+        s.write()
+        return s
+    
+    def path(self):
+        return Config.config_dir + 'snapshot_%d' % self.time()
+    
+    def time(self):
+        return self.dict['time']
+
+    def comment(self):
+        return self.dict['comment']
+
+    def set_comment(self, new_comment):
+        assert isinstance(new_comment, str)
+        self.dict['comment'] = new_comment.replace('\n', ' ').strip()
+        self.write()
+    
+    def write(self):
+        with open(self.path(), 'w') as f:
+            for k,v in self.dict.items():
+                if k == 'pkgs':
+                    v = ','.join(list(v))
+                print >>f, '%s=%s' % (k,v)
+    
+    @classmethod
+    def read(cls, path):
+        with open(path) as f:
+            lines = f.readlines()
+        lines = [l.strip() for l in lines]
+        lines = [l for l in lines if l]
+        dict = {}
+        for line in lines:
+            k, v = line.split('=', 1)
+            if k == 'pkgs':
+                if v: v = set(v.split(','))
+                else: v = set()
+            elif k == 'time': v = long(v)
+            dict[k] = v
+        return Snapshot(dict)
+
+    def difference(self):
+        current = BACKEND.get_installed_pkgs_set()
+        self_pkgs = self.dict['pkgs']
+        new_installed = current.difference(self_pkgs)
+        new_removed = self_pkgs.difference(current)
+        return new_installed, new_removed
+    
+    @classmethod
+    def list_snapshots(cls):
+        ret = []
+        import glob
+        paths = glob.glob(Config.config_dir + 'snapshot_*')
+        for p in paths:
+            filename = os.path.basename(p)
+            assert filename.startswith('snapshot_')
+            time = long(filename[9:])
+            ret.append(time)
+        return ret
+    
+    @classmethod
+    def get_snapshot_at(cls, time):
+        path = Config.config_dir + 'snapshot_%s' % time
+        return cls.read(path)
+    
+    @classmethod
+    def all_snapshots(cls):
+        ret = []
+        import glob
+        paths = glob.glob(Config.config_dir + 'snapshot_*')
+        for p in paths:
+            ret.append(cls.read(p))
+        return ret
 
 try:
     AILURUS_VERSION = get_ailurus_version()
@@ -1809,8 +2113,10 @@ atexit.register(KillWhenExit.kill_all)
 atexit.register(drop_priviledge)
 try:
     firefox.init()
-    atexit.register(firefox.save_user_prefs)
-except: print_traceback()
+    if firefox.support:
+        atexit.register(firefox.save_user_prefs)
+except:
+    print_traceback()
 
 try:
     import pynotify
@@ -1825,25 +2131,52 @@ YLMF = Config.is_YLMF()
 DEEPIN = Config.is_Deepin()
 FEDORA = Config.is_Fedora()
 ARCHLINUX = Config.is_ArchLinux()
+DEBIAN = Config.is_Debian()
 if UBUNTU:
+    DISTRIBUTION = 'ubuntu'
     VERSION = Config.get_Ubuntu_version()
+    BACKEND = APT
+    installation_command_backend = debian_installation_command
 elif MINT:
+    DISTRIBUTION = 'ubuntu'
     UBUNTU_DERIV = True
     VERSION = Config.get_Mint_version() # VERSION is in ['5', '6', '7', '8', '9', '10']
     VERSION = ['hardy', 'intrepid', 'jaunty', 'karmic', 'lucid', 'maverick'][int(VERSION)-5]
+    BACKEND = APT
+    installation_command_backend = debian_installation_command
 elif YLMF:
+    DISTRIBUTION = 'ubuntu'
     UBUNTU_DERIV = True
     VERSION = Config.get_YLMF_version()
+    BACKEND = APT
+    installation_command_backend = debian_installation_command
 elif DEEPIN:
+    DISTRIBUTION = 'ubuntu'
     UBUNTU_DERIV = True
     VERSION = Config.get_Deepin_version()
+    BACKEND = APT
+    installation_command_backend = debian_installation_command
 elif FEDORA:
+    DISTRIBUTION = 'fedora'
     VERSION = Config.get_Fedora_version()
+    BACKEND = RPM
+    installation_command_backend = fedora_installation_command
 elif ARCHLINUX:
+    DISTRIBUTION = 'archlinux'
     VERSION = '' # ArchLinux has no version -_-b
+    BACKEND = PACMAN
+    installation_command_backend = archlinux_installation_command
+elif DEBIAN:
+    DISTRIBUTION = 'debian'
+    VERSION = Config.get_Debian_version()
+    BACKEND = APT
+    installation_command_backend = debian_installation_command
 else:
-    print _('Your Linux distribution is not supported. :(')
+    # This Linux distribution is not supported. :(
+    DISTRIBUTION = ''
     VERSION = ''
+    BACKEND = None
+    installation_command_backend = None
 
 GNOME = False
 KDE = False
@@ -1864,3 +2197,11 @@ else:
     GNOME = Config.is_GNOME()
     KDE = Config.is_KDE()
     XFCE = Config.is_XFCE()
+if GNOME:
+    DESKTOP = 'gnome'
+elif KDE:
+    DESKTOP = 'kde'
+elif XFCE:
+    DESKTOP = 'xfce'
+else:
+    DESKTOP = ''

@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -43,11 +43,13 @@ class GConfCheckButton(gtk.CheckButton):
         self.connect('toggled', self.__toggled)
 
 class GConfComboBox(gtk.HBox):
-    def __init__(self, key, values_shown, values_gconf, tooltip = None):
+    def __init__(self, key, values_shown, values_gconf, tooltip = None, callback = None):
         gtk.HBox.__init__(self, False, 10)
         
         self.key = key
         self.values_gconf = values_gconf
+        self.callback = callback
+        if self.callback: assert callable(self.callback)
         
         combo = gtk.combo_box_new_text()
         if not tooltip: tooltip = _('GConf key: ')+key
@@ -70,6 +72,7 @@ class GConfComboBox(gtk.HBox):
         import gconf
         g = gconf.client_get_default()
         g.set_string(self.key, value)
+        if self.callback: self.callback(value)
 
 class GConfTextEntry(gtk.HBox):
     def __value_changed(self, *w): 
@@ -118,7 +121,7 @@ class GConfShortcutKeyEntry(gtk.HBox):
 
     def __clear_entry_content(self, *w):        
         self.command_entry.set_text('')
-        self.shortcut_entry.set_text('')
+        self.shortcut_entry.set_text('disabled')
         
     def __init__(self, number):
         is_string_not_empty(number)
@@ -129,15 +132,13 @@ class GConfShortcutKeyEntry(gtk.HBox):
 
         self.number = number
         self.command_entry = gtk.Entry()
-        self.command_entry.set_tooltip_text(
-            _('The command which will be run.') + _('\nGConf key: ') + '/apps/metacity/keybinding_commands/' + self.number)
+        self.command_entry.set_tooltip_text(_('GConf key: ') + '/apps/metacity/keybinding_commands/' + self.number)
         value = g.get_string('/apps/metacity/keybinding_commands/'+number)
         if value: self.command_entry.set_text(value)
         self.command_entry.connect('changed', self.__entry_value_changed)
 
         self.shortcut_entry = gtk.Entry()
-        self.shortcut_entry.set_tooltip_text(
-            _('The shortcut key.') + _('\nGConf key: ') + '/apps/metacity/global_keybindings/run_' + self.number)
+        self.shortcut_entry.set_tooltip_text(_('GConf key: ') + '/apps/metacity/global_keybindings/run_' + self.number)
         self.shortcut_entry.connect('grab-focus', self.grab_key)
         value = g.get_string('/apps/metacity/global_keybindings/run_'+number)
         if value: self.shortcut_entry.set_text(value)
@@ -184,13 +185,23 @@ class ImageChooser(gtk.Button):
         child = self.get_child()
         if child: self.remove(child)
         
-        if image_path:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(image_path).scale_simple(self.width, self.height, gtk.gdk.INTERP_HYPER)
+        if image_path and os.path.exists(image_path):
+            self.pixbuf = gtk.gdk.pixbuf_new_from_file(image_path).scale_simple(self.width, self.height, gtk.gdk.INTERP_HYPER)
         else:
-            pixbuf = blank_pixbuf(self.width, self.height)
-        self.add(gtk.image_new_from_pixbuf(pixbuf))
+            self.pixbuf = blank_pixbuf(self.width, self.height)
+        self.add(gtk.image_new_from_pixbuf(self.pixbuf))
         self.show_all()
-
+    def display_pixbuf(self, pixbuf):
+        'If image_path is none, then show blank.'
+        child = self.get_child()
+        if child: self.remove(child)
+        
+        if pixbuf:
+            self.pixbuf = pixbuf.scale_simple(self.width, self.height, gtk.gdk.INTERP_HYPER)
+        else:
+            self.pixbuf = blank_pixbuf(self.width, self.height)
+        self.add(gtk.image_new_from_pixbuf(self.pixbuf))
+        self.show_all()
     def __init__(self, default_dir, width, height, tooltip=None):
         assert isinstance(default_dir, str) and default_dir
         assert isinstance(width, int)
@@ -266,7 +277,70 @@ class GConfHScale(gtk.HScale):
         import gconf
         g = gconf.client_get_default()
         g.set_int(self.gconf_key, new_value)
-        
+
+class Set:
+    array = (
+              (D+'sora_icons/s_nautilus.png', _('Nautilus'), 'nautilus', ), 
+              (D+'sora_icons/s_desktop.png', _('Desktop'), 'desktop', ), 
+              (D+'umut_icons/s_window.png', _('Window effect'), 'window', ), 
+              (D+'umut_icons/s_menu.png', _('Menu'), 'menu', ), 
+              (D+'umut_icons/s_icon.png', _('Icon'), 'icon', ), 
+              (D+'umut_icons/s_font.png', _('Font'), 'font', ), 
+              (D+'umut_icons/s_session.png', _('GNOME Session'), 'session', ), 
+              (D+'umut_icons/s_panel.png', _('GNOME Panel'), 'panel', ),
+              (D+'umut_icons/s_memory.png', _('Memory'), 'memory', ), 
+              (D+'umut_icons/s_terminal.png', _('Terminal'), 'terminal', ),
+              (D+'umut_icons/s_sound.png', _('Sound'), 'sound', ), 
+              (D+'umut_icons/s_power.png', _('Power management'), 'power', ),
+              (D+'umut_icons/s_update.png', _('Update'), 'update', ),
+              (D+'umut_icons/s_restriction.png', _('Restriction'), 'restriction', ),
+              (D+'umut_icons/s_shortcutkey.png', _('Shortcut key'), 'shortcut', ),
+              (D+'sora_icons/s_firefox.png', _('Configure Firefox'), 'firefox', ),
+              (D+'umut_icons/s_login_window.png', _('Login window'), 'login_window', ),
+              (D+'umut_icons/s_compression.png', _('Compression'), 'compression', ),
+              (D+'umut_icons/s_gedit.png', _('GEdit'), 'gedit', ),
+              (D+'umut_icons/s_screensaver.png', _('Screensaver'), 'screensaver', ),
+    )
+    valid_categories = [item[2] for item in array]
+    category = None # string or list_of_string
+    title = None # string
+    content = None # gtk.Container
+    @classmethod
+    def category_list(cls):
+        if isinstance(cls.category, str):
+            return [cls.category]
+        else:
+            return cls.category
+    @classmethod
+    def f(cls): # must override, return gtk.Container
+        raise NotImplementedError
+    @classmethod
+    def get_content(cls):
+        if cls.content is None:
+            cls.content = gtk.VBox(False, 5)
+            cls.content.set_border_width(5)
+            cls.content.pack_start(title_label(cls.title), False)
+            cls.content.pack_start(cls.f(), False)
+        return cls.content
+    @classmethod
+    def check(cls):
+        assert cls.category
+        if isinstance(cls.category, str):
+            assert cls.category in cls.valid_categories
+        elif isinstance(cls.category, list):
+            for c in cls.category:
+                assert c in cls.valid_categories
+        else:
+            raise TypeError
+    @classmethod
+    def contain(cls, another_category):
+        if isinstance(cls.category, str):
+            return cls.category == another_category
+        return another_category in cls.category
+    @classmethod
+    def visible(cls):
+        return True
+    
 class Setting(gtk.VBox):
     def __title(self, text):
         label = gtk.Label()

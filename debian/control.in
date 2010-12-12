@@ -1,0 +1,28 @@
+Source: ailurus
+Section: utils
+Priority: optional
+Maintainer: Aron Xu <happyaron.xu@gmail.com>
+Build-Depends: cdbs, debhelper (>= 5), python (>= 2.5), python-support, python-distutils-extra
+Build-Depends-Indep: autotools-dev, gettext
+Standards-Version: 3.8.4
+Homepage: http://ailurus.googlecode.com/
+
+Package: ailurus
+Architecture: all
+_Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome | policykit-gnome | policykit-kde, python-gnomekeyring | python-gnome2-desktop, gdebi
+_hardy: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-gnome, python-gnome2-desktop, gdebi
+_jaunty: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-gnome | policykit-kde, python-gnome2-desktop, gdebi
+_karmic: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome, python-gnomekeyring, gdebi
+_lucid: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome | polkit-kde-1, python-gnomekeyring, gdebi
+_maverick: ${shlibs:Depends}, ${misc:Depends}, python, python-gtk2, python-notify, python-vte, python-apt, python-gobject, python-dbus, procps, unzip, policykit-1-gnome | polkit-kde-1, python-gnomekeyring, gdebi
+Description: a simple application installer and GNOME tweaker
+ Ailurus is simple application installer and GNOME tweaker, which aims at making Linux easier to use.
+ .
+ Features:
+  * Help users learn some Linux skills
+  * Install some nice applications
+  * Enable some third party repositories
+  * Display basic hardware information
+  * Clean APT cache
+  * Backup and recover APT status
+  * Change GNOME settings 

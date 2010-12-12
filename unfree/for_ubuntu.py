@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -27,63 +26,58 @@ from libapp import *
 assert UBUNTU or UBUNTU_DERIV
 from ubuntu.third_party_repos import _repo
 
-worldofpadman = 'ftp://ftp.snt.utwente.nl/pub/games/worldofpadman/linux/worldofpadman.run'
-worldofpadman_patch = 'ftp://ftp.snt.utwente.nl/pub/games/worldofpadman/linux/wop_patch_1_2.run'
-realplayer = 'http://software-dl.real.com/079f1e1c74ca25924402/unix/RealPlayer11GOLD.rpm'
-eset_antivirus_32 = 'http://download.eset.com/special/eav_linux/ueav.i386.linux'
-eset_antivirus_64 = 'http://download.eset.com/special/eav_linux/ueav.x86_64.linux'
-google_earch = 'http://dl.google.com/earth/client/current/GoogleEarthLinux.bin'
-google_chrome_32 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_i386.rpm'
-google_chrome_64 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
-alipay = 'http://blog.alipay.com/wp-content/2008/10/aliedit.tar.gz'
-amenace = 'http://www.viewizard.com/download/amenace12.tar.bz2'
-hittex = 'http://plutothesis.googlecode.com/files/PlutoThesis_UTF8_1.9.2.20090424.zip'
-eioffice = 'http://evermoresw.com.cn/EverMore/EIOPersonal/EIOffice_Personal_Lin.tar.gz'
-eioffice_clipart = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Clipart.tar.gz'
-eioffice_help = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_HelpFiles.tar.gz'
-eioffice_scienceeditor = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_ScienceEditorImages.tar.gz'
-eioffice_templates = 'http://evermoresw.com.cn/EverMore/EIOPersonal/Resource/EIOffice_Templates.tar.gz'
-adobe_repos_rpm = 'http://linuxdownload.adobe.com/linux/i386/adobe-release-i386-1.0-1.noarch.rpm'
-rpmfusion_repos_free = 'http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm'
-rpmfusion_repos_nonfree = 'http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm'
-nvidia_32 = 'ftp://download.nvidia.com/XFree86/Linux-x86/195.36.24/NVIDIA-Linux-x86-195.36.24-pkg1.run'
-nvidia_64 = 'ftp://download.nvidia.com/XFree86/Linux-x86_64/195.36.24/NVIDIA-Linux-x86_64-195.36.24-pkg2.run'
+class urls:
+    eset_antivirus_32 = 'http://download.eset.com/special/eav_linux/ueav.i386.linux'
+    eset_antivirus_64 = 'http://download.eset.com/special/eav_linux/ueav.x86_64.linux'
+    google_earch = 'http://dl.google.com/earth/client/current/GoogleEarthLinux.bin'
+    google_chrome_32 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_i386.deb'
+    google_chrome_64 = 'http://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb'
+    alipay = 'http://blog.alipay.com/wp-content/2008/10/aliedit.tar.gz'
+    amenace = 'http://www.viewizard.com/download/amenace12.tar.bz2'
+    hittex = 'http://plutothesis.googlecode.com/files/PlutoThesis_UTF8_1.9.2.20090424.zip'
+    nvidia_32 = 'ftp://download.nvidia.com/XFree86/Linux-x86/195.36.24/NVIDIA-Linux-x86-195.36.24-pkg1.run'
+    nvidia_64 = 'ftp://download.nvidia.com/XFree86/Linux-x86_64/195.36.24/NVIDIA-Linux-x86_64-195.36.24-pkg2.run'
+    adobeair = 'http://airdownload.adobe.com/air/lin/download/latest/adobeair.deb'
+    picasa_32 = 'http://dl.google.com/linux/deb/pool/non-free/p/picasa/picasa_3.0-current_i386.deb'
+    picasa_64 = 'http://dl.google.com/linux/deb/pool/non-free/p/picasa/picasa_3.0-current_amd64.deb'
+    truecrypt32 = 'http://www.truecrypt.org/download/truecrypt-7.0-linux-x86.tar.gz'
+    truecrypt64 = 'http://www.truecrypt.org/download/truecrypt-7.0-linux-x64.tar.gz'
 
-class Alice(_path_lists):
-    __doc__ = _('Alice: A new way to learn programming')
-    detail = _('A storytelling application, especially appropriate for middle school students.')
-    download_url = 'http://www.alice.org/' 
-    category = 'education'
-    def __init__(self):
-        self.dir = '/opt/Alice 2.2'
-        self.shortcut = '/usr/share/applications/alice.desktop'
-        self.paths = [ self.dir, self.shortcut ]
-    def install(self):
-        if is32():
-            f = R(
-['http://tdt.sjtu.edu.cn/S/Alice2.2b_i386.tar.bz2',],
-296544228, '0c6340a5b52d72abc12c394561d61c3ccba21ca7').download()
-        else:
-            f = R(
-['http://tdt.sjtu.edu.cn/S/Alice2.2b_x86_64.tar.bz2',],
-296519582, '7558fa7f22d13f8d18671b3efc44374541c5a506').download()
-
-        import os
-        if not os.path.exists('/opt'):
-            run_as_root('mkdir /opt')
-        own_by_user('/opt')
-        with Chdir('/opt'):
-            run('tar jxf '+f)
-            assert os.path.exists(self.dir)
-            create_file(self.shortcut, '''[Desktop Entry]
-Name=Alice
-Exec=bash "/opt/Alice 2.2/Required/alice.sh"
-Path=/opt/Alice 2.2/Required/
-Encoding=UTF-8
-StartupNotify=true
-Terminal=false
-Type=Application
-Categories=Education;Science; ''')
+#class Alice(_path_lists):
+#    __doc__ = _('Alice: A new way to learn programming')
+#    detail = _('A storytelling application, especially appropriate for middle school students.')
+#    download_url = 'http://www.alice.org/' 
+#    category = 'education'
+#    def __init__(self):
+#        self.dir = '/opt/Alice 2.2'
+#        self.shortcut = '/usr/share/applications/alice.desktop'
+#        self.paths = [ self.dir, self.shortcut ]
+#    def install(self):
+#        if is32():
+#            f = R(
+#['http://tdt.sjtu.edu.cn/S/Alice2.2b_i386.tar.bz2',],
+#296544228, '0c6340a5b52d72abc12c394561d61c3ccba21ca7').download()
+#        else:
+#            f = R(
+#['http://tdt.sjtu.edu.cn/S/Alice2.2b_x86_64.tar.bz2',],
+#296519582, '7558fa7f22d13f8d18671b3efc44374541c5a506').download()
+#
+#        import os
+#        if not os.path.exists('/opt'):
+#            run_as_root('mkdir /opt')
+#        own_by_user('/opt')
+#        with Chdir('/opt'):
+#            run('tar jxf '+f)
+#            assert os.path.exists(self.dir)
+#            create_file(self.shortcut, '''[Desktop Entry]
+#Name=Alice
+#Exec=bash "/opt/Alice 2.2/Required/alice.sh"
+#Path=/opt/Alice 2.2/Required/
+#Encoding=UTF-8
+#StartupNotify=true
+#Terminal=false
+#Type=Application
+#Categories=Education;Science; ''')
 
 class AliPayFirefoxPlugin(I):
     __doc__ = _('Alipay ( Zhi Fu Bao ) security plugin for Firefox')
@@ -269,47 +263,8 @@ class Google_Chrome(I):
     		APT.remove('google-chrome-beta')
         APT.remove('google-chrome-stable')
 
-class EIOffice(I):
-    __doc__ = _('Evermore Integrated Office 2009 free version')
-    detail = _('It is able to edit text, spreadsheets, and slides.')
-    download_url = 'http://www.evermoresw.com.cn/webch/download/downEIOPersonal.jsp'
-    category='business'
-    Chinese = True
-    def visible(self): # EIOffice website is offline :(
-        return False
-    def install(self):
-        with Chdir('/tmp'):
-            f = R(urls.eioffice).download()
-            run('tar xf %s' % f)
-            run('chmod a+x EIOffice_Personal_Lin/setup')
-            run_as_root("EIOffice_Personal_Lin/setup")
-            
-            msgs = ( 
-                     _('Install clipboard arts'),
-                     _('Install help files'),
-                     _('Install formulae editor'),
-                     _('Install templates')
-                        )
-            for file, msg in zip(
-               [urls.eioffice_clipart,
-                urls.eioffice_help,
-                urls.eioffice_scienceeditor,
-                urls.eioffice_templates,
-                ], msgs):
-                    download(file, '/tmp/eio.tar.gz') 
-                    run("tar zxf /tmp/eio.tar.gz")
-                    notify( _('Installing EIOffice'), msg )
-                    run_as_root("./setup")
-    def installed(self):
-        import os
-        return os.path.exists('/usr/bin/eio')
-    def remove(self):
-        import os
-        if os.path.exists('/usr/bin/rmeio'):
-            run_as_root('/usr/bin/rmeio')
-
 class ESETNOD32(I):
-    __doc__ = _('ESET NOD32')
+    'ESET NOD32'
     detail = _('Anti virus and anti spyware')
     download_url = 'http://beta.eset.com/linux'
     category = 'antivirus'
@@ -348,13 +303,65 @@ class Repo_Oracle(_repo):
         _repo.__init__(self)
 
 class AdobeAIR(I):
-    __doc__ = ('Adobe AIR: use HTML, JavaScript and Flash to build desktop applications')
+    'Adobe AIR'
+    detail = _('Use HTML, JavaScript and Flash to build desktop applications')
     download_url = 'http://get.adobe.com/air/'
     category = 'ide'
     def install(self):
-        f = R('http://airdownload.adobe.com/air/lin/download/latest/adobeair.deb').download()
+        f = R(urls.adobeair).download()
         APT.install_local(f)
     def installed(self):
         return APT.installed('adobeair')
     def remove(self):
         APT.remove('adobeair')
+
+class Picasa(I):
+    'Picasa'
+    detail = _('An image organizer and image viewer, plus photo-sharing function')
+    if is32():
+        download_url = urls.picasa_32
+    else:
+        download_url = urls.picasa_64
+    category = 'image'
+    def install(self):
+        f = R(self.download_url).download()
+        APT.install_local(f)
+    def installed(self):
+        return APT.installed('picasa')
+    def remove(self):
+        APT.remove('picasa')
+
+class Mendeley(_apt_install):
+    'Mendeley'
+    detail = _('Organizes research paper collection and citations. It automatically generates bibliographies.')
+    pkgs = 'mendeleydesktop'
+    category = 'latex'
+    deb = None
+    i = ord(VERSION[0]) - ord('h') # 8.04=0, 8.10=1
+    a = 8 + i / 2
+    if i%2 == 0: b = '04'
+    else: b = '10'
+    deb = 'deb http://www.mendeley.com/repositories/xUbuntu_%s.%s /' % (a, b)
+
+class TrueCrypt(I):
+    __doc__ = _('TrueCrypt: Open-Source disk encryption software')
+    detail = _('Create a virtual encrypted disk or encrypt an entire partition')
+    category = 'security'
+    def installed(self):
+        return os.path.exists('/usr/bin/truecrypt')
+    def remove(self):
+        run_as_root('/usr/bin/truecrypt-uninstall.sh')
+    def install(self):
+        if is32():
+            url = urls.truecrypt32
+            pattern = 'truecrypt-*-setup-x86'
+        else:
+            url = urls.truecrypt64
+            pattern = 'truecrypt-*-setup-x64'
+        f = R(url).download()
+        with Chdir('/tmp'):
+            run('tar xf "%s"' % f)
+            import glob
+            path = glob.glob(pattern)[0]
+            path = os.path.abspath(path)
+            run_as_root(path)

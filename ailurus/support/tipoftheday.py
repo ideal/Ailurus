@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -92,8 +92,11 @@ class TipOfTheDay(gtk.Window):
         previous_tip = stock_image_only_button(gtk.STOCK_GO_BACK)
         previous_tip.connect ( 'clicked', self.__previous_tip, content )
         
+        def show_submit_dialog(*w):
+            from gae import ProposeLinuxSkillWindow
+            ProposeLinuxSkillWindow()
         submit_skills = image_stock_button(gtk.STOCK_GO_UP, _('Submit Linux Skills'))
-        submit_skills.connect('clicked', report_bug)
+        submit_skills.connect('clicked', show_submit_dialog)
         
         show_all_tips = image_stock_button(gtk.STOCK_INDEX, _('Show all tips'))
         show_all_tips.connect('clicked', self.__show_all_tips)

@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -43,7 +43,7 @@ class ChangeTerminalColor(_set_gconf):
 class NScripts(I):
     __doc__ = _('NScripts: a set of useful Nautilus scripts')
     detail = _('NScripts help you change the background, create/check MD5 checksums, create a diff, create shortcuts via Nautilus.\n'
-               'NScripts is installed in ~/.gnome2/nautilus-scripts.')
+               'NScripts is installed in $HOME/.gnome2/nautilus-scripts.')
     download_url = 'http://freshmeat.net/projects/nscripts'
     license = GPL
     category = 'nautilus_extension'
@@ -68,8 +68,8 @@ class NScripts(I):
 
     def remove(self):
         for dir in ['Admin', 'Files', 'Root', 'Utils']:
-            os.system('rm -rf ~/.gnome2/nautilus-scripts/' + dir)
-        os.system('rm ~/.gnome2/nautilus-scripts/.nscripts_is_installed')
+            run('rm -rf $HOME/.gnome2/nautilus-scripts/' + dir)
+        run('rm $HOME/.gnome2/nautilus-scripts/.nscripts_is_installed')
 
 class Gedit_GB2312(_set_gconf) :
     __doc__ = _('Add GB2312 detection ability to GEdit')

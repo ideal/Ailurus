@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -24,19 +24,9 @@ import sys, os
 from lib import *
 
 def get():
-    return [
+    List1 = [
 _('''motto of Ailurus
 Give a man a fish and he can eat for a day; but if you teach him how to fish, he'll eat for a lifetime.'''),
-
-_('''Clear Bash history
-history -c'''),
-
-_('''If you want to use colorful "ls", that is, use colors to distinguish types of files, you can add these lines in ~/.bashrc:
-
-if [ "$TERM" != "dumb" ]; then
-    eval "`dircolors -b`"
-    alias ls='ls --color=auto'
-fi'''),
 
 _('''Display Linux distributor's ID
 lsb_release -is
@@ -324,10 +314,10 @@ sudo reboot
 sudo shutdown -r now
 """),
 
-_("""If you want some program to start up automatically, please put '.desktop' files into '~/.config/autostart'
+_("""If you want some program to start up automatically, please put '.desktop' files into '$HOME/.config/autostart'
 """),
 
-_("""You can configure "preferred applications" by this file "~/.local/share/applications/mimeapps.list"
+_("""You can configure "preferred applications" by this file "$HOME/.local/share/applications/mimeapps.list"
 """),
 
 _("""Continuously monitor the memory usage
@@ -370,3 +360,22 @@ NEW_PRIORITY = -19, -18, -17 [...] 18, 19, 20
 '''),
 
 ]
+    
+    if useBASH():
+        List1 += [
+    _('''Clear Bash history
+history -c'''),
+
+    _('''If you want to use colorful "ls", that is, use colors to distinguish types of files, you can add these lines in $HOME/.bashrc:
+
+if [ "$TERM" != "dumb" ]; then
+    eval "`dircolors -b`"
+    alias ls='ls --color=auto'
+fi'''),
+    ]
+
+    if Config.is_Chinese_locale():
+        List1.append(_(r'''View the IP address outside the local network
+w3m -no-cookie -dump www.123cha.com | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'
+'''))
+    return List1

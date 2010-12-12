@@ -1,6 +1,6 @@
-#-*- coding: utf-8 -*-
+#coding: utf-8
 #
-# Ailurus - make Linux easier to use
+# Ailurus - a simple application installer and GNOME tweaker
 #
 # Copyright (C) 2009-2010, Ailurus developers and Ailurus contributors
 # Copyright (C) 2007-2010, Trusted Digital Technology Laboratory, Shanghai Jiao Tong University, China.
@@ -93,8 +93,7 @@ class ComputerDoctorPane(gtk.VBox):
                 except: print_traceback()
         self.refresh()
         if success:
-            show_text_window(_('Computer doctor'), _('Successfully applied %s suggestions.') % success,
-                             show_textbox_border = False, show_a_big_window = False)
+            notify(_('Computer doctor'), _('Successfully applied %s suggestions.') % success)
     def show_text(self, text):
         self.column_text.set_title(text)
     def __init__(self, main_view, cure_objs):
